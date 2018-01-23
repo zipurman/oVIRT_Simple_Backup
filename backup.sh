@@ -24,7 +24,6 @@
 #
 # *** NOTE: You cannot take snapshots of disks that are marked as shareable or that are based on direct LUN disks. 
 # TODO: check to see if VM busy before attempting to snapshot it and wait
-# TODO: add support for sdz, sdaa, sdab, sdaz, sdaaa, sdaaz
 # TODO: restore manager using dialog
 # TODO: Write to log and email log before shutdown, also email at start of script
 #####################################
@@ -59,7 +58,10 @@ obuapicall() {
 ##FUNCTIONS END##############################################
 
 #this is to start at disk b, where a is the OS of the backup appliance
-disknumber=98 #98(ASCII)=b
+disknumber=97 #98(ASCII)=b
+disknumberx=1
+extradiskdev=""
+oktodelete=1
 
 obutext="\n\nStarting Backup Process ...\n\n"
 obudialog "${obutitle}" "${obutext}"
@@ -82,6 +84,8 @@ numofbackups=`echo $vmlisttobackup | sed 's/\[/\n&\n/g' | grep -cx '\['`
 
 obutext="${obutext}You are targeting a total of $numofbackups VMs for backup\n\n"
 obudialog "${obutitle}" "${obutext}"
+
+diskletter=$(chr $(($disknumberx + $disknumber)))
 
 #stop if first device already exists
 if [ -f "/sys/block/${second_disk_device}${diskletter}" ]
@@ -201,18 +205,19 @@ do
                             obuapicall "GET" "vms/${vmuuid}/snapshots/${ssuuid}/disks"
                             diskxmldata="${obuapicallresult}"
                             diskuuidlist=`echo $diskxmldata | xmlstarlet sel -T -t -m /disks/disk -s D:N:- "@id" -v "concat(@id,'|',snapshot/@id,'|',image_id,';')"`
+
                             for s in ${diskuuidlist//\;/ }
                             do
+
                                 diskarray=(${s//|/ })
                                 diskid="${diskarray[0]}"
                                 diskuuid="${diskarray[1]}"
                                 diskimageid="${diskarray[2]}"
-                                diskletter=$(chr $disknumber)
 
                                 #remove device from VM to make room
-                                if [ -f "/sys/block/${second_disk_device}${diskletter}/device/delete" ]
+                                if [ -f "/sys/block/${second_disk_device}${extradiskdev}${diskletter}/device/delete" ]
                                 then
-                                    echo 1 > /sys/block/${second_disk_device}${diskletter}/device/delete
+                                    echo 1 > /sys/block/${second_disk_device}${extradiskdev}${diskletter}/device/delete
                                 fi
 
                                 #allow ovirt time to finish before attach
@@ -223,60 +228,71 @@ do
                                 obudialog "${obutitle}" "${obutext}"
 
                                 ### ATTACH DISK TO BACKUP VM
-                                obuapicall "POST" "vms/${thibackupvmuuid}/diskattachments/" "<disk_attachment> \
+                                obuapicall "POST" "vms/${thisbackupvmuuid}/diskattachments/" "<disk_attachment> \
                                 <disk id=\"${diskid}\"> \
                                 <snapshot id=\"${diskuuid}\"/> \
                                 </disk> \
                                 <active>true</active> \
                                 <bootable>false</bootable> \
                                 <interface>${diskinterface}</interface> \
-                                <logical_name>/dev/${second_disk_device}${diskletter}</logical_name> \
+                                <logical_name>/dev/${second_disk_device}${extradiskdev}${diskletter}</logical_name> \
                                 </disk_attachment>"
                                 attachdisk="${obuapicallresult}"
 
+
+
+                                obutext="${obutext}Waiting for disk...\n\n"
+                                obudialog "${obutitle}" "${obutext}"
+
+                                sleep 4
+
+                                sizeofpart=`awk '/'${second_disk_device}${extradiskdev}${diskletter}'$/{printf "%s %8.2f GiB\n", $NF, $(NF-1) / 1024 / 1024}' /proc/partitions`
+                                sizeofpart=${sizeofpart//${second_disk_device}${extradiskdev}${diskletter}/}
+
+                                clear
+
+                                (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --gauge "Imaging VM: ${vmname}\n\nImage Size: ${sizeofpart} \n\nDisk From /dev/${second_disk_device}${extradiskdev}${diskletter}, please wait..." 10 70 0
+
+
+
+                                clear
+
+                                if [ $oktodelete -eq 1 ]
+                                then
+
+                                    obutext="${obutext}Cleaning up ....\n\n"
+                                    obudialog "${obutitle}" "${obutext}"
+
+                                    ### DETACH DISK FROM BACKUP VM
+                                    obuapicall "DELETE" "vms/${thisbackupvmuuid}/diskattachments/${diskid}"
+                                    detatchdisk="${obuapicallresult}"
+                                    obutext="${obutext}Detaching Disk ....\n\n"
+                                    obudialog "${obutitle}" "${obutext}"
+
+                                    #allow detatch disk to complete before deleting snapshot
+                                    sleep 10
+
+                                    obuapicall "DELETE" "vms/${vmuuid}/snapshots/${ssuuid}"
+                                    deletesnapshot="${obuapicallresult}"
+                                    obutext="${obutext}Deleting Snapshot ${ssname} (${ssuuid})\n\n"
+                                    obudialog "${obutitle}" "${obutext}"
+
+                                fi
+
+                                sleep 3
+
+                                #next disk id
+                                if [ "${diskletter}" = "z" ]
+                                then
+                                    disknumberx=-1
+                                    extradiskdev="${extradiskdev}a"
+                                fi
+
+                                disknumberx="$(($disknumberx + 1))"
+                                diskletter=$(chr $(($disknumberx + $disknumber)))
+
                             done
 
-                            obutext="${obutext}Waiting for disk...\n\n"
-                            obudialog "${obutitle}" "${obutext}"
-
-                            sleep 4
-
-                            sizeofpart=`awk '/'${second_disk_device}${diskletter}'$/{printf "%s %8.2f GiB\n", $NF, $(NF-1) / 1024 / 1024}' /proc/partitions`
-                            sizeofpart=${sizeofpart//${second_disk_device}${diskletter}/}
-
-                            clear
-
-                            (pv -n /dev/${second_disk_device}${diskletter} | dd of="${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --gauge "Imaging VM: ${vmname}\n\nImage Size: ${sizeofpart} \n\nDisk From /dev/${second_disk_device}${diskletter}, please wait..." 10 70 0
-
-                            clear
-
-                            oktodelete=1
-
-                            if [ $oktodelete -eq 1 ]
-                            then
-
-                                obutext="${obutext}Cleaning up ....\n\n"
-                                obudialog "${obutitle}" "${obutext}"
-
-                                ### DETACH DISK FROM BACKUP VM
-                                obuapicall "DELETE" "vms/${thibackupvmuuid}/diskattachments/${diskid}"
-                                detatchdisk="${obuapicallresult}"
-                                obutext="${obutext}Detaching Disk ....\n\n"
-                                obudialog "${obutitle}" "${obutext}"
-
-                                #allow detatch disk to complete before deleting snapshot
-                                sleep 10
-
-                                obuapicall "DELETE" "vms/${vmuuid}/snapshots/${ssuuid}"
-                                deletesnapshot="${obuapicallresult}"
-                                obutext="${obutext}Deleting Snapshot ${ssname} (${ssuuid})\n\n"
-                                obudialog "${obutitle}" "${obutext}"
-
-                            fi
-
-                            #next disk id
-                            disknumber="$(($disknumber+1))"
-                            sleep 3
                         fi
                     done
 
@@ -307,6 +323,6 @@ done
 
 #reboot must come from API call or drives are not released
 
-obuapicall "POST" "vms/${thibackupvmuuid}/shutdown/" "<action/>"
+obuapicall "POST" "vms/${thisbackupvmuuid}/shutdown/" "<action/>"
 
 exit 0
