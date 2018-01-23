@@ -3,7 +3,7 @@
 #####################################
 #
 # oVIRT_Simple_Backup
-# Version: 0.1.1
+# Version: 0.1.2
 # Date: 01/21/2018
 #
 # Simple Script to backup VMs running on oVirt to Export Storage
@@ -24,7 +24,8 @@
 #
 # *** NOTE: You cannot take snapshots of disks that are marked as shareable or that are based on direct LUN disks.
 #
-# TODO: check to see if VM busy before attempting to snapshot it and wait
+# TODO: check to see if VM busy/locked before attempting to snapshot it and wait until it is available
+# TODO: Check that all config vars have been defined and alert if not
 # TODO: restore manager using dialog
 # TODO: config backups using dialog
 # TODO: allow headless backup for cron
@@ -36,8 +37,8 @@
 #backup.cfg is required for this script and will hold all of your custom settings
 source backup.cfg
 
-obuversion="0.1.1"
-obutitle="oVirt - Simple Backup - Version ${obuversion}"
+obuversion="0.1.2"
+obutitle="\Zb\Z3oVirt\ZB\Zn - \Zb\Z1Simple Backup\ZB\Zn - \Zb\Z0Version ${obuversion}\ZB\Zn"
 obutext=""
 url="${url}/ovirt-engine/api"
 
@@ -51,7 +52,7 @@ ord() {
   LC_CTYPE=C printf '%d' "'$1"
 }
 obudialog() {
-    dialog --title "${1}" --infobox "${2}" 20 80
+    dialog --colors --backtitle "${1}" --title " ${3} " --infobox "${2}"  20 80
 }
 obuapicall() {
     defargs=('-X' "$1" '-s' '-k' '-u'  "${user}:${password}" '-H' 'Accept: application/xml'  '-H' 'Content-Type: application/xml')
@@ -69,7 +70,7 @@ extradiskdev=""
 oktodelete=1
 
 obutext="\n\nStarting Backup Process ...\n\n"
-obudialog "${obutitle}" "${obutext}"
+obudialog "${obutitle}" "${obutext}" ""
 
 ### CURL - GET - VM LIST
 obuapicall "GET" "vms"
@@ -79,7 +80,7 @@ vmslist="${obuapicallresult}"
 countedvms=`echo $vmslist | xmlstarlet sel -t -v "count(/vms/vm)"`
 
 obutext="${obutext}There are currently $countedvms VMs in your environment\n\n"
-obudialog "${obutitle}" "${obutext}"
+obudialog "${obutitle}" "${obutext}" ""
 
 #Get List of all VMs
 vmlist=`echo $vmslist | xmlstarlet sel -T -t -m /vms/vm -s D:N:- "@id" -v "concat(@id,'|',name,';')"`
@@ -88,7 +89,8 @@ vmlist=`echo $vmslist | xmlstarlet sel -T -t -m /vms/vm -s D:N:- "@id" -v "conca
 numofbackups=`echo $vmlisttobackup | sed 's/\[/\n&\n/g' | grep -cx '\['`
 
 obutext="${obutext}You are targeting a total of $numofbackups VMs for backup\n\n"
-obudialog "${obutitle}" "${obutext}"
+obudialog "${obutitle}" "${obutext}" ""
+
 
 diskletter=$(chr $(($disknumberx + $disknumber)))
 
@@ -98,9 +100,13 @@ then
     obutext="Disk devices already exist.\n\n"
     obutext="${obutext}Shutdown the Backup Appliance VM and then Start it again.\n\n"
     obutext="${obutext}Once re-started, try backup script again.\n\n"
-    obudialog "${obutitle}" "${obutext}"
+    obudialog "${obutitle}" "${obutext}" ""
     exit 0
 fi
+
+sleep 5
+
+obutitle="${obutitle} - Backing up \Zb\Z1${numofbackups}\ZB\Zn VM(s) of total \Zb\Z1${countedvms}\ZB\Zn VM(s)"
 
 #loop VM list
 for i in ${vmlist//\;/ }
@@ -111,20 +117,21 @@ do
 
     if [ $vmname = "HostedEngine" ]
     then
-
-        obutext="${obutext}VM: HostedEnginge (SKIPPING)\n\n"
-        obudialog "${obutitle}" "${obutext}"
+        obutext="VM: ($vmuuid)\n"
+        obutext="${obutext}VM Name: \Zb\Z4HostedEngine VM\ZB\Zn - Cannot Backup\n\n(SKIPPING)\n\n"
+        obudialog "${obutitle}" "${obutext}" "HostedEnginge"
+        sleep 2
 
     else
 
-        obutext="${obutext}VM: $vmname ($vmuuid)\n\n"
-        obudialog "${obutitle}" "${obutext}"
+        obutext="VM: ($vmuuid)\n"
+        obudialog "${obutitle}" "${obutext}" "${vmname}"
 
         if [[ $vmlisttobackup == *"[$vmname]"* ]]; then
 
             DATEIS=`date "+%Y%m%d_%H%M%S"`
-            obutext="${obutext}Backing Up ${vmbackupname}${DATEIS}\n\n"
-            obudialog "${obutitle}" "${obutext}"
+            obutext="${obutext}Backing Up \Zb\Z4${vmbackupname}${DATEIS}\ZB\Zn\n"
+            obudialog "${obutitle}" "${obutext}" "${vmname}"
 
             ### CREATE SNAPSHOT
             obuapicall "POST" "vms/${vmuuid}/snapshots" "<snapshot><description>${vmbackupname}${DATEIS}</description></snapshot>"
@@ -163,14 +170,14 @@ do
                 if [ $snapshotcomplete -eq 0 ]; then
 
                     obutext="${obutext}#"
-                    obudialog "${obutitle}" "${obutext}"
+                    obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                     sleep 2
                 else
                     snapshotdone="1"
 
-                    obutext="${obutext}\nDONE SNAPSHOT\n\nLoading Data\n\n"
-                    obudialog "${obutitle}" "${obutext}"
+                    obutext="${obutext}\nDONE SNAPSHOT\nLoading Data\n"
+                    obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                     ### LIST SNAPSHOTS FROM VM
                     obuapicall "GET" "vms/${vmuuid}/snapshots"
@@ -187,9 +194,9 @@ do
                         if [[ $ssname == "${vmbackupname}${DATEIS}" ]]
                         then
 
-                            obutext="${obutext}SNAPSHOT NAME: $ssname\n\n"
-                            obutext="${obutext}SNAPSHOT UUID: $ssuuid\n\n"
-                            obudialog "${obutitle}" "${obutext}"
+                            obutext="${obutext}SNAPSHOT NAME: $ssname\n"
+                            obutext="${obutext}SNAPSHOT UUID: $ssuuid\n"
+                            obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                             #Make backup directory
                             mkdir -p "${backup_nfs_mount_path}/${vmname}"
@@ -201,8 +208,8 @@ do
                             snapshotdatagrab="${obuapicallresult}"
                             snapshotdatagrabfile=`echo $snapshotdatagrab | xmlstarlet sel -T -t -m /snapshot/initialization/configuration -s D:N:- "@id" -v "data"`
 
-                            obutext="${obutext}SAVING XML DATA FILE\n\n"
-                            obudialog "${obutitle}" "${obutext}"
+                            obutext="${obutext}SAVING XML DATA FILE\n"
+                            obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                             echo  "${snapshotdatagrabfile}" > "${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/data.xml"
 
@@ -228,9 +235,8 @@ do
                                 #allow ovirt time to finish before attach
                                 sleep 8
                                 #rescan-scsi-bus
-                                obutext="${obutext}Disk UUID: $diskid\n\n"
-                                obutext="${obutext}Attaching Disk: ${diskid} Snapshot-UUID: ${diskuuid} to OS\n\n"
-                                obudialog "${obutitle}" "${obutext}"
+                                obutext="${obutext}Attaching Disk: ${diskid}\n"
+                                obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                                 ### ATTACH DISK TO BACKUP VM
                                 obuapicall "POST" "vms/${thisbackupvmuuid}/diskattachments/" "<disk_attachment> \
@@ -246,33 +252,30 @@ do
 
 
 
-                                obutext="${obutext}Waiting for disk...\n\n"
-                                obudialog "${obutitle}" "${obutext}"
+                                obutext="${obutext}Waiting for disk...\n"
+                                obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                                 sleep 4
 
                                 sizeofpart=`awk '/'${second_disk_device}${extradiskdev}${diskletter}'$/{printf "%s %8.2f GiB\n", $NF, $(NF-1) / 1024 / 1024}' /proc/partitions`
                                 sizeofpart=${sizeofpart//${second_disk_device}${extradiskdev}${diskletter}/}
 
-                                clear
 
-                                (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --gauge "Imaging VM: ${vmname}\n\nImage Size: ${sizeofpart} \n\nDisk From /dev/${second_disk_device}${extradiskdev}${diskletter}, please wait..." 10 70 0
-
+                                (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext}Size: ${sizeofpart}  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 20 80 0
 
 
-                                clear
 
                                 if [ $oktodelete -eq 1 ]
                                 then
 
-                                    obutext="${obutext}Cleaning up ....\n\n"
-                                    obudialog "${obutitle}" "${obutext}"
+                                    obutext="${obutext}\nCleaning up \Zb\Z4${vmname}\ZB\Zn Snapshot and Disk ....\n"
+                                    obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                                     ### DETACH DISK FROM BACKUP VM
                                     obuapicall "DELETE" "vms/${thisbackupvmuuid}/diskattachments/${diskid}"
                                     detatchdisk="${obuapicallresult}"
-                                    obutext="${obutext}Detaching Disk ....\n\n"
-                                    obudialog "${obutitle}" "${obutext}"
+                                    obutext="${obutext}Detaching Disk ....\n"
+                                    obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                                     #allow detatch disk to complete before deleting snapshot
                                     sleep 10
@@ -280,7 +283,7 @@ do
                                     obuapicall "DELETE" "vms/${vmuuid}/snapshots/${ssuuid}"
                                     deletesnapshot="${obuapicallresult}"
                                     obutext="${obutext}Deleting Snapshot ${ssname} (${ssuuid})\n\n"
-                                    obudialog "${obutitle}" "${obutext}"
+                                    obudialog "${obutitle}" "${obutext}" "${vmname}"
 
                                 fi
 
@@ -305,13 +308,12 @@ do
             done
 
         else
-            obutext="${obutext}Skipping - (Not in list)\n\n"
-            obudialog "${obutitle}" "${obutext}"
+            obutext="VM: ($vmuuid)\n"
+            obutext="${obutext}VM Name: \Zb\Z4${vmname}\ZB\Zn - Skipping - (Not in list)\n\n"
+            obudialog "${obutitle}" "${obutext}" "${vmname}"
+            sleep 2
         fi
     fi
-
-    obutext="${obutext}--- ALL DONE ---\n\n"
-    obudialog "${obutitle}" "${obutext}"
 
 done
 
