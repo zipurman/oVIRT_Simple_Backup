@@ -22,10 +22,15 @@
 # environment with your setup to make sure
 # it works as expected. 
 #
-# *** NOTE: You cannot take snapshots of disks that are marked as shareable or that are based on direct LUN disks. 
+# *** NOTE: You cannot take snapshots of disks that are marked as shareable or that are based on direct LUN disks.
+#
 # TODO: check to see if VM busy before attempting to snapshot it and wait
 # TODO: restore manager using dialog
+# TODO: config backups using dialog
+# TODO: allow headless backup for cron
+# TODO: retention period for existing - cleanup
 # TODO: Write to log and email log before shutdown, also email at start of script
+#
 #####################################
 
 #backup.cfg is required for this script and will hold all of your custom settings
@@ -310,12 +315,12 @@ do
 
 done
 
-obutext="*** Rebooting Backup Appliance in 10 seconds *** (ctrl-c to cancel)\n\n"
+obutext="*** Rebooting Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
 obudialog "${obutitle}" "${obutext}"
 
 for number in {10..1}
 do
-    obutext="*** Rebooting Backup Appliance in 10 seconds *** (ctrl-c to cancel)\n\n"
+    obutext="*** Rebooting Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
     obutext="${obutext} $number "
     obudialog "${obutitle}" "${obutext}"
     sleep 1

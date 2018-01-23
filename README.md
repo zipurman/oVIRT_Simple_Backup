@@ -22,8 +22,8 @@ Backup_VM_Appliance<br>
  - dialog
 
 oVirt Engine (if using cron to restart Backup_VM_Appliance)
- - ecpect
- - If using cron, place scripts in /root/ or adjust scripts as required
+ - expect
+ - If using cron, place scripts in /root/ and adjust scripts as required with user/pass server info
 
 #### Install
 
