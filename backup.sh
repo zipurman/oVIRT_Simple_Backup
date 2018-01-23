@@ -3,7 +3,7 @@
 #####################################
 #
 # oVIRT_Simple_Backup
-# Version: 0.1.0
+# Version: 0.1.1
 # Date: 01/21/2018
 #
 # Simple Script to backup VMs running on oVirt to Export Storage
@@ -32,7 +32,7 @@
 #backup.cfg is required for this script and will hold all of your custom settings
 source backup.cfg
 
-obuversion="0.1.0"
+obuversion="0.1.1"
 obutitle="oVirt - Simple Backup - Version ${obuversion}"
 obutext=""
 url="${url}/ovirt-engine/api"
@@ -299,8 +299,8 @@ obudialog "${obutitle}" "${obutext}"
 
 for number in {10..1}
 do
-    obutext="${obutext} $number "
     obutext="*** Rebooting Backup Appliance in 10 seconds *** (ctrl-c to cancel)\n\n"
+    obutext="${obutext} $number "
     obudialog "${obutitle}" "${obutext}"
     sleep 1
 done
