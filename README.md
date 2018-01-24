@@ -1,6 +1,6 @@
 # oVIRT_Simple_Backup
 
-### A REST API backup from BASH for oVirt 4.2.1
+### A REST API backup from BASH for oVirt 4.2.x
 
 I have been working on a backup shell script for oVirt 4.2/4.2.1 using the new API changes. I am close to having the script working as I need it. I am sharing it here early just in case with the migration of Xen users to oVirt that someone is trying to do the same.
 
