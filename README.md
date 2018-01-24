@@ -1,12 +1,12 @@
 # oVIRT_Simple_Backup
 
-### A REST API backup from BASH for oVirt 4.2
+### A REST API backup from BASH for oVirt 4.2.1
 
-I have been working on a backup shell script for oVirt 4.2 using the new API changes. I am close to having the script working as I need it. I am sharing it here early just in case with the migration of Xen users to oVirt that someone is trying to do the same.
+I have been working on a backup shell script for oVirt 4.2/4.2.1 using the new API changes. I am close to having the script working as I need it. I am sharing it here early just in case with the migration of Xen users to oVirt that someone is trying to do the same.
 
 THIS SCRIPT IS CURRENTLY ALPHA and should only be used by those who understand the risks. It is NOT ready for production … YET.
 
-Also, I had to do some >>CRAZY<< things to make this thing work. I hope in the future some of the issues are resolved so I can adjust to more sane solutions ;/
+Also, I had to do some >>CRAZY<< things to make this thing work with 4.2, and then 4.2.1 seems to have corrected some issues that make it less crazy. If running 4.2.1 make sure you set your config to use incrementdiskdevices="0"
 
 #### Requirements
 
@@ -21,7 +21,7 @@ Backup_VM_Appliance<br>
  - pv
  - dialog
 
-oVirt Engine (if using cron to restart Backup_VM_Appliance)
+oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4.2 NOT 4.2.1)
  - expect
  - If using cron, place scripts in /root/ and adjust scripts as required with user/pass server info
 
@@ -47,7 +47,7 @@ oVirt Engine (if using cron to restart Backup_VM_Appliance)
     mount /mnt/backups
     ```
     
-**On the oVirt Engine**  (if using cron to keep the Backup_VM_Appliance alive)
+**On the oVirt Engine**  (if using cron to keep the Backup_VM_Appliance alive)  (ONLY REQUIRED FOR 4.2 NOT 4.2.1)
  - As root
     ```bash
     crontab -e

@@ -3,8 +3,8 @@
 #####################################
 #
 # oVIRT_Simple_Backup
-# Version: 0.1.2
-# Date: 01/21/2018
+# Version: 0.2.0
+# Date: 01/24/2018
 #
 # Simple Script to backup VMs running on oVirt to Export Storage
 #
@@ -37,7 +37,7 @@
 #backup.cfg is required for this script and will hold all of your custom settings
 source backup.cfg
 
-obuversion="0.1.2"
+obuversion="0.2.0"
 obutitle="\Zb\Z3oVirt\ZB\Zn - \Zb\Z1Simple Backup\ZB\Zn - \Zb\Z0Version ${obuversion}\ZB\Zn"
 obutext=""
 url="${url}/ovirt-engine/api"
@@ -117,13 +117,15 @@ do
 
     if [ $vmname = "HostedEngine" ]
     then
+
+        sleep 1
         obutext="VM: ($vmuuid)\n"
         obutext="${obutext}VM Name: \Zb\Z4HostedEngine VM\ZB\Zn - Cannot Backup\n\n(SKIPPING)\n\n"
         obudialog "${obutitle}" "${obutext}" "HostedEnginge"
         sleep 2
-
     else
 
+        sleep 1
         obutext="VM: ($vmuuid)\n"
         obudialog "${obutitle}" "${obutext}" "${vmname}"
 
@@ -141,6 +143,7 @@ do
             sleep 3
 
             snapshotdone="0"
+            snapshotpercent="0"
             while [ $snapshotdone -eq 0 ]
             do
                 ### CHECK SNAPSHOT STATUS AND WAIT FOR COMPLETION
@@ -169,10 +172,16 @@ do
                 #IF SNAPSHOT NOT READY ITERATE
                 if [ $snapshotcomplete -eq 0 ]; then
 
-                    obutext="${obutext}#"
-                    obudialog "${obutitle}" "${obutext}" "${vmname}"
+                    echo $snapshotpercent | dialog --colors --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext} Creating Stapshot " 20 80 0
 
-                    sleep 2
+                    snapshotpercent=$((snapshotpercent + 1))
+
+                    if [ $snapshotpercent -gt 100 ]
+                    then
+                        snapshotpercent=0
+                    fi
+
+                    sleep .1
                 else
                     snapshotdone="1"
 
@@ -226,12 +235,6 @@ do
                                 diskuuid="${diskarray[1]}"
                                 diskimageid="${diskarray[2]}"
 
-                                #remove device from VM to make room
-                                if [ -f "/sys/block/${second_disk_device}${extradiskdev}${diskletter}/device/delete" ]
-                                then
-                                    echo 1 > /sys/block/${second_disk_device}${extradiskdev}${diskletter}/device/delete
-                                fi
-
                                 #allow ovirt time to finish before attach
                                 sleep 8
                                 #rescan-scsi-bus
@@ -251,6 +254,8 @@ do
                                 attachdisk="${obuapicallresult}"
 
 
+#<{}template>,<{}uses_scsi_reservation>,<{}logical_name>,<{}link>,<{}active>,<{}description>,<{}interface>,<{}bootable>,<{}disk>,<{}read_only>,<{}vm>,<{}name>,<{}creation_status>,<{}pass_discard>,<{}comment>,<{}actions>
+
 
                                 obutext="${obutext}Waiting for disk...\n"
                                 obudialog "${obutitle}" "${obutext}" "${vmname}"
@@ -261,7 +266,7 @@ do
                                 sizeofpart=${sizeofpart//${second_disk_device}${extradiskdev}${diskletter}/}
 
 
-                                (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext}Size: ${sizeofpart}  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 20 80 0
+                                (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${vmname}/${vmuuid}/${ssname}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext}Size: ${sizeofpart}  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 20 80 0
 
 
 
@@ -289,15 +294,18 @@ do
 
                                 sleep 3
 
-                                #next disk id
-                                if [ "${diskletter}" = "z" ]
-                                then
-                                    disknumberx=-1
-                                    extradiskdev="${extradiskdev}a"
-                                fi
 
-                                disknumberx="$(($disknumberx + 1))"
-                                diskletter=$(chr $(($disknumberx + $disknumber)))
+                                if [ $incrementdiskdevices -eq 1 ]
+                                then
+                                    #next disk id
+                                    if [ "${diskletter}" = "z" ]
+                                    then
+                                        disknumberx=-1
+                                        extradiskdev="${extradiskdev}a"
+                                    fi
+                                    disknumberx="$(($disknumberx + 1))"
+                                    diskletter=$(chr $(($disknumberx + $disknumber)))
+                                fi
 
                             done
 
@@ -317,19 +325,29 @@ do
 
 done
 
-obutext="*** Rebooting Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
-obudialog "${obutitle}" "${obutext}"
 
-for number in {10..1}
-do
-    obutext="*** Rebooting Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
-    obutext="${obutext} $number "
+if [ $incrementdiskdevices -eq 1 ]
+then
+
+    #only required if in 4.2 and disks not releasing devices
+
+    obutext="*** Shutting Down Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
     obudialog "${obutitle}" "${obutext}"
-    sleep 1
-done
 
-#reboot must come from API call or drives are not released
-
-obuapicall "POST" "vms/${thisbackupvmuuid}/shutdown/" "<action/>"
+    for number in {9..0}
+    do
+        obutext="*** Shutting Down Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
+        percentage=$((number * 10))
+         echo $percentage | dialog --colors --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext}" 20 80 0
+        sleep 1
+    done
+    clear
+    echo "Shutting Down"
+    #reboot must come from API call or drives are not released
+    obuapicall "POST" "vms/${thisbackupvmuuid}/shutdown/" "<action/>"
+else
+    clear
+    echo "Backups Completed"
+fi
 
 exit 0
