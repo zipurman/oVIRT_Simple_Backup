@@ -25,7 +25,6 @@
     if [ "${menuposition}" = "base" ]
     then
         menuposition="frombase"
-        clear
         dialog --cr-wrap --colors --backtitle "${obutitle}" --title "${obutitle}" --cancel-label "Exit" \
         --menu "   " 25 50 50 \
         "0" "Select VMs to Backup (${numofbackups})" \
@@ -33,7 +32,7 @@
         "1" "Shutdown a VM" \
         "2" "Start a VM" \
         "-" "----------------------------" \
-        "3" "Backup a Single VM (Coming Soon)" \
+        "3" "Backup a Single VM" \
         "4" "Restore a Single VM (Coming Soon)" \
         "-" "----------------------------" \
         "5" "Run Backup of (${numofbackups}) Selected VMs " \
@@ -54,11 +53,11 @@
         source src/menu/vmselected.sh
         source src/menu/vmstoplist.sh
         source src/menu/vmstartlist.sh
+        source src/menu/vmbackupsingle.sh
         source src/menu/settings.sh
 
         if [ "${_return}" = "5" ] && [ "${menuposition}" = "frombase" ];
         then
-            clear
             dialog --cr-wrap --colors --backtitle "${obutitle}" --title "${obutitle}" --yesno "\nAre you sure you want to backup these ${numofbackups} VMs now?" 7 60
             response=$?
             case $response in

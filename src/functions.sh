@@ -25,12 +25,10 @@ ord() {
   LC_CTYPE=C printf '%d' "'$1"
 }
 obudialog() {
-    clear
-    dialog --colors --backtitle "${1}" --title " ${3} " --cr-wrap --infobox "${2}"  20 80
+    dialog --colors --backtitle "${1}" --title " ${3} " --cr-wrap --infobox "${2}"  22 80
 }
 obualert() {
-    clear
-    dialog --colors --backtitle "${obutitle}" --title " ALERT! " --cr-wrap --msgbox "${1}"  20 80
+    dialog --colors --backtitle "${obutitle}" --title " ALERT! " --cr-wrap --msgbox "${1}"  22 80
 }
 obuapicall() {
     defargs=('-X' "$1" '-s' '-k' '-u'  "${user}:${password}" '-H' 'Accept: application/xml'  '-H' 'Content-Type: application/xml')
@@ -51,7 +49,6 @@ obulog() {
 obusettings(){
     if [ -n "$3" ] && [ "$3" != "" ]; then backpage=$3; else backpage="settings"$(($2 - 2)); fi
     if [ -n "$4" ] && [ "$4" != "" ]; then backpagereturn=$4; else backpagereturn="0"$(($2 - 2)); fi
-    clear
     dialog --colors --backtitle "${obutitle}" --title "Settings" --ok-label "Next" --cancel-label "Main Menu" --extra-label "Previous" --extra-button --cr-wrap --inputbox "${1}"  25 60 $( obusettings_get $2)  2> $menutmpfile; nav_value=$?;_return=$(cat $menutmpfile);
     _return=${_return//\//\\/}
     if [ "${nav_value}" = "0" ]; then obusettings_write "${_return}" $2; fi; menuposition="settings${2}";
@@ -61,11 +58,23 @@ obusettings(){
 obubackup(){
     # $1 = vmname
     # $2 = vmuuid
+    # $3 = exitshell(0) or goto menu(1)
+
+    obutext="\nStarting Backup Process ...\n\n"
+    obudialog "${obutitle}" "${obutext}" ""
+    BUDATE=`date "+%Y-%m-%d %H:%M:%S"`
+    obulog "Backup Started At: ${BUDATE}\n" 1
+
     DATEIS=`date "+%Y%m%d_%H%M%S"`
     obutext="${obutext}Backing Up \Zb\Z4${vmbackupname}${DATEIS}\ZB\Zn\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
     obulog "${obutext}"
     obusnapshot $1 $2
+    if [ $3 -eq 1 ];
+    then
+        dialog --colors --backtitle "${obutitle}" --title " BACKUP COMPLETE " --cr-wrap --msgbox "\n\nThe backup ${vmbackupname}${DATEIS} completed."  10 80
+        ./$(basename $0) && exit;
+    fi
 }
 obusnapshot(){
     # $1 = vmname
@@ -101,14 +110,13 @@ obusnapshot(){
         done
         #IF SNAPSHOT NOT READY ITERATE
         if [ $snapshotcomplete -eq 0 ]; then
-            clear
-            echo $snapshotpercent | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext} Creating Stapshot " 20 80 0
+            echo $snapshotpercent | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext} Creating Stapshot " 22 80 0
             snapshotpercent=$((snapshotpercent + 1))
             if [ $snapshotpercent -gt 100 ]
             then
                 snapshotpercent=0
             fi
-            sleep .03
+            sleep .1
         else
             snapshotdone="1"
             obutext="${obutext}\nDONE SNAPSHOT\nLoading Data\n"
@@ -201,7 +209,7 @@ obuimagecreate(){
     # $3 = ssname
     sizeofpart=`awk '/'${second_disk_device}${extradiskdev}${diskletter}'$/{printf "%s %8.2f GiB\n", $NF, $(NF-1) / 1024 / 1024}' /proc/partitions`
     sizeofpart=${sizeofpart//${second_disk_device}${extradiskdev}${diskletter}/}
-    (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${1}/${2}/${3}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext}Size: ${sizeofpart}  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 20 80 0
+    (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${1}/${2}/${3}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext}Size: ${sizeofpart}  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 22 80 0
 }
 obudiskdetach(){
     # $1 = vmname
@@ -227,4 +235,35 @@ obusnapshotdelete(){
     obutext="${obutext}Deleting Snapshot ${4} (${3})\n\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
     obulog "${obutext}"
+}
+obucheckoktostart(){
+    #stop if first device already exists
+    if [ -f "/sys/block/${second_disk_device}${diskletter}" ]
+    then
+        obutext="Disk devices already exist.\n\n"
+        obutext="${obutext}Shutdown the Backup Appliance VM and then Start it again.\n\n"
+        obutext="${obutext}Once re-started, try backup script again.\n\n"
+        obudialog "${obutitle}" "${obutext}" ""
+        obulog "${obutext}"
+        exit 0
+    fi
+}
+obuloadsettings(){
+    vmlisttobackup=$( obusettings_get 2 )
+    vmbackupname=$( obusettings_get 3 )
+    thisbackupvmuuid=$( obusettings_get 4 )
+    url=$( obusettings_get 5 ); url="https://${url}/ovirt-engine/api";
+    user=$( obusettings_get 6 )
+    password=$( obusettings_get 7 )
+    backup_nfs_mount_path=$( obusettings_get 8 )
+    second_disk_device=$( obusettings_get 9 )
+    diskinterface=$( obusettings_get 10 )
+    incrementdiskdevices=$( obusettings_get 11 )
+    backuplog=$( obusettings_get 12 )
+    email=$( obusettings_get 13 )
+
+    disknumber=97 #98(ASCII)=b
+    disknumberx=1
+    extradiskdev=""
+    diskletter=$(chr $(($disknumberx + $disknumber)))
 }

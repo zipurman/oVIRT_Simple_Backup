@@ -58,19 +58,7 @@ fi
 
 source src/functions.sh
 
-#load settings
-vmlisttobackup=$( obusettings_get 2 )
-vmbackupname=$( obusettings_get 3 )
-thisbackupvmuuid=$( obusettings_get 4 )
-url=$( obusettings_get 5 ); url="https://${url}/ovirt-engine/api";
-user=$( obusettings_get 6 )
-password=$( obusettings_get 7 )
-backup_nfs_mount_path=$( obusettings_get 8 )
-second_disk_device=$( obusettings_get 9 )
-diskinterface=$( obusettings_get 10 )
-incrementdiskdevices=$( obusettings_get 11 )
-backuplog=$( obusettings_get 12 )
-email=$( obusettings_get 13 )
+obuloadsettings
 
 while test $# -gt 0; do
     case "$1" in
@@ -102,14 +90,8 @@ else
         echo -e "Subject: oVirt Backup Start\nFrom: ${email}\nTo: ${email}\n\noVirt Backup Started. A log will be sent once backup is completed" | sendmail -t
     fi
 
-    #this is to start at disk b, where a is the OS of the backup appliance
-    disknumber=97 #98(ASCII)=b
-    disknumberx=1
-    extradiskdev=""
-    obutext="\n\nStarting Backup Process ...\n\n"
-    obudialog "${obutitle}" "${obutext}" ""
-    BUDATE=`date "+%Y-%m-%d %H:%M:%S"`
-    obulog "Backup Started At: ${BUDATE}\n" 1
+    obuloadsettings
+
     ### CURL - GET - VM LIST
     obuapicall "GET" "vms"
     vmslist="${obuapicallresult}"
@@ -124,18 +106,8 @@ else
     obutext="${obutext}You are targeting a total of $numofbackups VMs for backup\n\n"
     obudialog "${obutitle}" "${obutext}" ""
     obulog "${obutext}"
-    diskletter=$(chr $(($disknumberx + $disknumber)))
 
-    #stop if first device already exists
-    if [ -f "/sys/block/${second_disk_device}${diskletter}" ]
-    then
-        obutext="Disk devices already exist.\n\n"
-        obutext="${obutext}Shutdown the Backup Appliance VM and then Start it again.\n\n"
-        obutext="${obutext}Once re-started, try backup script again.\n\n"
-        obudialog "${obutitle}" "${obutext}" ""
-        obulog "${obutext}"
-        exit 0
-    fi
+    obucheckoktostart
 
     sleep 5
     obutitle="${obutitle} - Backing up \Zb\Z1${numofbackups}\ZB\Zn VM(s) of total \Zb\Z1${countedvms}\ZB\Zn VM(s)"
@@ -164,7 +136,7 @@ else
             obulog "${obutext}"
             if [[ $vmlisttobackup == *"[$vmname]"* ]]; then
                 #BACKUP THIS VM
-                obubackup $vmname $vmuuid
+                obubackup $vmname $vmuuid 0
             else
                 #SKIP IF NOT IN LIST
                 obutext="VM: ${vmuuid}\n"
@@ -186,7 +158,7 @@ else
         do
             obutext="*** Shutting Down Backup Appliance in 10 seconds *** ctrl-c to cancel\n\n"
             percentage=$((number * 10))
-             echo $percentage | dialog --colors --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext}" 20 80 0
+             echo $percentage | dialog --colors --backtitle "${obutitle}" --title "${vmname}" --gauge "${obutext}" 22 80 0
             sleep 1
         done
         clear
@@ -206,5 +178,6 @@ else
         cat .emailalert.backup | sendmail -t
     fi
 fi
+
 
 exit 0
