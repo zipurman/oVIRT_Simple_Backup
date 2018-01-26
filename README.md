@@ -6,7 +6,7 @@ I have been working on a backup shell script for oVirt 4.2/4.2.1 using the new A
 
 THIS SCRIPT IS CURRENTLY ALPHA and should only be used by those who understand the risks. It is NOT ready for production … YET.
 
-Also, I had to do some >>CRAZY<< things to make this thing work with 4.2, and then 4.2.1 seems to have corrected some issues that make it less crazy. If running 4.2.1 make sure you set your config to use incrementdiskdevices="0"
+Also, I had to do some >>CRAZY<< things to make this thing work with 4.2, and then 4.2.1 seems to have corrected some issues that make it less crazy. If running 4.2.1 make sure you set your settings to use incrementdiskdevices="0"
 
 #### Requirements
 
@@ -20,6 +20,7 @@ Backup_VM_Appliance<br>
  - lsscsi
  - pv
  - dialog
+ - sendmail (exim or other) for emailing logs/alerts
 
 oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4.2 NOT 4.2.1)
  - expect
@@ -29,12 +30,10 @@ oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4
 
 **On Backup_VM_Appliance**
 
- - Download the files backup.sh and example_backup.cfg to your backup script directory
+ - Download the files backup.sh and src folder to your backup script directory
  
  - chmod +e backup.sh
- 
- - copy the example_backup.cfg to backup.cfg and reconfigure for your environment
- 
+  
  - create a mount to your NFS backup storage
     ```bash
     mkdir /mnt/backups
@@ -46,7 +45,10 @@ oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4
     ```bash
     mount /mnt/backups
     ```
-    
+
+ - execute .\backup.sh and configure for your environment under [S]ettings and setup/tag [0] your VMs for backup
+
+
 **On the oVirt Engine**  (if using cron to keep the Backup_VM_Appliance alive)  (ONLY REQUIRED FOR 4.2 NOT 4.2.1)
  - As root
     ```bash
@@ -58,22 +60,19 @@ oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4
     ```
 
 
-_Currently you need to set your VMs to run off of NFS with virtio on their disks. I am working on getting it to work with iSCSI-MPIO._
 
-
-
-#### Running the Script
-
- - Verify your backup.cfg settings and then run the following from the script directory on your Backup_VM_Appliance
+#### Running the Script from a CRON job
 
 ```bash
-    ./backup.sh
+    ./backup.sh --headless
 ```
 
 
 #### Author
 
 You can reach zipur on the IRC SERVER irc.oftc.net CHANNEL #ovirt
+
+http://zipur.ca
 
 aka (Preston Lord)
 
