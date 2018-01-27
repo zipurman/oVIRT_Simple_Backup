@@ -27,9 +27,6 @@
 #
 # *** NOTE: You cannot take snapshots of disks that are marked as shareable or that are based on direct LUN disks.
 #
-# TODO: retention period for existing - cleanup
-# TODO: create docblocks within code to make it possible for contributors to help ;)
-#
 #####################################
 
 #required for cronjob
@@ -60,6 +57,7 @@ if [ -f "backup.cfg" ]; then
 fi
 
 source src/functions.sh
+
 
 obuloadsettings
 obuconfirminstall
@@ -93,8 +91,6 @@ else
     then
         echo -e "Subject: oVirt Backup Start\nFrom: ${email}\nTo: ${email}\n\noVirt Backup Started. A log will be sent once backup is completed" | sendmail -t
     fi
-
-    obuloadsettings
 
     ### CURL - GET - VM LIST
     obuapicall "GET" "vms"
@@ -152,6 +148,10 @@ else
         fi
     done
 
+    #retention period enforce
+    obucleanupoldbackups
+    obulog "\n\n* Cleaning up based on retention period of ${backupretention} backup(s) per VM *\n\n"
+
     #only required if in 4.2 and disks not releasing devices
     if [ $incrementdiskdevices -eq 1 ]
     then
@@ -182,7 +182,7 @@ else
 
         cat $backuplog >> .emailalert.backup
 
-        cat .emailalert.backup | sendmail -t
+        cat .emailalert.backup | /usr/sbin/sendmail -t
 
     fi
 fi

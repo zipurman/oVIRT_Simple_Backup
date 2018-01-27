@@ -12,31 +12,35 @@
 # IRC: irc.oftc.net #ovirt
 
 obusettings_write(){
+    #settings set to file/line
     sed -i "${2}s/.*/${1}/" $menusettings
 }
 obusettings_get(){
+    #settings get from file/line
     sed $1'!d' $menusettings
 }
 chr () {
-  [ ${1} -lt 256 ] || return 1
-  printf \\$(($1/64*100+$1%64/8*10+$1%8))
-}
-ord() {
-  LC_CTYPE=C printf '%d' "'$1"
+   #for converting ASCII# to CHAR for device maps
+    [ ${1} -lt 256 ] || return 1
+    printf \\$(($1/64*100+$1%64/8*10+$1%8))
 }
 obudialog() {
+    #Dialog Info
     dialog --colors --backtitle "${1}" --title " ${3} " --cr-wrap --infobox "${2}"  22 80
 }
 obualert() {
+    #Dialog Alert
     dialog --colors --backtitle "${obutitle}" --title " ALERT! " --cr-wrap --msgbox "${1}"  22 80
 }
 obuapicall() {
+    #RESTAPI call
     defargs=('-X' "$1" '-s' '-k' '-u'  "${user}:${password}" '-H' 'Accept: application/xml'  '-H' 'Content-Type: application/xml')
     if [ -n "$3" ] && [ "$3" != "" ]; then defargs+=('-d' "${3}"); fi
     if [ -n "$4" ]; then defargs+=("-H" "All-Content: true"); fi
     obuapicallresult=`curl "${defargs[@]}" "${url}/${2}"`
 }
 obulog() {
+    #logging
     if [ -n "$backuplog" ] && [ "$backuplog" != "" ]
     then
         #init the log
@@ -47,6 +51,7 @@ obulog() {
     fi
 }
 obusettings(){
+    #navigation fetch/save/menu for settings area
     if [ -n "$3" ] && [ "$3" != "" ]; then backpage=$3; else backpage="settings"$(($2 - 2)); fi
     if [ -n "$4" ] && [ "$4" != "" ]; then backpagereturn=$4; else backpagereturn="0"$(($2 - 2)); fi
     dialog --colors --backtitle "${obutitle}" --title "Settings" --ok-label "Next" --cancel-label "Main Menu" --extra-label "Previous" --extra-button --cr-wrap --inputbox "${1}"  25 60 $( obusettings_get $2)  2> $menutmpfile; nav_value=$?;_return=$(cat $menutmpfile);
@@ -56,15 +61,14 @@ obusettings(){
     if [ "${nav_value}" = "1" ]; then ./$(basename $0) && exit; fi;
 }
 obubackup(){
+    #start a new backup of a VM
     # $1 = vmname
     # $2 = vmuuid
     # $3 = exitshell(0) or goto menu(1)
-
     obutext="\nStarting Backup Process ...\n\n"
     obudialog "${obutitle}" "${obutext}" ""
     BUDATE=`date "+%Y-%m-%d %H:%M:%S"`
     obulog "Backup Started At: ${BUDATE}\n" 1
-
     DATEIS=`date "+%Y%m%d_%H%M%S"`
     obutext="${obutext}Backing Up \Zb\Z4${vmbackupname}${DATEIS}\ZB\Zn\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
@@ -77,6 +81,7 @@ obubackup(){
     fi
 }
 obusnapshot(){
+    #make a snapshot of a VM
     # $1 = vmname
     # $2 = vmuuid
     obuapicall "POST" "vms/${2}/snapshots" "<snapshot><description>${vmbackupname}${DATEIS}</description></snapshot>"
@@ -152,11 +157,11 @@ obusnapshot(){
                     obusnapshotattach $1 $2 $ssuuid $ssname
                 fi
             done
-
         fi
     done
 }
 obusnapshotattach(){
+    #attach a snapshot to another vm for imaging
     # $1 = vmname
     # $2 = vmuuid
     # $3 = ssuuid
@@ -204,6 +209,7 @@ obusnapshotattach(){
     done
 }
 obuimagecreate(){
+    #create an image file from a Virtual Disk
     # $1 = vmname
     # $2 = vmuuid
     # $3 = ssname
@@ -212,6 +218,7 @@ obuimagecreate(){
     (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${1}/${2}/${3}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext}Size: ${sizeofpart}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 22 80 0
 }
 obudiskdetach(){
+    #detach a Disk from a VM
     # $1 = vmname
     # $2 = diskid
     obutext="${obutext}\nCleaning up \Zb\Z4${1}\ZB\Zn Snapshot and Disk ....\n"
@@ -225,6 +232,7 @@ obudiskdetach(){
     obulog "${obutext}"
 }
 obdiskcreate(){
+    #create a new Virtual Disk
     # $1 = diskname
     # $2 = disksize in bytes
     # $3 = pathofimage
@@ -266,6 +274,7 @@ obdiskcreate(){
     obuimagerestore $1 $newdiskuuid $3 $sizeofimage
 }
 obuimagerestore(){
+    #image a Virtual disk with an image file
     # $1 = vmname
     # $2 = newdiskuuid
     # $3 = pathofimage
@@ -275,14 +284,14 @@ obuimagerestore(){
     obudiskdetach $1 $2
 }
 obucreaterestoredvm(){
+    #Create a new VM based on template or export data
     # $1 = vmname
     # $2 = data
     # $3 = restoreorclone
-
-
     if [ $3 -eq 1 ]
     then
-    datax="${2}"
+        #TODO get this routine working
+        datax="${2}"
     #replace mac address
 #    newmacaddress=$(printf '%02x' $((0x$(od /dev/urandom -N1 -t x1 -An | cut -c 2-) & 0xFE | 0x02)); od /dev/urandom -N5 -t x1 -An | sed 's/ /:/g')
 #    datax=${datax//\<rasd:MACAddress\>*\<\/rasd:MACAddress\>/<rasd:MACAddress\>$newmacaddress\<\/rasd:MACAddress\>}
@@ -290,7 +299,6 @@ obucreaterestoredvm(){
     #replace VM id
 #    newmachineid=$(uuidgen)
 #    datax=${datax//Section ovf:id=\"*\" ovf/Section ovf:id=\"${newmachineid}\" ovf}
-
         obuapicall "POST" "vms/?clone=true" "<vm> \
          <cluster> \
           <name>${restorecluster}</name> \
@@ -306,16 +314,13 @@ obucreaterestoredvm(){
          <name>${1}</name> \
         </vm>"
         newvm="${obuapicallresult}"
-
         xml=`echo $newvm | xmlstarlet sel -T -t -m /vm -s D:N:- "@id" -v "concat(@id,'|',memory,';')"`
         SAVEIFS=$IFS
         IFS="|"
         xmlarr=($xml)
         IFS=$SAVEIFS
         newvmuuid="${xmlarr[0]}"
-
     else
-
         obuapicall "POST" "vms/" "<vm> \
          <name>${1}</name> \
          <cluster> \
@@ -326,17 +331,16 @@ obucreaterestoredvm(){
          </template> \
         </vm>"
         newvm="${obuapicallresult}"
-
         xml=`echo $newvm | xmlstarlet sel -T -t -m /vm -s D:N:- "@id" -v "concat(@id,'|',memory,';')"`
         SAVEIFS=$IFS
         IFS="|"
         xmlarr=($xml)
         IFS=$SAVEIFS
         newvmuuid="${xmlarr[0]}"
-
     fi
 }
 obuattachadisk(){
+    #attache a disk to a VM
     # $1 = vmuuid
     # $2 = diskid
     obuapicall "POST" "vms/${1}/diskattachments/" "<disk_attachment> \
@@ -349,6 +353,7 @@ obuattachadisk(){
         attachdisk="${obuapicallresult}"
 }
 obusnapshotdelete(){
+    #delete VM snapshot
     # $1 = vmname
     # $2 = vmuuid
     # $3 = ssuuid
@@ -360,7 +365,7 @@ obusnapshotdelete(){
     obulog "${obutext}"
 }
 obucheckoktostart(){
-    #stop if first device already exists
+    #stop if first device (/dev/Xdb) already exists
     if [ -f "/sys/block/${second_disk_device}${diskletter}" ]
     then
         obutext="Disk devices already exist.\n\n"
@@ -372,15 +377,15 @@ obucheckoktostart(){
     fi
 }
 obuupdatevmsetting(){
+    #update single setting on VM - VM must be off or rebooted after change
     # $1 vmuuid
     # $2 target
     # $3 value
     obuapicall "PUT" "vms/${1}/" "<vm><${2}>${3}</${2}></vm>"
     updatedvm="${obuapicallresult}"
-    echo $updatedvm
-
 }
 obuloadsettings(){
+    #load vars from settings
     vmlisttobackup=$( obusettings_get 2 )
     vmbackupname=$( obusettings_get 3 )
     thisbackupvmuuid=$( obusettings_get 4 )
@@ -397,12 +402,14 @@ obuloadsettings(){
     restorestoragedomain=$( obusettings_get 15 )
     restorecluster=$( obusettings_get 16 )
 
+    #additional vars
     disknumber=97 #98(ASCII)=b
     disknumberx=1
     extradiskdev=""
     diskletter=$(chr $(($disknumberx + $disknumber)))
 }
 obuconfirminstall(){
+    #confirm all required files are available
     filesallok=1
     if [ ! -f "src/menu/base.sh" ]; then filesallok=0; echo "Missing src/menu/base.sh"; fi
     if [ ! -f "src/menu/settings.sh" ]; then filesallok=0; echo "Missing src/menu/settings.sh"; fi
@@ -416,5 +423,39 @@ obuconfirminstall(){
     then
         echo "Broken Install"
         exit 0
+    fi
+}
+obucleanupoldbackups(){
+    #maintain retention period
+    if [ $backupretention -ge 0 ]
+    then
+        for filename in ${backup_nfs_mount_path}/*;
+            do
+                vmfilename=${filename//$backup_nfs_mount_path\//}
+                echo -e "Checking VM Backup Folder For ${vmfilename}"
+                for filename2 in ${backup_nfs_mount_path}/${vmfilename}/*;
+                    do
+                        filenameuuid=${filename2//$backup_nfs_mount_path\/$vmfilename\//}
+                        echo -e " - UUID ${filenameuuid} "
+                        #setup files to sort in reverse order - newest first (based on naming of files)
+                        numofbabckups=0
+                        bufiles=(${backup_nfs_mount_path}/${vmfilename}/${filenameuuid}/*)
+                        for ((i=${#bufiles[@]}-1; i>=0; i--))
+                            do
+                                numofbabckups=$((numofbabckups + 1))
+                                bufolderfull="${bufiles[$i]}"
+                                bufolder=${bufolderfull//$backup_nfs_mount_path\/$vmfilename\/$filenameuuid\//}
+                                if [ $numofbabckups -ge $backupretention ]; then removethisoldbackup=1; else removethisoldbackup=0; fi
+                                #check to make sure file naming matches expected so we dont delete other things
+                                if [[ $bufolder = ${vmbackupname}20* ]]; then fileoktodelete=1; else fileoktodelete=0; fi
+                                echo -e "\t- ${bufolder}"
+                                if [ $removethisoldbackup -eq 1 ] && [ $fileoktodelete -eq 1 ]
+                                then
+                                    #deleting older backup
+                                    rm -rf $bufolderfull
+                                fi
+                        done
+                done
+        done
     fi
 }

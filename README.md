@@ -14,7 +14,6 @@ This script has the following functionality in a linux command line GUI:
 #### Items Not Yet Completed
  - Better docblocks in code to make contributors possible ;)
  - Restore currently creates a clone which needs NICS, CPU, MEM, etc adjusted after complete. Working on getting a full restore to work but API is being fussy and cryptic.
- - Add retention period into headless mode so that older backups are removed
  - **Sometimes a shutdown/start of the VM Backup Appliance running the script is required as oVirt sometimes cannot image the reused /dev/XdX. If you are having issue, shutdown the vm and then start it again. Reboot wont work.**
 ---
 
@@ -35,7 +34,7 @@ Backup_VM_Appliance
  - lsscsi
  - pv
  - dialog
- - sendmail (exim or other) for emailing logs/alerts
+ - sendmail for emailing logs/alerts
  - uuid-runtime (used to generate unique uuid)
 
 #### Install
@@ -66,7 +65,7 @@ Backup_VM_Appliance
 
  - Create a cron job to run your backups on a schedule using 
     ```
-    /path/to/backup.sh --headless
+    /path/to/backup.sh --headless > /dev/null 2>&1
     ```
 
 
