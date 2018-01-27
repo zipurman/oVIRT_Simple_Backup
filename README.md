@@ -68,6 +68,42 @@ Backup_VM_Appliance
     /path/to/backup.sh --headless > /dev/null 2>&1
     ```
 
+#### Menu / Functionality
+ - [0] Select VMs to Backup (#of selected already)
+   - shows a list of all VM names in cluster as well as their state (up/down)
+   - allows select/deselect from saved list of VMs to backup on cron schedule
+ - [1] Shutdown a VM
+   - shows a list of all running VMs and allows shutdown of each
+ - [2] Start a VM
+   - shows a list of all stopped VMs and allows start of each
+ - [3] Backup a Single VM
+   - shows a list of all VM names in cluster and allows you to backup individually
+ - [4] Restore a Single VM
+   - shows a list of all backup folders on target backup location - named after each VM
+   - VMs are not required to be in cluster for restore
+   - selection of VM Folder -> UUID (allows multiple id) -> BU Folder Date
+   - asks for new VM Name
+   - creates a new VM with a new name and same sized Disk as original VM
+   - Restored VM still requires adjusting NICS, RAM, etc in oVirt  
+ - [5] Run Backup of (#of selected already) Selected VMs
+   - same as running script in --headless mode
+   - backups all targeted VMs
+ - [S] Settings
+   - pre-label to backup names (BU_)
+   - uuid of the VM running the script (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx)
+   - FQDN of oVirt Engine (https://ovirtmgmt.mydomain.com)
+   - oVirt Engine user (admin@internal)
+   - oVirt Engine pass
+   - backup  data path (/mnt/backups) *NO TRAILING /*
+   - disk device type (sd/vd) vd recommended
+   - disk type (virtio_scsi,virtio) virtio recommended
+   - increment disk_devices (1/0) 0 recommended
+   - backup log location (/var/log/ovirtbackup.log)
+   - email for alerts from automated backup
+   - retention period for number of backups to keep for each VM (2) 
+   - restore storage domain name
+   - restore cluster name
+
 
 #### Author
 
