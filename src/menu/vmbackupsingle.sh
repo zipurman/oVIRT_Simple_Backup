@@ -67,8 +67,13 @@ then
                 do
                     if [ $z -eq  $idnum ]
                     then
-                        #backup VM selected
-                        obubackup $vmname $vmuuid 1
+                        dialog --cr-wrap --colors --backtitle "${obutitle}" --title "${obutitle}" --yesno "\nAre you sure you want to backup ${vmname} now?" 7 60
+                        response=$?
+                        case $response in
+                           0) obubackup $vmname $vmuuid 1;;
+                           1) ./$(basename $0) && exit;;
+                           255) ./$(basename $0) && exit;;
+                        esac
                     fi
                 done
                 idnum=$((idnum + 1))
