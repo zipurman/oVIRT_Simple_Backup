@@ -61,5 +61,14 @@ if [ "${nav_value}" = "0" ] && [ "${menuposition}" = "settings13" ];then
 fi
 
 if [ "${nav_value}" = "0" ] && [ "${menuposition}" = "settings14" ];then
+    obusettings "Enter the Storage Domain for Restoring VMs\n\n" 15
+fi
+
+
+if [ "${nav_value}" = "0" ] && [ "${menuposition}" = "settings15" ];then
+    obusettings "Enter the Cluster Name for Restoring VMs\n\n" 16
+fi
+
+if [ "${nav_value}" = "0" ] && [ "${menuposition}" = "settings16" ];then
     ./$(basename $0) && exit;
 fi

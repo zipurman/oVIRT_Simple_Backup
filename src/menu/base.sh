@@ -33,7 +33,7 @@
         "2" "Start a VM" \
         "-" "----------------------------" \
         "3" "Backup a Single VM" \
-        "4" "Restore a Single VM (Coming Soon)" \
+        "4" "Restore a Single VM" \
         "-" "----------------------------" \
         "5" "Run Backup of (${numofbackups}) Selected VMs " \
         "-" "----------------------------" \
@@ -54,6 +54,7 @@
         source src/menu/vmstoplist.sh
         source src/menu/vmstartlist.sh
         source src/menu/vmbackupsingle.sh
+        source src/menu/vmrestoresingle.sh
         source src/menu/settings.sh
 
         if [ "${_return}" = "5" ] && [ "${menuposition}" = "frombase" ];

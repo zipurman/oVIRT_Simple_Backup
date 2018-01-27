@@ -43,7 +43,7 @@ fi
 ###################################################################
 
 
-if [ "${nav_value}" = "3" ] && [ "${menuposition}" = "startavm" ];then ./$(basename $0) nav 1 frombase && exit; fi
+if [ "${nav_value}" = "3" ] && [ "${menuposition}" = "startavm" ];then ./$(basename $0) nav 2 frombase && exit; fi
 if [ "${nav_value}" = "1" ] && [ "${menuposition}" = "startavm" ];then ./$(basename $0) && exit; fi
 
 #save selected VMs to a file

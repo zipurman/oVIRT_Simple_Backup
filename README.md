@@ -2,18 +2,33 @@
 
 ### A REST API backup from BASH for oVirt 4.2.x
 
-I have been working on a backup shell script for oVirt 4.2/4.2.1 using the new API changes. I am close to having the script working as I need it. I am sharing it here early just in case with the migration of Xen users to oVirt that someone is trying to do the same.
+#### Outline
 
-THIS SCRIPT IS CURRENTLY ALPHA and should only be used by those who understand the risks. It is NOT ready for production … YET.
+This script has the following functionality in a linux command line GUI:
+ - Settings Manager to setup your environment and allow script to connect and backup/restore
+ - Backup all selected VMs on a cron schedule to a specified folder or share
+ - Backup a single VM from within the GUI
+ - Restore a single VM from your backed up VMs in the GUI
+ - Stop/Start VMs from within the GUI
+ 
+#### Items Not Yet Completed
+ - Better docblocks in code to make contributors possible ;)
+ - Restore currently creates a clone which needs NICS, CPU, MEM, etc adjusted after complete. Working on getting a full restore to work but API is being fussy and cryptic.
+ - Add retention period into headless mode so that older backups are removed
 
-Also, I had to do some >>CRAZY<< things to make this thing work with 4.2, and then 4.2.1 seems to have corrected some issues that make it less crazy. If running 4.2.1 make sure you set your settings to use incrementdiskdevices="0"
+---
+
+###### THIS SCRIPT IS CURRENTLY BETA and should only be used by those who understand the risks. 
+
+---
 
 #### Requirements
 
-Create a VM in oVirt (Example: 20GB HDD (virtio), 8GB RAM, Debian8)<br>
+Create a VM in oVirt (Example: 20GB HDD (virtio), 8GB RAM, Debian8)
+
 This VM will be used as the Backup_VM_Appliance and will be the manager for all backups
 
-Backup_VM_Appliance<br>
+Backup_VM_Appliance
  - scsitools
  - curl
  - xmlstarlet
@@ -21,10 +36,7 @@ Backup_VM_Appliance<br>
  - pv
  - dialog
  - sendmail (exim or other) for emailing logs/alerts
-
-oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4.2 NOT 4.2.1)
- - expect
- - If using cron, place scripts in /root/ and adjust scripts as required with user/pass server info
+ - uuid-runtime (used to generate unique uuid)
 
 #### Install
 
@@ -38,7 +50,9 @@ oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4
     ```bash
     mkdir /mnt/backups
     
-    #vi /etc/fstab and add the following line with your IP and PATH info
+    #vi /etc/fstab 
+    #add the following line with your IP and PATH info
+ 
     192.168.1.123:/path/to/folder/on/nfs /mnt/backups nfs rw,async,hard,intr,noexec 0 0
     ```
  - mount your backup folder<br>
@@ -46,26 +60,14 @@ oVirt Engine (if using cron to restart Backup_VM_Appliance) (ONLY REQUIRED FOR 4
     mount /mnt/backups
     ```
 
- - execute .\backup.sh and configure for your environment under [S]ettings and setup/tag [0] your VMs for backup
+ - .\backup.sh 
+    - [S]ettings -> configure for your environment
+    - [0] Select your VMs to backup
 
-
-**On the oVirt Engine**  (if using cron to keep the Backup_VM_Appliance alive)  (ONLY REQUIRED FOR 4.2 NOT 4.2.1)
- - As root
-    ```bash
-    crontab -e
+ - Create a cron job to run your backups on a schedule using 
     ```
- - Add the following
-    ```bash
-    */15 * * * * /root/restart_backup_vm.sh > /dev/null 2>&1
+    /path/to/backup.sh --headless
     ```
-
-
-
-#### Running the Script from a CRON job
-
-```bash
-    ./backup.sh --headless
-```
 
 
 #### Author

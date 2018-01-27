@@ -72,7 +72,7 @@ obubackup(){
     obusnapshot $1 $2
     if [ $3 -eq 1 ];
     then
-        dialog --colors --backtitle "${obutitle}" --title " BACKUP COMPLETE " --cr-wrap --msgbox "\n\nThe backup ${vmbackupname}${DATEIS} completed."  10 80
+        dialog --colors --backtitle "${obutitle}" --title " BACKUP COMPLETE " --cr-wrap --msgbox "\n\nThe backup of ${1} to ${vmbackupname}${DATEIS} completed."  10 80
         ./$(basename $0) && exit;
     fi
 }
@@ -192,7 +192,7 @@ obusnapshotattach(){
         obulog "${obutext}"
         sleep 4
         obuimagecreate $1 $2 $4
-        obudiskdetach $1 $2 $diskid
+        obudiskdetach $1 $diskid
         #allow detatch disk to complete before deleting snapshot
         sleep 5
         obusnapshotdelete $1 $2 $3 $4
@@ -209,21 +209,144 @@ obuimagecreate(){
     # $3 = ssname
     sizeofpart=`awk '/'${second_disk_device}${extradiskdev}${diskletter}'$/{printf "%s %8.2f GiB\n", $NF, $(NF-1) / 1024 / 1024}' /proc/partitions`
     sizeofpart=${sizeofpart//${second_disk_device}${extradiskdev}${diskletter}/}
-    (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${1}/${2}/${3}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext}Size: ${sizeofpart}  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 22 80 0
+    (pv -n /dev/${second_disk_device}${extradiskdev}${diskletter} | dd of="${backup_nfs_mount_path}/${1}/${2}/${3}/image.img" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "${obutext}Size: ${sizeofpart}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 22 80 0
 }
 obudiskdetach(){
     # $1 = vmname
-    # $2 = vmuuid
-    # $3 = diskid
+    # $2 = diskid
     obutext="${obutext}\nCleaning up \Zb\Z4${1}\ZB\Zn Snapshot and Disk ....\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
     obulog "${obutext}"
     ### DETACH DISK FROM BACKUP VM
-    obuapicall "DELETE" "vms/${thisbackupvmuuid}/diskattachments/${3}"
+    obuapicall "DELETE" "vms/${thisbackupvmuuid}/diskattachments/${2}"
     detatchdisk="${obuapicallresult}"
     obutext="${obutext}Detaching Disk ....\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
     obulog "${obutext}"
+}
+obdiskcreate(){
+    # $1 = diskname
+    # $2 = disksize in bytes
+    # $3 = pathofimage
+    obuapicall "POST" "vms/${thisbackupvmuuid}/diskattachments/" "<disk_attachment> \
+            <bootable>false</bootable> \
+            <interface>${diskinterface}</interface> \
+            <active>true</active> \
+            <disk> \
+                <description></description> \
+                <format>cow</format> \
+                <name>${1}_RDISK</name> \
+                <provisioned_size>$2</provisioned_size> \
+                <storage_domains> \
+                    <storage_domain> \
+                        <name>${restorestoragedomain}</name> \
+                    </storage_domain> \
+                </storage_domains> \
+            </disk> \
+        </disk_attachment>"
+    creatediskdisk="${obuapicallresult}"
+    #sleep for 1 second for each GB plus 5
+    sizeofimage=$(($2 / 1024 / 1024 / 1024))
+    sleeptime=$(($sizeofimage + 5))
+    partialimagepercent=$((100 / $sleeptime))
+    imagepercent="${partialimagepercent}"
+    xml=`echo $creatediskdisk | xmlstarlet sel -T -t -m /disk_attachment -s D:N:- "@id" -v "concat(@id,'|',active,';')"`
+    SAVEIFS=$IFS
+    IFS="|"
+    xmlarr=($xml)
+    IFS=$SAVEIFS
+    newdiskuuid="${xmlarr[0]}"
+    for (( c=1; c<=$sleeptime; c++ ))
+    do
+        echo $imagepercent | dialog --colors --backtitle "${obutitle}" --title "${1}" --gauge "\nCreating and Attaching Disk\n${1}_RDISK\n\n${newdiskuuid}" 10 80 0
+        snapshotpercent=$((snapshotpercent + 1))
+        imagepercent=$(($imagepercent + $partialimagepercent))
+        sleep 1
+    done
+    obuimagerestore $1 $newdiskuuid $3 $sizeofimage
+}
+obuimagerestore(){
+    # $1 = vmname
+    # $2 = newdiskuuid
+    # $3 = pathofimage
+    # $4 = sizeofimage
+    (pv -n ${3} | dd of="/dev/${second_disk_device}${extradiskdev}${diskletter}" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "Restoring Image To New VM \Z1${1}\Zn" --gauge "\nSize: ${4}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 8 80 0
+    sleep 5
+    obudiskdetach $1 $2
+}
+obucreaterestoredvm(){
+    # $1 = vmname
+    # $2 = data
+    # $3 = restoreorclone
+
+
+    if [ $3 -eq 1 ]
+    then
+    datax="${2}"
+    #replace mac address
+#    newmacaddress=$(printf '%02x' $((0x$(od /dev/urandom -N1 -t x1 -An | cut -c 2-) & 0xFE | 0x02)); od /dev/urandom -N5 -t x1 -An | sed 's/ /:/g')
+#    datax=${datax//\<rasd:MACAddress\>*\<\/rasd:MACAddress\>/<rasd:MACAddress\>$newmacaddress\<\/rasd:MACAddress\>}
+
+    #replace VM id
+#    newmachineid=$(uuidgen)
+#    datax=${datax//Section ovf:id=\"*\" ovf/Section ovf:id=\"${newmachineid}\" ovf}
+
+        obuapicall "POST" "vms/?clone=true" "<vm> \
+         <cluster> \
+          <name>${restorecluster}</name> \
+         </cluster> \
+         <initialization> \
+          <configuration> \
+           <type>ovf</type> \
+            <data> \
+             <![CDATA[${datax}]]> \
+            </data> \
+          </configuration> \
+         </initialization> \
+         <name>${1}</name> \
+        </vm>"
+        newvm="${obuapicallresult}"
+
+        xml=`echo $newvm | xmlstarlet sel -T -t -m /vm -s D:N:- "@id" -v "concat(@id,'|',memory,';')"`
+        SAVEIFS=$IFS
+        IFS="|"
+        xmlarr=($xml)
+        IFS=$SAVEIFS
+        newvmuuid="${xmlarr[0]}"
+
+    else
+
+        obuapicall "POST" "vms/" "<vm> \
+         <name>${1}</name> \
+         <cluster> \
+          <name>${restorecluster}</name> \
+         </cluster> \
+         <template> \
+          <name>Blank</name> \
+         </template> \
+        </vm>"
+        newvm="${obuapicallresult}"
+
+        xml=`echo $newvm | xmlstarlet sel -T -t -m /vm -s D:N:- "@id" -v "concat(@id,'|',memory,';')"`
+        SAVEIFS=$IFS
+        IFS="|"
+        xmlarr=($xml)
+        IFS=$SAVEIFS
+        newvmuuid="${xmlarr[0]}"
+
+    fi
+}
+obuattachadisk(){
+    # $1 = vmuuid
+    # $2 = diskid
+    obuapicall "POST" "vms/${1}/diskattachments/" "<disk_attachment> \
+        <disk id=\"${2}\"> \
+        </disk> \
+        <active>true</active> \
+        <bootable>true</bootable> \
+        <interface>${diskinterface}</interface> \
+        </disk_attachment>"
+        attachdisk="${obuapicallresult}"
 }
 obusnapshotdelete(){
     # $1 = vmname
@@ -248,6 +371,15 @@ obucheckoktostart(){
         exit 0
     fi
 }
+obuupdatevmsetting(){
+    # $1 vmuuid
+    # $2 target
+    # $3 value
+    obuapicall "PUT" "vms/${1}/" "<vm><${2}>${3}</${2}></vm>"
+    updatedvm="${obuapicallresult}"
+    echo $updatedvm
+
+}
 obuloadsettings(){
     vmlisttobackup=$( obusettings_get 2 )
     vmbackupname=$( obusettings_get 3 )
@@ -261,9 +393,28 @@ obuloadsettings(){
     incrementdiskdevices=$( obusettings_get 11 )
     backuplog=$( obusettings_get 12 )
     email=$( obusettings_get 13 )
+    backupretention=$( obusettings_get 14 )
+    restorestoragedomain=$( obusettings_get 15 )
+    restorecluster=$( obusettings_get 16 )
 
     disknumber=97 #98(ASCII)=b
     disknumberx=1
     extradiskdev=""
     diskletter=$(chr $(($disknumberx + $disknumber)))
+}
+obuconfirminstall(){
+    filesallok=1
+    if [ ! -f "src/menu/base.sh" ]; then filesallok=0; echo "Missing src/menu/base.sh"; fi
+    if [ ! -f "src/menu/settings.sh" ]; then filesallok=0; echo "Missing src/menu/settings.sh"; fi
+    if [ ! -f "src/menu/vmbackupsingle.sh" ]; then filesallok=0; echo "Missing src/menu/vmbackupsingle.sh"; fi
+    if [ ! -f "src/menu/vmrestoresingle.sh" ]; then filesallok=0; echo "Missing src/menu/vmrestoresingle.sh"; fi
+    if [ ! -f "src/menu/vmselected.sh" ]; then filesallok=0; echo "Missing src/menu/vmselected.sh"; fi
+    if [ ! -f "src/menu/vmstartlist.sh" ]; then filesallok=0; echo "Missing src/menu/vmstartlist.sh"; fi
+    if [ ! -f "src/menu/vmstoplist.sh" ]; then filesallok=0; echo "Missing src/menu/vmstoplist.sh"; fi
+    if [ ! -f "src/functions.sh" ]; then filesallok=0; echo "Missing src/functions.sh"; fi
+    if [ $filesallok -eq 0 ]
+    then
+        echo "Broken Install"
+        exit 0
+    fi
 }

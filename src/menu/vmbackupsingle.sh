@@ -44,8 +44,7 @@ then
 fi
 ###################################################################
 
-
-if [ "${nav_value}" = "3" ] && [ "${menuposition}" = "backupsinglevm" ];then ./$(basename $0) nav 1 frombase && exit; fi
+if [ "${nav_value}" = "3" ] && [ "${menuposition}" = "backupsinglevm" ];then ./$(basename $0) nav 3 frombase && exit; fi
 if [ "${nav_value}" = "1" ] && [ "${menuposition}" = "backupsinglevm" ];then ./$(basename $0) && exit; fi
 
 #save selected VMs to a file
@@ -66,7 +65,6 @@ then
         if [ $vmname != "HostedEngine" ] && [ "${checkuuid}" != "${vmuuid}" ];then
                 for z in $(echo $_return)
                 do
-
                     if [ $z -eq  $idnum ]
                     then
                         #backup VM selected
@@ -76,7 +74,6 @@ then
                 idnum=$((idnum + 1))
         fi
     done
-
     ./$(basename $0) && exit
 
 

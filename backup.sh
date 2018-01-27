@@ -3,8 +3,8 @@
 #####################################
 #
 # oVIRT_Simple_Backup
-# Version: 0.2.0 for oVirt 4.2.x
-# Date: 01/24/2018
+# Version: 0.3.0 for oVirt 4.2.x
+# Date: 01/26/2018
 #
 # Simple Script to backup VMs running on oVirt to Export Storage
 #
@@ -27,17 +27,15 @@
 #
 # *** NOTE: You cannot take snapshots of disks that are marked as shareable or that are based on direct LUN disks.
 #
-# TODO: check to see if VM busy/locked before attempting to snapshot it and wait until it is available
-# TODO: restore manager using dialog
 # TODO: retention period for existing - cleanup
-# TODO: check to make sure all folders and components are in tact
+# TODO: create docblocks within code to make it possible for contributors to help ;)
 #
 #####################################
 
 #backup.cfg is old and will be alerted if still exists
 if [ -f "backup.cfg" ]; then source backup.cfg; fi
 
-obuversion="0.2.0"
+obuversion="0.3.0"
 obutitle="\Zb\Z3oVirt\ZB\Zn - \Zb\Z1Simple Backup\ZB\Zn - \Zb\Z0Version ${obuversion}\ZB\Zn"
 obutext=""
 headless="0"
@@ -59,6 +57,7 @@ fi
 source src/functions.sh
 
 obuloadsettings
+obuconfirminstall
 
 while test $# -gt 0; do
     case "$1" in
