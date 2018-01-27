@@ -105,6 +105,19 @@ Backup_VM_Appliance
    - restore cluster name
 
 
+#### Process to recover images not from this script
+
+If you have a raw image, you can try the following process:
+ - in your backup directory (script settings /mnt/backups) create a new folder with the name of your image as follows
+    - example (/mnt/backups/myoldvmname/1234/BU_2018/) *BU_2018* naming is important
+ - rename the image to image.img and place in BU_2018 folder
+ - create a file beside it called data.xml (it can be empty but needs to be there) place in BU_2018 folder
+ - in your script setting make sure to set the PRENAME to BU_
+ - verify the rest of the settings in the script are correct user/pass/url/etc
+ - then you should be able to do a "Restore a Single VM" in the script
+ - Only if your original image is good ;)
+
+
 #### Author
 
 You can reach zipur on the IRC SERVER irc.oftc.net CHANNEL #ovirt
