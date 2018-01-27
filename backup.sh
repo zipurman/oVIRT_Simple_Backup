@@ -177,9 +177,13 @@ else
     obulog "\n\nBackup Completed At: ${BUDATE}\n\n"
     if [ -n "$email" ] && [ "$email" != "" ]
     then
+
         echo -e "Subject: oVirt Backup Complete\nFrom: ${email}\nTo: ${email}\n\n" > .emailalert.backup
+
         cat $backuplog >> .emailalert.backup
+
         cat .emailalert.backup | sendmail -t
+
     fi
 fi
 

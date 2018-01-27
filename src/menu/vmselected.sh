@@ -47,36 +47,41 @@ then
             fi
     done
     dialog --colors --column-separator "|" --backtitle "${obutitle}" --title "Targeted VMs List" --cancel-label "Main Menu" --cr-wrap --checklist "VMs currently targeted for backup are:" 25 50 50 $optionstext 2> $menutmpfile
+    nav_value=$?
     _return=$(cat $menutmpfile)
+
 fi
 ###################################################################
+
 
 #save selected VMs to a file
 if [ "${_return}" != "0" ] && [ "${menuposition}" = "selectedvms" ]
 then
-    idnum="1"
-    vmlistsave=""
-    for i in ${vmlist//\;/ }
-    do
-        vmdataarray=(${i//|/ })
-        vmname="${vmdataarray[1]}"
-        vmuuid="${vmdataarray[0]}"
+    if [ $nav_value -eq 0 ]
+    then
+        idnum="1"
+        vmlistsave=""
+        for i in ${vmlist//\;/ }
+        do
+            vmdataarray=(${i//|/ })
+            vmname="${vmdataarray[1]}"
+            vmuuid="${vmdataarray[0]}"
 
-        if [ $vmname != "HostedEngine" ];then
-            echo "${vmname}"
-            for z in $(echo $_return)
-            do
-                if [ $z -eq  $idnum ]
-                then
-                    vmlistsave="${vmlistsave}[${vmname}]"
-                fi
-            done
-            idnum=$((idnum + 1))
-        fi
-    done
+            if [ $vmname != "HostedEngine" ];then
+                echo "${vmname}"
+                for z in $(echo $_return)
+                do
+                    if [ $z -eq  $idnum ]
+                    then
+                        vmlistsave="${vmlistsave}[${vmname}]"
+                    fi
+                done
+                idnum=$((idnum + 1))
+            fi
+        done
 
-    obusettings_write "${vmlistsave}" 2
-
+        obusettings_write "${vmlistsave}" 2
+    fi
     ./$(basename $0) && exit
 
 fi
