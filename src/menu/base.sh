@@ -37,6 +37,8 @@
         "-" "----------------------------" \
         "5" "Run Backup of (${numofbackups}) Selected VMs " \
         "-" "----------------------------" \
+        "6" "Migrate VM Images" \
+        "-" "----------------------------" \
         "S" "Settings" \
          2> $menutmpfile
          _return=$(cat $menutmpfile)
@@ -55,6 +57,7 @@
         source src/menu/vmstartlist.sh
         source src/menu/vmbackupsingle.sh
         source src/menu/vmrestoresingle.sh
+        source src/menu/vmmigrate.sh
         source src/menu/settings.sh
 
         if [ "${_return}" = "5" ] && [ "${menuposition}" = "frombase" ];

@@ -100,14 +100,22 @@ then
     restorepath="${restorepath}/${_return}"
     restoreokay=1
     errortext=""
-    if [ ! -f "${restorepath}/data.xml" ]; then restoreokay=0; errortext="${errortext}\nMissing: ${restorepath}/data.xml"; fi
+    if [ ! -f "${restorepath}/data.xml" ]
+    then
+        #allow no xml and create a new xml here
+#        restoreokay=0;
+#        errortext="${errortext}\nMissing: ${restorepath}/data.xml"
+        xmldata=`cat src/nodata.xml`
+    else
+        xmldata=`cat ${restorepath}/data.xml`
+    fi
     if [ ! -f "${restorepath}/image.img" ]; then restoreokay=0; errortext="${errortext}\nMissing: ${restorepath}/image.img"; fi
     if [ $restoreokay -eq 0 ]
     then
         dialog --colors --backtitle "${obutitle}" --title " CONFIRM " --cr-wrap --msgbox "\n\nThis backup set is broken. Cannot Restore Data.\n\n${errortext}"  20 40
         ./$(basename $0) && exit;
     else
-        xmldata=`cat ${restorepath}/data.xml`
+
         xml=`echo $xmldata | xmlstarlet sel -T -t -m /ovf:Envelope/Content -s D:N:- "@ovf:id" -v "concat(Name,'|',ExportDate,'|',CreationDate,'|',ClusterCompatibilityVersion,'|',MinAllocatedMem,'|',PredefinedProperties,'|',MaxMemorySizeMb,';')"`
         SAVEIFS=$IFS
         IFS="|"
@@ -178,6 +186,7 @@ then
 
     #NEXT
     if [ $nav_value -eq 0 ]; then
+        fixgrub=0
         file_size_bytes=$(($file_size_gb * 1024 * 1024 * 1024))
         #remove any non-alpha/num from name
         newvmname=${_return//[^a-zA-Z0-9]/}

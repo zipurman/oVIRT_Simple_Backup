@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ovf:Envelope>
+    <Content>
+        <Name>Blank</Name>
+        <CreationDate>Unknown</CreationDate>
+        <ExportDate>Unknown</ExportDate>
+        <ClusterCompatibilityVersion>Unknown</ClusterCompatibilityVersion>
+        <MinAllocatedMem>4096</MinAllocatedMem>
+        <PredefinedProperties></PredefinedProperties>
+        <MaxMemorySizeMb>4096</MaxMemorySizeMb>
+        <Info>This file used for importing images that have no export data available</Info>
+    </Content>
+</ovf:Envelope>

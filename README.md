@@ -11,6 +11,10 @@ This script has the following functionality in a linux command line GUI:
  - Restore a single VM from your backed up VMs in the GUI
  - Stop/Start VMs from within the GUI
  
+#### Importing from XenServer or other images
+ - You can try the method outlined in the xen_migrate folder of this project. That script will generate a raw image from your existing VM environment and allow you to migrate it using the tools in this script.
+ - If you already have the raw image file(s) for your VMs, you can try using this script to migrate them. I have only tested Citrix XenServer 7.2 to this script running Linux-Debian VMs.
+ 
 #### Items Not Yet Completed
  - Better docblocks in code to make contributors possible ;)
  - Restore currently creates a clone which needs NICS, CPU, MEM, etc adjusted after complete. Working on getting a full restore to work but API is being fussy and cryptic.
@@ -35,7 +39,8 @@ Backup_VM_Appliance
  - pv
  - dialog
  - sendmail for emailing logs/alerts
- - uuid-runtime (used to generate unique uuid)
+ - uuid-runtime (used to generate unique uuid) (optional)
+ - fsarchiver (used for image repair coming soon)
 
 #### Install
 

@@ -281,6 +281,42 @@ obuimagerestore(){
     # $4 = sizeofimage
     (pv -n ${3} | dd of="/dev/${second_disk_device}${extradiskdev}${diskletter}" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "Restoring Image To New VM \Z1${1}\Zn" --gauge "\nSize: ${4}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 8 80 0
     sleep 5
+
+
+    #fixgrub
+    if [ $fixgrub -eq 1 ]
+    then
+        outtext="\nFixing Grub\n"
+        obudialog "${obutitle}" "${outtext}" "Fixing Grub"
+        outtext="${outtext}\nMounting Disk /dev/${second_disk_device}${extradiskdev}${diskletter}1\n"
+        obudialog "${obutitle}" "${outtext}" "Fixing Grub"
+        mkdir /mnt/linux -p
+        mount /dev/${second_disk_device}${extradiskdev}${diskletter}1 /mnt/linux
+        outtext="${outtext}\nMounting Devices\n"
+        obudialog "${obutitle}" "${outtext}" "Fixing Grub"
+        mount -o bind /proc /mnt/linux/proc
+        mount -o bind /dev /mnt/linux/dev
+        mount -o bind /sys /mnt/linux/sys
+        outtext="${outtext}\nChRoot\n"
+        obudialog "${obutitle}" "${outtext}" "Fixing Grub"
+
+        cat << EOF | chroot /mnt/linux /bin/bash
+sed -i 's/console=hvc0//g' /etc/default/grub
+update-grub
+update-initramfs -u
+grub-install /dev/${second_disk_device}${extradiskdev}${diskletter}
+exit
+EOF
+        outtext="${outtext}\nCleaning up...\n"
+        obudialog "${obutitle}" "${outtext}" "Fixing Grub"
+        umount /mnt/linux/dev/
+        umount /mnt/linux/proc/
+        umount /mnt/linux/sys/
+        umount /mnt/linux/
+        outtext="${outtext}\nGrub Repaired\n"
+        obualert "${outtext}"
+    fi
+
     obudiskdetach $1 $2
 }
 obucreaterestoredvm(){
@@ -401,6 +437,7 @@ obuloadsettings(){
     backupretention=$( obusettings_get 14 )
     restorestoragedomain=$( obusettings_get 15 )
     restorecluster=$( obusettings_get 16 )
+    migrate_nfs_mount_path=$( obusettings_get 17 )
 
     #additional vars
     disknumber=97 #98(ASCII)=b
@@ -418,6 +455,8 @@ obuconfirminstall(){
     if [ ! -f "src/menu/vmselected.sh" ]; then filesallok=0; echo "Missing src/menu/vmselected.sh"; fi
     if [ ! -f "src/menu/vmstartlist.sh" ]; then filesallok=0; echo "Missing src/menu/vmstartlist.sh"; fi
     if [ ! -f "src/menu/vmstoplist.sh" ]; then filesallok=0; echo "Missing src/menu/vmstoplist.sh"; fi
+    if [ ! -f "src/menu/vmmigrate.sh" ]; then filesallok=0; echo "Missing src/menu/vmmigrate.sh"; fi
+    if [ ! -f "src/nodata.xml" ]; then filesallok=0; echo "Missing src/nodata.xml"; fi
     if [ ! -f "src/functions.sh" ]; then filesallok=0; echo "Missing src/functions.sh"; fi
     if [ $filesallok -eq 0 ]
     then
