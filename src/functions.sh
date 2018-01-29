@@ -280,6 +280,9 @@ obuimagerestore(){
     # $3 = pathofimage
     # $4 = sizeofimage
     (pv -n ${3} | dd of="/dev/${second_disk_device}${extradiskdev}${diskletter}" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "Restoring Image To New VM \Z1${1}\Zn" --gauge "\nSize: ${4}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 8 80 0
+
+    obudialog "${obutitle}" "\nWaiting for any remaining tasks..." "Restoring Image To New VM \Z1${1}\Zn"
+
     sleep 5
 
 
@@ -313,8 +316,46 @@ EOF
         umount /mnt/linux/proc/
         umount /mnt/linux/sys/
         umount /mnt/linux/
-        outtext="${outtext}\nGrub Repaired\n"
-        obualert "${outtext}"
+        obudialog "${obutitle}" "${outtext}\nGrub Repaired\n" "Grub Repaired"
+        donetext="${donetext}\n- Grub Repaired\n\n"
+    fi
+
+    #fix swap
+    if [ $fixswap -eq 1 ]
+    then
+
+        sleep 3
+        outtext="\nFixing Swap\n"
+        obudialog "${obutitle}" "${outtext}" "Fixing Swap on /dev/${second_disk_device}${extradiskdev}${diskletter}"
+        mkdir /mnt/linux -p
+        mount /dev/${second_disk_device}${extradiskdev}${diskletter}1 /mnt/linux
+        outtext="${outtext}\nChRoot\n"
+        obudialog "${obutitle}" "${outtext}" "Creating Swap Scripts"
+
+        #create new script to pass to chroot
+        echo "#!/bin/bash" > fixswap1.sh
+        echo "echo -e \"p\nd\n2\nn\np\n2\n\n\np\nt\n2\n82\nw\n\" | fdisk /dev/${second_disk_device}a" >> fixswap1.sh
+        echo "shutdown 0 -r" >> fixswap1.sh
+
+        echo "#!/bin/bash" > fixswap2.sh
+        echo "newuuid=\`mkswap /dev/${second_disk_device}a2\`" >> fixswap2.sh
+        echo "swapon /dev/${second_disk_device}a2" >> fixswap2.sh
+        echo "newuuid=\"$(echo \$newuuid | cut -d ' ' -f 12 | tail -1 | sed 's/UUID=//')\"" >> fixswap2.sh
+        echo "sed -i 's/UUID=[a-zA-Z0-9\-]*.*swap.*$/UUID='\${newuuid}' none            swap    sw              0   /g' /etc/fstab" >> fixswap2.sh
+        echo "echo \"New UUID SET: \${newuuid}\"" >> fixswap2.sh
+        echo "cat /etc/fstab" >> fixswap2.sh
+        echo "fdisk -l" >> fixswap2.sh
+        echo "free" >> fixswap2.sh
+        echo "echo \"Make sure the above shows correctly\"" >> fixswap2.sh
+
+        chmod 700 fixswap1.sh
+        chmod 700 fixswap2.sh
+
+        cp fixswap1.sh /mnt/linux/root/fixswap1.sh
+        cp fixswap2.sh /mnt/linux/root/fixswap2.sh
+
+        umount /mnt/linux/
+        donetext="${donetext}\n- Swap Repair Configured. \n\n\tYou will have to run:\n\n\t/root/fixswap1.sh *will auto restart*\n\t\n\t/root/fixswap2.sh\t\n\non the new VM once you start it.\n"
     fi
 
     obudiskdetach $1 $2

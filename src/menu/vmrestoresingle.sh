@@ -186,7 +186,9 @@ then
 
     #NEXT
     if [ $nav_value -eq 0 ]; then
+        donetext=""
         fixgrub=0
+        fixswap=0
         file_size_bytes=$(($file_size_gb * 1024 * 1024 * 1024))
         #remove any non-alpha/num from name
         newvmname=${_return//[^a-zA-Z0-9]/}
@@ -195,7 +197,7 @@ then
         obuattachadisk $newvmuuid $newdiskuuid
         file_size_bytes=$((file_size_kb * 1024))
         obuupdatevmsetting $newvmuuid memory $file_size_bytes
-        obualert "\n\nThe VM should now be restored, You will have to verify the memory, NICs, CPUs etc to make sure all is as expected."
+        obualert "\n\nThe VM should now be restored, You will have to verify the memory, NICs, CPUs etc to make sure all is as expected.${donetext}"
         bp=$(dirname $restorepath);./$(basename $0) && exit;
     fi
 

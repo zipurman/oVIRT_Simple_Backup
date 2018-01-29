@@ -18,7 +18,6 @@ This script has the following functionality in a linux command line GUI:
 #### Items Not Yet Completed
  - Better docblocks in code to make contributors possible ;)
  - Restore currently creates a clone which needs NICS, CPU, MEM, etc adjusted after complete. Working on getting a full restore to work but API is being fussy and cryptic.
- - **Sometimes a shutdown/start of the VM Backup Appliance running the script is required as oVirt sometimes cannot image the reused /dev/XdX. If you are having issue, shutdown the vm and then start it again. Reboot wont work.**
 ---
 
 ###### THIS SCRIPT IS CURRENTLY BETA and should only be used by those who understand the risks. 

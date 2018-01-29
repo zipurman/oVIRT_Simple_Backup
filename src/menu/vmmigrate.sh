@@ -19,7 +19,7 @@ then
     #check to make sure disk is available
     if [ -e "/dev/${second_disk_device}${extradiskdev}${diskletter}" ]
     then
-        obualert "\n\nYou must restart your VM before doing a restore. Disks are locked from previous backup or restore."
+        obualert "\n\nYou must restart your VM before doing a restore. Disks (/dev/${second_disk_device}${extradiskdev}${diskletter}) are locked from previous backup or restore."
         ./$(basename $0) && exit;
     fi
 
@@ -122,12 +122,17 @@ then
     if [ $nav_value -eq 0 ]; then
         file_size_bytes=$(($file_size_gb * 1024 * 1024 * 1024))
 
+        donetext=""
+        fixgrub=0
+        fixswap=0
 
         dialog --colors --column-separator "|" --backtitle "${obutitle}" --title "Extra Operationst" --ok-label "Next" --cancel-label "Main Menu" --cr-wrap --checklist "Choose POST Image restore options:" 25 50 50 \
          1 FixGrub off \
+         2 FixSwap\(/dev/xdX2\) off \
          2> $menutmpfile; nav_value2=$? ; _return2=$(cat $menutmpfile)
         if [ $nav_value2 -eq 1 ]; then ./$(basename $0) && exit; fi
         if [[ $_return2 = *"1"* ]];then fixgrub=1; fi
+        if [[ $_return2 = *"2"* ]];then fixswap=1; fi
 
         newvmname="${_return}"
         newvmname=${newvmname//[^a-zA-Z0-9]/}
@@ -136,7 +141,7 @@ then
         obuattachadisk $newvmuuid $newdiskuuid
         file_size_bytes=$((file_size_kb * 1024))
         obuupdatevmsetting $newvmuuid memory $file_size_bytes
-        obualert "\n\nThe VM should now be restored, You will have to verify the memory, NICs, CPUs etc to make sure all is as expected.\n\nAlso make sure that you install xe-guest-utilities and check your swap file and disk alignment to make sure all looks as it should. You can check zipur.ca for tips on how to correct issues."
+        obualert "\n\nThe VM should now be restored, You will have to verify the memory, NICs, CPUs etc to make sure all is as expected.\n\nAlso make sure that you install xe-guest-utilities and check your swap file and disk alignment to make sure all looks as it should. You can check zipur.ca for tips on how to correct issues.${donetext}"
         bp=$(dirname $restorepath);./$(basename $0) && exit;
     fi
 

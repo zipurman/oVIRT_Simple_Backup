@@ -3,8 +3,8 @@
 #####################################
 #
 # oVIRT_Simple_Backup
-# Version: 0.3.0 for oVirt 4.2.x
-# Date: 01/26/2018
+# Version: 0.3.5 for oVirt 4.2.x
+# Date: 01/29/2018
 #
 # Simple Script to backup VMs running on oVirt to Export Storage
 #
@@ -37,7 +37,7 @@ export TERM=xterm
 #backup.cfg is old and will be alerted if still exists
 if [ -f "backup.cfg" ]; then source backup.cfg; fi
 
-obuversion="0.3.0"
+obuversion="0.3.5"
 obutitle="\Zb\Z3oVirt\ZB\Zn - \Zb\Z1Simple Backup\ZB\Zn - \Zb\Z0Version ${obuversion}\ZB\Zn"
 obutext=""
 headless="0"
