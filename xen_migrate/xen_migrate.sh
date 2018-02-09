@@ -3,7 +3,7 @@
 #####################################
 #
 # Xen Migrate
-# Version: 0.1.0
+# Version: 0.1.1
 #
 # Built as a tool for oVIRT_Simple_Backup
 #
@@ -37,9 +37,31 @@
 #####################################
 
 
-xbuversion="0.1.0"
+xbuversion="0.1.1"
 xbutitle="\Zb\Z3Xen Migrate Tool for oVirt\ZB\Zn - \Zb\Z1Simple Backup\ZB\Zn - \Zb\Z0Version ${xbuversion}\ZB\Zn"
 
+#start check packages
+packagesokay=1
+if ! [ -x "$(command -v pv)" ]; then
+    echo "Package: pv - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v dialog)" ]; then
+    echo "Package: dialog - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v fsarchiver)" ]; then
+    echo "Package: fsarchiver - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v chroot)" ]; then
+    echo "Package: chroot - missing and is required for this script."
+    packagesokay=0
+fi
+if [ $packagesokay -eq 0 ];then
+    exit 0
+fi
+#end check packages
 
 while test $# -gt 0; do
     case "$1" in

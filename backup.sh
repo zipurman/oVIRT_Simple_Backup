@@ -3,7 +3,7 @@
 #####################################
 #
 # oVIRT_Simple_Backup
-# Version: 0.3.5 for oVirt 4.2.x
+# Version: 0.3.6 for oVirt 4.2.x
 # Date: 01/29/2018
 #
 # Simple Script to backup VMs running on oVirt to Export Storage
@@ -37,13 +37,52 @@ export TERM=xterm
 #backup.cfg is old and will be alerted if still exists
 if [ -f "backup.cfg" ]; then source backup.cfg; fi
 
-obuversion="0.3.5"
+obuversion="0.3.6"
 obutitle="\Zb\Z3oVirt\ZB\Zn - \Zb\Z1Simple Backup\ZB\Zn - \Zb\Z0Version ${obuversion}\ZB\Zn"
 obutext=""
 headless="0"
 menutmpfile=".backup.menu"
 menupositionfile=".backup.position.menu"
 menusettings=".backup.settings.menu"
+
+
+
+#start check packages
+packagesokay=1
+if ! [ -x "$(command -v lsscsi)" ]; then
+    echo "Package: lsscsi - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v xmlstarlet)" ]; then
+    echo "Package: xmlstarlet - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v curl)" ]; then
+    echo "Package: curl - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v pv)" ]; then
+    echo "Package: pv - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v dialog)" ]; then
+    echo "Package: dialog - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v fsarchiver)" ]; then
+    echo "Package: fsarchiver - missing and is required for this script."
+    packagesokay=0
+fi
+if ! [ -x "$(command -v chroot)" ]; then
+    echo "Package: chroot - missing and is required for this script."
+    packagesokay=0
+fi
+if [ $packagesokay -eq 0 ];then
+    exit 0
+fi
+#end check packages
+
+
 
 #init the setting file
 if [ ! -f $menusettings ]; then
@@ -105,7 +144,7 @@ else
     numofbackups=`echo $vmlisttobackup | sed 's/\[/\n&\n/g' | grep -cx '\['`
     obutext="${obutext}You are targeting a total of $numofbackups VMs for backup\n\n"
     obudialog "${obutitle}" "${obutext}" ""
-    obulog "${obutext}"
+    obulog "${obutext}" 1
 
     obucheckoktostart
 

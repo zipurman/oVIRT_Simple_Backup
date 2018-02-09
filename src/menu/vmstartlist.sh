@@ -21,6 +21,7 @@ then
     vmlist=`echo $vmslist | xmlstarlet sel -T -t -m /vms/vm -s D:N:- "@id" -v "concat(@id,'|',name,'|',status,';')"`
     optionstext=""
     optionid="1"
+    hasavm=0
     for i in ${vmlist//\;/ }
         do
             vmdataarray=(${i//|/ })
@@ -33,10 +34,17 @@ then
                     showvmname="${vmname}"
                     optionstext="${optionstext} ${optionid} ${showvmname} off"
                     optionid=$((optionid + 1))
+                    hasavm=1
                 fi
 
             fi
     done
+
+    if [ $hasavm -eq 0 ]; then
+        dialog --colors --backtitle "${obutitle}" --title " ALERT! " --cr-wrap --msgbox '\n\nThere are no stopped VMs available to start.'  10 40
+        ./$(basename $0) && exit;
+    fi
+
     dialog --colors --backtitle "${obutitle}" --title "Stopped VMs List" --ok-label "START" --cancel-label "Main Menu" --extra-label "Refresh" --extra-button --cr-wrap --radiolist "Choose a VM to start:" 25 50 50 $optionstext 2> $menutmpfile; nav_value=$? ; _return=$(cat $menutmpfile)
 
 fi

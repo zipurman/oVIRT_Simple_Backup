@@ -35,19 +35,26 @@ then
     menuposition="migratesinglevm3"
     optionstext=""
     optionid="1"
+
+    if [ -z "$(ls -A $migrate_nfs_mount_path)" ]; then
+        obualert "\n\nNo files were found in ${migrate_nfs_mount_path}\n\n"
+        ./$(basename $0)
+
+    fi
+
     for filename in ${migrate_nfs_mount_path}/*;
-        do
+    do
             file_size_kb=`du -k "${filename}" | cut -f1`
             file_size_gb=$((file_size_kb / 1024 / 1024))
 
             filename=${filename//$migrate_nfs_mount_path\//}
             vmname="${filename}"
 
-
-
             optionstext="${optionstext} ${vmname} ${file_size_gb}GB off"
             optionid=$((optionid + 1))
     done
+
+    echo "aaa${optionid}"
 
     dialog --colors --column-separator "|" --backtitle "${obutitle}" --title "Migrate List" --ok-label "SELECT" --cancel-label "Main Menu" --cr-wrap --radiolist "Choose an Image to restore:" 25 50 50 $optionstext 2> $menutmpfile; nav_value=$? ; _return=$(cat $menutmpfile)
     #catch nothing chosen

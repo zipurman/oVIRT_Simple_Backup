@@ -68,11 +68,11 @@ obubackup(){
     obutext="\nStarting Backup Process ...\n\n"
     obudialog "${obutitle}" "${obutext}" ""
     BUDATE=`date "+%Y-%m-%d %H:%M:%S"`
-    obulog "Backup Started At: ${BUDATE}\n" 1
+#    obulog "Backup Started At: ${BUDATE}\n"
     DATEIS=`date "+%Y%m%d_%H%M%S"`
     obutext="${obutext}Backing Up \Zb\Z4${vmbackupname}${DATEIS}\ZB\Zn\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
-    obulog "${obutext}"
+#    obulog "${obutext}"
     obusnapshot $1 $2
     if [ $3 -eq 1 ];
     then
@@ -126,7 +126,7 @@ obusnapshot(){
             snapshotdone="1"
             obutext="${obutext}\nDONE SNAPSHOT\nLoading Data\n"
             obudialog "${obutitle}" "${obutext}" "${1}"
-            obulog "${obutext}"
+#            obulog "${obutext}"
             ### LIST SNAPSHOTS FROM VM
             obuapicall "GET" "vms/${2}/snapshots"
             snapshots="${obuapicallresult}"
@@ -141,7 +141,7 @@ obusnapshot(){
                     obutext="${obutext}SNAPSHOT NAME: $ssname\n"
                     obutext="${obutext}SNAPSHOT UUID: $ssuuid\n"
                     obudialog "${obutitle}" "${obutext}" "${1}"
-                    obulog "${obutext}"
+#                    obulog "${obutext}"
                     #Make backup directory
                     mkdir -p "${backup_nfs_mount_path}/${1}"
                     mkdir -p "${backup_nfs_mount_path}/${1}/${2}"
@@ -152,7 +152,7 @@ obusnapshot(){
                     snapshotdatagrabfile=`echo $snapshotdatagrab | xmlstarlet sel -T -t -m /snapshot/initialization/configuration -s D:N:- "@id" -v "data"`
                     obutext="${obutext}SAVING XML DATA FILE\n"
                     obudialog "${obutitle}" "${obutext}" "${1}"
-                    obulog "${obutext}"
+#                    obulog "${obutext}"
                     echo  "${snapshotdatagrabfile}" > "${backup_nfs_mount_path}/${1}/${2}/${ssname}/data.xml"
                     obusnapshotattach $1 $2 $ssuuid $ssname
                 fi
@@ -180,7 +180,7 @@ obusnapshotattach(){
         sleep 8
         obutext="${obutext}Attaching Disk: ${diskid}\n"
         obudialog "${obutitle}" "${obutext}" "${1}"
-        obulog "${obutext}"
+#        obulog "${obutext}"
         ### ATTACH DISK TO BACKUP VM
         obuapicall "POST" "vms/${thisbackupvmuuid}/diskattachments/" "<disk_attachment> \
         <disk id=\"${diskid}\"> \
@@ -194,7 +194,7 @@ obusnapshotattach(){
         attachdisk="${obuapicallresult}"
         obutext="${obutext}Waiting for disk...\n"
         obudialog "${obutitle}" "${obutext}" "${1}"
-        obulog "${obutext}"
+#        obulog "${obutext}"
         sleep 4
         obuimagecreate $1 $2 $4
         obudiskdetach $1 $diskid
@@ -223,26 +223,28 @@ obudiskdetach(){
     # $2 = diskid
     obutext="${obutext}\nCleaning up \Zb\Z4${1}\ZB\Zn Snapshot and Disk ....\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
-    obulog "${obutext}"
+#    obulog "${obutext}"
     ### DETACH DISK FROM BACKUP VM
     obuapicall "DELETE" "vms/${thisbackupvmuuid}/diskattachments/${2}"
     detatchdisk="${obuapicallresult}"
     obutext="${obutext}Detaching Disk ....\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
-    obulog "${obutext}"
+#    obulog "${obutext}"
 }
 obdiskcreate(){
     #create a new Virtual Disk
     # $1 = diskname
     # $2 = disksize in bytes
     # $3 = pathofimage
+#    raw or cow
     obuapicall "POST" "vms/${thisbackupvmuuid}/diskattachments/" "<disk_attachment> \
             <bootable>false</bootable> \
             <interface>${diskinterface}</interface> \
             <active>true</active> \
             <disk> \
                 <description></description> \
-                <format>cow</format> \
+                <format>raw</format> \
+                <sparse>false</sparse> \
                 <name>${1}_RDISK</name> \
                 <provisioned_size>$2</provisioned_size> \
                 <storage_domains> \
@@ -279,7 +281,7 @@ obuimagerestore(){
     # $2 = newdiskuuid
     # $3 = pathofimage
     # $4 = sizeofimage
-    (pv -n ${3} | dd of="/dev/${second_disk_device}${extradiskdev}${diskletter}" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "Restoring Image To New VM \Z1${1}\Zn" --gauge "\nSize: ${4}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 8 80 0
+    (pv -n ${3} | dd of="/dev/${second_disk_device}${extradiskdev}${diskletter}" bs=1M conv=notrunc,noerror) 2>&1 | dialog --colors --backtitle "${obutitle}" --title "Restoring Image ${3}\nTo New VM \Z1${1}\Zn\n/dev/${second_disk_device}${extradiskdev}${diskletter}" --gauge "\nSize: ${4}GB  Device: /dev/${second_disk_device}${extradiskdev}${diskletter}" 8 80 0
 
     obudialog "${obutitle}" "\nWaiting for any remaining tasks..." "Restoring Image To New VM \Z1${1}\Zn"
 
@@ -355,7 +357,7 @@ EOF
         cp fixswap2.sh /mnt/linux/root/fixswap2.sh
 
         umount /mnt/linux/
-        donetext="${donetext}\n- Swap Repair Configured. \n\n\tYou will have to run:\n\n\t/root/fixswap1.sh *will auto restart*\n\t\n\t/root/fixswap2.sh\t\n\non the new VM once you start it.\n"
+        donetext="${donetext}\n- Swap Repair Configured. \n\nYou will have to run:\n\n/root/fixswap1.sh *will auto restart*\n\n/root/fixswap2.sh\n\non the new VM once you start it.\n"
     fi
 
     obudiskdetach $1 $2
@@ -439,7 +441,7 @@ obusnapshotdelete(){
     deletesnapshot="${obuapicallresult}"
     obutext="${obutext}Deleting Snapshot ${4} (${3})\n\n"
     obudialog "${obutitle}" "${obutext}" "${1}"
-    obulog "${obutext}"
+#    obulog "${obutext}"
 }
 obucheckoktostart(){
     #stop if first device (/dev/Xdb) already exists
@@ -449,7 +451,7 @@ obucheckoktostart(){
         obutext="${obutext}Shutdown the Backup Appliance VM and then Start it again.\n\n"
         obutext="${obutext}Once re-started, try backup script again.\n\n"
         obudialog "${obutitle}" "${obutext}" ""
-        obulog "${obutext}"
+#        obulog "${obutext}"
         exit 0
     fi
 }

@@ -27,14 +27,21 @@ then
     menuposition="restoresinglevm"
     optionstext=""
     optionid="1"
-    for filename in ${backup_nfs_mount_path}/*;
-        do
-            filename=${filename//$backup_nfs_mount_path\//}
-            vmname="${filename}"
-            optionstext="${optionstext} ${vmname} VM off"
-            optionid=$((optionid + 1))
-    done
-    dialog --colors --column-separator "|" --backtitle "${obutitle}" --title "VM Backups List" --ok-label "LIST BACKUPS" --cancel-label "Main Menu"  --cr-wrap --radiolist "Choose a VM to restore:" 25 50 50 $optionstext 2> $menutmpfile; nav_value=$? ; _return=$(cat $menutmpfile)
+    if [ "$(ls -A $backup_nfs_mount_path)" ]; then
+        for filenamex in "${backup_nfs_mount_path}/*";
+            do
+                    filenamey=${filenamex//$backup_nfs_mount_path\//}
+                    vmname="${filenamey}_"
+                    optionstext="${optionstext} ${vmname} VM off"
+                    optionid=$((optionid + 1))
+        done
+    else
+        dialog --colors --backtitle "${obutitle}" --title " ALERT! " --cr-wrap --msgbox "\n\nThere are no VMs backups available to restore in ${backup_nfs_mount_path}."  10 40
+        ./$(basename $0) && exit;
+    fi
+
+
+    dialog --colors --column-separator "|" --backtitle "${obutitle}" --title "VM Backups List" --ok-label "LIST BACKUPS" --cancel-label "Main Menu"  --cr-wrap --radiolist "Choose a VM to restore from ${backup_nfs_mount_path}:" 25 50 50 $optionstext 2> $menutmpfile; nav_value=$? ; _return=$(cat $menutmpfile)
     #catch nothing chosen
     if [ "${_return}" = "" ] && [ $nav_value -eq 0 ]; then ./$(basename $0) nav 4 frombase && exit; fi
 
