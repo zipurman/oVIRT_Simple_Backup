@@ -2,6 +2,8 @@
 
 	sb_pagetitle( 'Restore' );
 
+	$checkdisk = sb_check_disks(0);
+
 	if ( empty( $action ) ) {
 
 		sb_pagedescription( 'This migrate utility assumes that you have imaged VMs to the same directory that you have outlined in your settings as your migrate path. ' . $settings['mount_migrate'] . '.' );

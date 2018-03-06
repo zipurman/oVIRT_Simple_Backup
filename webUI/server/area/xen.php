@@ -220,6 +220,8 @@
 
 	} else {
 
+		$checkdisk = sb_check_disks(0);
+
 		sb_pagedescription( 'This tool requires all pieces to be configured correctly. <a href="?area=5&howto=1">Click Here</a> for the list of what is required for a successful migration.<br/><br/><b><i>NOTE: This utility will ONLY image a single disk VM from Xen to oVirt. It DOES NOT transfer NICs, MAC Addresses, MEMORY, or ANY settings from Xen Server. Once the VM image is migrated, you can then change the require settings in oVirt before launching your newly migrated VM.</i></b>' );
 
 		if ( empty( $action ) ) {

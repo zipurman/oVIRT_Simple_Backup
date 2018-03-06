@@ -4,6 +4,8 @@
 
 	$area     = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
 	$savestep = varcheck( "savestep", 0, "FILTER_VALIDATE_INT", 0 );
+	$disconnectdisks = varcheck( "disconnectdisks", 0, "FILTER_VALIDATE_INT", 0 );
+	$recovery = varcheck( "recovery", 0, "FILTER_VALIDATE_INT", 0 );
 	$action   = varcheck( "action", '' );
 	$comm     = varcheck( "comm", '' );
 
@@ -48,4 +50,13 @@
 	}
 	if ( empty( $allowsite ) ) {
 		die( 'Access Denied ' .$_SERVER['REMOTE_ADDR'] );
+	}
+
+	if ($disconnectdisks == 1){
+		$attacheddisks         = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' );
+		foreach ( $attacheddisks as $attacheddisk ) {
+			if ($attacheddisk->logical_name != '/dev/' . $settings['drive_type'] . 'a'){
+				$attacheddisks         = ovirt_rest_api_call( 'DELETE', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' .  $attacheddisk['id'] );
+			}
+		}
 	}

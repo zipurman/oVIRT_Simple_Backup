@@ -74,6 +74,10 @@
 		sb_table_end();
 	} else if ( $action == 'select' ) {
 
+	    if (empty($recovery)) {
+		    $checkdisk = sb_check_disks( 0 );
+	    }
+
 		$vmuuid    = varcheck( "vm", '' );
 		$backupnow = varcheck( "backupnow", '' );
 
@@ -171,12 +175,36 @@
                 }
             </script>
 			<?php
+
+		} else if ($recovery == 1){
+
+			exec( 'cat ' . '../cache/' . $vm['id'], $filedata );
+			$vmuuid       = $filedata[0];
+			$snapshotname = $filedata[1];
+			$status       = $filedata[2];
+			$vmname       = $filedata[3];
+			$recoveryurl  = $filedata[4];
+			$recoveryjs   = $filedata[5];
+
+			?>
+            <script>
+                //start checking for status of snapshot
+                sb_update_statusbox('backupstatus', 'Recovering Backup Progress ...');
+                <?php echo $recoveryjs; ?>
+            </script>
+			<?php
+
+			sb_progress_bar( 'snapshotbar' );
+			sb_progress_bar( 'imagingbar' );
+			sb_status_box( 'backupstatus' );
+
 		} else {
 
 
 			$xml  = '<snapshot><description>' . $settings['label'] . $thedatetime . '</description></snapshot>';
 			$snap = ovirt_rest_api_call( 'POST', 'vms/' . $vm['id'] . '/snapshots', $xml );
-			sb_cache_set( $vmuuid, '', 'Backup - Creating Snapshot', $vm->name, 'write' );
+
+			sb_cache_set( $vmuuid, '', 'Backup - Creating Snapshot', $vm->name, 'write', "//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]&recovery=2",  "sb_check_snapshot_progress('{$vm['id']}', '{$settings['label']}{$thedatetime}', 10);" );
 
 			?>
             <script>
@@ -188,7 +216,6 @@
 
 			sb_progress_bar( 'snapshotbar' );
 			sb_progress_bar( 'imagingbar' );
-
 			sb_status_box( 'backupstatus' );
 
 		}

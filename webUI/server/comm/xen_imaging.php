@@ -14,6 +14,7 @@
 		}
 	}
 
+
 	if ( ! empty( $disktoimage ) ) {
 
 		$status = 1;
@@ -66,9 +67,6 @@
 			$reason = 'Start Imaging';
 
 			exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' echo "1" > ' . $settings['mount_migrate'] . '/xen_status.dat', $statusoffile );
-
-			exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' rm ' . $settings['mount_migrate'] . '/xen.img', $statusoffile );
-			exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' rm ' . $settings['mount_migrate'] . '/xen_progress.dat', $statusoffile );
 
 			$command = 'ssh root@' . $settings['xen_migrate_ip'] . ' ' . '\'' . '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_migrate'] . '/xen.img" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
 

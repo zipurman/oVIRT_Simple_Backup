@@ -53,7 +53,9 @@
 			$status = 1;
 			$reason = 'Disk Attached';
 
-			$dev = $settings['drive_type'] . $extradiskdev . $diskletter;
+			$checkdisk = sb_check_disks(10);
+			$dev = $checkdisk['lastdev'];
+
 
 			if ( $buname == '-migrate-' ) {
 				$imagefile        = $settings['mount_migrate'] . '/' . $vmname;

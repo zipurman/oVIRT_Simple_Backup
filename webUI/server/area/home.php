@@ -3,6 +3,16 @@
 	<?php
 
 		$clearitem = varcheck( "clearitem", '' );
+		$clearimage = varcheck( "clearimage", '' );
+
+		if ( preg_match( $UUIDv4, $clearimage ) ) {
+			$vmname = varcheck( "vmname", '' );
+			$buname = varcheck( "buname", '' );
+			unlink( $settings['mount_backups'] . '/' . $vmname . '/' . $clearimage . '/' . $buname . '/image.img');
+			unlink( $settings['mount_backups'] . '/' . $vmname . '/' . $clearimage . '/' . $buname . '/*.dat');
+			$clearitem = $clearimage;
+		}
+
 		if ( preg_match( $UUIDv4, $clearitem ) ) {
 			unlink( '../cache/' . $clearitem );
 		}
@@ -55,9 +65,19 @@
 			$snapshotname = $filedata[1];
 			$status       = $filedata[2];
 			$vmname       = $filedata[3];
+			$recoveryurl  = $filedata[4];
+			$recoveryjs   = $filedata[5];
 
 			if ( strpos( $status, 'Failure' ) !== false || $vmuuid == $settings['uuid_backup_engine'] ) {
-				$status .= ' <a href="?area=0&clearitem=' . $vmuuid . '">Clear</a>';
+				$status .= ' (<a href="?area=0&clearitem=' . $vmuuid . '">Clear</a>) ';
+			}
+
+			if ( $status == 'Imaging'  ) {
+				$status .= ' (<a href="?area=0&clearimage=' . $vmuuid . '&buname=' . $vmuuid .'&vmname=' . $vmname . '">Remove Stuck Image</a>) ';
+			}
+
+			if (!empty($recoveryurl)){
+				$status .= ' (<a href="' . $recoveryurl . '">Recover</a>) ';
 			}
 
 			$rowdata = array(
@@ -87,7 +107,7 @@
                     window.location.reload(true);
                 }
 
-                setTimeout(reloadMe, 5000);
+                setTimeout(reloadMe, 10 * 1000);
 
             </script>
 			<?php

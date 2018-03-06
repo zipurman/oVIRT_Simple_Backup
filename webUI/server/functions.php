@@ -264,7 +264,7 @@
 
 	}
 
-	function sb_cache_set( $vmuuid, $backupname, $status, $vmname, $op = 'write' ) {
+	function sb_cache_set( $vmuuid, $backupname, $status, $vmname, $op = 'write', $recoveryurl = '', $recoveryjs = '' ) {
 
 		if ( $op == 'write' ) {
 			if ( $cachefile = fopen( '../cache/' . $vmuuid, "w" ) ) {
@@ -272,9 +272,47 @@
 				fwrite( $cachefile, $backupname . "\n" );
 				fwrite( $cachefile, $status . "\n" );
 				fwrite( $cachefile, $vmname . "\n" );
+				fwrite( $cachefile, $recoveryurl . "\n" );
+				fwrite( $cachefile, $recoveryjs . "\n" );
 				fclose( $cachefile );
 			}
 		} else if ( $op == 'delete' ) {
 			unlink( '../cache/' . $vmuuid );
 		}
+	}
+
+	function sb_check_disks($alloweddisks) {
+
+		GLOBAL $settings, $area;
+
+		exec( 'fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+		$disks = 0;
+		$avaliabledisks = array();
+		$avaliablediskstext = '';
+		$lastdev = 'nodiskselected';
+		foreach ( $output as $item ) {
+			$item = str_replace( ':', '', $item );
+			$item = str_replace( '/dev/', '', $item );
+
+			if ( $item != $settings['drive_type'] . 'a' ) {
+				$disks ++;
+				$avaliabledisks[$item] = $item;
+				$avaliablediskstext .= '(' . $item . ')';
+				$lastdev = $item;
+			}
+		}
+
+		$return = array(
+			"disks" => $disks,
+			"avaliabledisks" => $avaliabledisks,
+			"avaliablediskstext" => $avaliablediskstext,
+			"lastdev" => $lastdev,
+		);
+
+		if ($return['disks'] > $alloweddisks){
+			die('You must disconnect extra disks from the Backup VM. ' . $return['avaliablediskstext'] . '<br/><a href="?area=' . $area . '&disconnectdisks=1">Click Here to have the script disconnect the disk.</a>');
+		}
+
+		return $return;
+
 	}

@@ -5,6 +5,7 @@
 
 	$status   = 0;
 	$progress = 0;
+	$dev = '';
 	$reason   = 'Disk Not Attached';
 
 	if ( empty( $snapshotname ) ) {
@@ -42,7 +43,8 @@
 					$status = 1;
 					$reason = 'Disk Attached';
 
-					$dev = $settings['drive_type'] . $extradiskdev . $diskletter;
+					$checkdisk = sb_check_disks(10);
+					$dev = $checkdisk['lastdev'];
 
 					$statusfilename = $settings['mount_backups'] . '/' . $vm->name . '/' . $vm['id'] . '/' . $snapshotname . '/status.dat';
 
@@ -78,7 +80,7 @@
 									$progress = fgetc( $progressfile );
 								}
 								$progress = (int) $line;
-								sb_cache_set( $vmuuid, $snapshotname, 'Imaging ' . $progress . '%', $vm->name, 'write' );
+								sb_cache_set( $vmuuid, $snapshotname, 'Imaging ' . $progress . '%', $vm->name, 'write', '?area=2&action=select&backupnow=1&vm=' . $vmuuid . '&recovery=1', 'sb_snapshot_imaging(\'' . $vmuuid .'\', \'' . $snapshotname .'\');' );
 								sleep( 2 );
 							}
 						}
@@ -92,7 +94,9 @@
 
 						$command = '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_backups'] . '/' . $vm->name . '/' . $vm['id'] . '/' . $snapshotname . '/image.img" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
 						exec( $command, $output );
+
 						sb_cache_set( $vmuuid, $snapshotname, 'Imaging', $vm->name, 'write' );
+
 					}
 
 				}
@@ -118,6 +122,7 @@
 		"reason"     => $reason,
 		"snapshotid" => $snapshotid,
 		"progress"   => $progress,
+		"dev"   => $dev,
 	);
 
 	echo json_encode( $jsonarray );

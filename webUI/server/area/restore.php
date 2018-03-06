@@ -1,6 +1,9 @@
 <?php
 
+
 	sb_pagetitle( 'Restore' );
+
+	$checkdisk = sb_check_disks(0);
 
 	if ( empty( $action ) ) {
 

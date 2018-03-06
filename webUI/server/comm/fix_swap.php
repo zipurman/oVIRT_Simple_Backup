@@ -2,7 +2,8 @@
 
 	$setstatus = varcheck( "setstatus", 0, "FILTER_VALIDATE_INT", 0 );
 
-	$dev = $settings['drive_type'] . '' . 'b';
+	$checkdisk = sb_check_disks(10);
+	$dev = $checkdisk['lastdev'];
 
 	$status = 0;
 	$reason = 'Off';
