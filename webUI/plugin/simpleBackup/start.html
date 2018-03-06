@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <script type="text/javascript"
+            src="/ovirt-engine/webadmin/theme/00-ovirt.brand/ovirt-js-dependencies/jquery/dist/jquery.min.js"></script>
+    <script>
+        var api = parent.pluginApi('simpleBackup');
+        var config = api.configObject();
+        api.register({
+            UiInit: function () {
+                api.addMainTab('Simple Backup', 'simple-backup', config.mainBackupPage, {priority: 4});
+            }
+        });
+        api.ready();
+        $(function () {
+            setTimeout(simpleBackupUIPluginMenu, 4000);
+        });
+        function simpleBackupUIPluginMenu() {
+            WebUIPluginMenu('simple-backup', 'Simple Backup', 'compress');
+            // WebUIPluginSubMenu('simple-backup', 'simple-backup2', 'Backup');
+        }
+        function WebUIPluginMenu(slug, name, icon) {
+            var simpleBackupUIPluginMenuSubText = '';
+            simpleBackupUIPluginMenuSubText += '<div class="nav-pf-secondary-nav" id="' + slug + '-secondary">';
+            simpleBackupUIPluginMenuSubText += '<div class="nav-item-pf-header">';
+            simpleBackupUIPluginMenuSubText += '<a href="javascript:;" class="secondary-collapse-toggle-pf" data-toggle="collapse-secondary-nav"></a>';
+            simpleBackupUIPluginMenuSubText += '<span>' + name + '</span>';
+            simpleBackupUIPluginMenuSubText += '</div>';
+            simpleBackupUIPluginMenuSubText += '</div>';
+            window.parent.$("li.list-group-item:contains(" + name + ")").attr("id", slug + "-tab-menu");
+            // window.parent.$("#" + slug + "-tab-menu").append(simpleBackupUIPluginMenuSubText);
+            // window.parent.$("#" + slug + "-tab-menu").addClass("secondary-nav-item-pf");
+            window.parent.$("#" + slug + "-tab-menu > a > span").first().addClass("fa fa-" + icon);
+        }
+
+        function WebUIPluginSubMenu(parentslug, slug, name) {
+            var simpleBackupUIPluginMenuSubText = '';
+            simpleBackupUIPluginMenuSubText += '<ul class="list-group">';
+            simpleBackupUIPluginMenuSubText += '<li class="list-group-item">';
+            simpleBackupUIPluginMenuSubText += '<span></span>';
+            simpleBackupUIPluginMenuSubText += '<a href="#' + slug + '" id="MenuView_' + slug + 'Anchor"><span class="list-group-item-value">' + name + '</span></a>';
+            simpleBackupUIPluginMenuSubText += '</li>';
+            simpleBackupUIPluginMenuSubText += '</ul>';
+            window.parent.$("#" + parentslug + "-secondary").append(simpleBackupUIPluginMenuSubText);
+        }
+
+    </script>
+</head>
+<body></body>
+</html>

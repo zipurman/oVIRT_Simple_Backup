@@ -1,0 +1,8 @@
+{
+  "name": "simpleBackup",
+  "url": "/ovirt-engine/webadmin/plugin/simpleBackup/start.html",
+  "config": {
+    "mainBackupPage": "//10.50.90.175/index.php"
+  },
+  "resourcePath": "simpleBackup"
+}
