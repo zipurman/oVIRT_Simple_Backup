@@ -120,7 +120,7 @@ This code has the following functionality in a web GUI:
         33. ssh-copy-id root@**ip.of.XEN.HOST**
         34. cd /var/www/html/
         35. **Download the files and folders from
-            https://github.com/zipurman/oVIRT_Simple_Backup/webUI/server
+            https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server
             into this folder**
         36. touch /var/www/html/config.php
         37. chown www-data:root /var/www -R
@@ -134,7 +134,7 @@ This code has the following functionality in a web GUI:
 
     2.  cd /usr/share/ovirt-engine/ui-plugins
     3.  **Download the files and folders from
-        https://github.com/zipurman/oVIRT_Simple_Backup/webUI/plugin
+        https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/plugin
         into this directory.**
     4.  vi simpleBackup.json
         -   Change IP Address in simpleBackup.json to match your oVirt
