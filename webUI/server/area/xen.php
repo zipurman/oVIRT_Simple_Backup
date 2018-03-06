@@ -182,7 +182,7 @@
                             <li>ssh-copy-id root@<b>ip.of.XEN.HOST</b></li>
                             <li>cd /var/www/html/</li>
                             <li><b>Download the files and folders from
-                                    https://github.com/zipurman/oVIRT_Simple_Backup/webUI/server into this folder</b>
+                                    https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server into this folder</b>
                             </li>
                             <li>touch /var/www/html/config.php</li>
                             <li>chown www-data:root /var/www -R</li>
@@ -202,7 +202,7 @@
                     </li>
                     <li>cd /usr/share/ovirt-engine/ui-plugins</li>
                     <li><b>Download the files and folders from
-                            https://github.com/zipurman/oVIRT_Simple_Backup/webUI/plugin into this directory.</b></li>
+                            https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/plugin into this directory.</b></li>
                     <li>vi simpleBackup.json
                         <ul>
                             <li>Change IP Address in simpleBackup.json to match your oVirt BackupEngine VM</li>
