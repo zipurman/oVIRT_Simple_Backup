@@ -1,5 +1,8 @@
 <?php
 
+	//TODO - add option for type of console - SPICE/VNC and then set on restores
+
+
 	if ( $savestep == 1 ) {
 
 		$backup_log         = varcheck( "backup_log", '' );

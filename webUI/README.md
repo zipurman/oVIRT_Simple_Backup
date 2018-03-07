@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.5.1)
+# oVIRT_Simple_Backup - WebGUI (0.5.3)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -57,7 +57,7 @@ This code has the following functionality in a web GUI:
             11. chmod 777 /mnt/migrate/
 
 3.  On oVirt Server
-    1.  Create a Debian Linux VM named BackupEngine
+    1.  Create a Debian Linux VM named BackupEngine and login to that VM to do the following commands.
     2.  Install the following packages:
         1.  pv
         2.  curl
@@ -126,6 +126,9 @@ This code has the following functionality in a web GUI:
         37. chown www-data:root /var/www -R
         38. vi /var/www/html/allowed\_ips.php (And change allowed IP
             addresses)
+        39. vi /etc/crontab
+            1. * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
+            2. * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1
 
 4.  on oVirtEngine VM
     1.  As Root:

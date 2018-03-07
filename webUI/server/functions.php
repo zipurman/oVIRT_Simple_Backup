@@ -316,3 +316,35 @@
 		return $return;
 
 	}
+
+	function sb_xen_check_disks($alloweddisks) {
+
+		GLOBAL $settings, $area;
+
+		exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+		$disks = 0;
+		$avaliabledisks = array();
+		$avaliablediskstext = '';
+		$lastdev = '';
+		foreach ( $output as $item ) {
+			$item = str_replace( ':', '', $item );
+			$item = str_replace( '/dev/', '', $item );
+
+			if ( $item != 'xvda' ) {
+				$disks ++;
+				$avaliabledisks[$item] = $item;
+				$avaliablediskstext .= '(' . $item . ')';
+				$lastdev = $item;
+			}
+		}
+
+		$return = array(
+			"disks" => $disks,
+			"avaliabledisks" => $avaliabledisks,
+			"avaliablediskstext" => $avaliablediskstext,
+			"lastdev" => $lastdev,
+		);
+
+		return $return;
+
+	}

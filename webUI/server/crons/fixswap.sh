@@ -32,7 +32,7 @@ if [ -f "/var/www/html/crons/fixswap.dat" ]; then
         echo "#!/bin/bash" > /tmp/fixswap2.sh
         echo "newuuid=\`mkswap /dev/vda2\`" >> /tmp/fixswap2.sh
         echo "swapon /dev/vda2" >> /tmp/fixswap2.sh
-        echo "newuuid=\"$(echo \$newuuid | cut -d ' ' -f 12 | tail -1 | sed 's/UUID=//')\"" >> /tmp/fixswap2.sh
+        echo "newuuid=\"\$(echo \$newuuid | cut -d ' ' -f 12 | tail -1 | sed 's/UUID=//')\"" >> /tmp/fixswap2.sh
         echo "sed -i 's/UUID=[a-zA-Z0-9\-]*.*swap.*$/UUID='\${newuuid}' none            swap    sw              0   /g' /etc/fstab" >> /tmp/fixswap2.sh
         echo "echo \"New UUID SET: \${newuuid}\"" >> /tmp/fixswap2.sh
         echo "cat /etc/fstab" >> /tmp/fixswap2.sh

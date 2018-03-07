@@ -4,16 +4,20 @@
 	$progress = 0;
 	$reason   = 'Disk Not Attached';
 
-	exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' fdisk -l', $output );
+/*	exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' fdisk -l', $output );
 	$disktoimage = '';
 	foreach ( $output as $item ) {
 		if ( strpos( $item, 'xvdb1' ) !== false ) {
 			$disktoimage = 'xvdb';
 		} else if ( strpos( $item, 'xvday1' ) !== false ) {
 			$disktoimage = 'xvday';
+		}else if ( strpos( $item, 'xvdd2' ) !== false ) {
+			$disktoimage = 'xvdd';
 		}
-	}
+	}*/
 
+	$chkdisk = sb_xen_check_disks(10);
+	$disktoimage = $chkdisk['lastdev'];
 
 	if ( ! empty( $disktoimage ) ) {
 
@@ -67,6 +71,7 @@
 			$reason = 'Start Imaging';
 
 			exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' echo "1" > ' . $settings['mount_migrate'] . '/xen_status.dat', $statusoffile );
+
 
 			$command = 'ssh root@' . $settings['xen_migrate_ip'] . ' ' . '\'' . '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_migrate'] . '/xen.img" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
 

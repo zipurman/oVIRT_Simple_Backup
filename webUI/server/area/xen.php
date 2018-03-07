@@ -182,7 +182,8 @@
                             <li>ssh-copy-id root@<b>ip.of.XEN.HOST</b></li>
                             <li>cd /var/www/html/</li>
                             <li><b>Download the files and folders from
-                                    https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server into this folder</b>
+                                    https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server into this
+                                    folder</b>
                             </li>
                             <li>touch /var/www/html/config.php</li>
                             <li>chown www-data:root /var/www -R</li>
@@ -202,7 +203,8 @@
                     </li>
                     <li>cd /usr/share/ovirt-engine/ui-plugins</li>
                     <li><b>Download the files and folders from
-                            https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/plugin into this directory.</b></li>
+                            https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/plugin into this
+                            directory.</b></li>
                     <li>vi simpleBackup.json
                         <ul>
                             <li>Change IP Address in simpleBackup.json to match your oVirt BackupEngine VM</li>
@@ -220,7 +222,7 @@
 
 	} else {
 
-		$checkdisk = sb_check_disks(0);
+		$checkdisk = sb_check_disks( 0 );
 
 		sb_pagedescription( 'This tool requires all pieces to be configured correctly. <a href="?area=5&howto=1">Click Here</a> for the list of what is required for a successful migration.<br/><br/><b><i>NOTE: This utility will ONLY image a single disk VM from Xen to oVirt. It DOES NOT transfer NICs, MAC Addresses, MEMORY, or ANY settings from Xen Server. Once the VM image is migrated, you can then change the require settings in oVirt before launching your newly migrated VM.</i></b>' );
 
@@ -454,8 +456,11 @@
 				<li>Restore Disk Image to New oVirt VM</li>
 				</ol>' );
 
-			sb_gobutton( 'Migrate This Xen VM Now', '', 'sb_migrateXenStart();' );
-
+			if ( empty( $vbd_uuid ) || empty( $vdi_uuid ) ) {
+				echo 'No Attached Disks';
+			} else {
+				sb_gobutton( 'Migrate This Xen VM Now', '', 'sb_migrateXenStart();' );
+			}
 			sb_progress_bar( 'xenbar' );
 			sb_progress_bar( 'xenimagingbar' );
 			sb_progress_bar( 'creatediskstatus' );
