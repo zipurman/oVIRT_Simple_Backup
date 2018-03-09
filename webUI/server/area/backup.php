@@ -164,19 +164,7 @@
 
 		sb_table_end();
 
-		if ( empty( $backupnow ) ) {
-			sb_gobutton( 'Backup This VM Now', '', 'checkBackupNow();' );
-			?>
-            <script>
-                function checkBackupNow() {
-                    if (confirm('Backup this VM Now?')) {
-                        window.location = '?area=2&action=select&backupnow=1&vm=<?php echo $vm['id'];?>';
-                    }
-                }
-            </script>
-			<?php
-
-		} else if ($recovery == 1){
+		if ($recovery == 1){
 
 			exec( 'cat ' . '../cache/' . $vm['id'], $filedata );
 			$vmuuid       = $filedata[0];
@@ -200,17 +188,21 @@
 
 		} else {
 
+			sb_gobutton( 'Backup This VM Now', '', 'checkBackupNow();' );
 
-			$xml  = '<snapshot><description>' . $settings['label'] . $thedatetime . '</description></snapshot>';
-			$snap = ovirt_rest_api_call( 'POST', 'vms/' . $vm['id'] . '/snapshots', $xml );
 
-			sb_cache_set( $vmuuid, '', 'Backup - Creating Snapshot', $vm->name, 'write', "//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]&recovery=2",  "sb_check_snapshot_progress('{$vm['id']}', '{$settings['label']}{$thedatetime}', 10);" );
 
 			?>
             <script>
-                //start checking for status of snapshot
-                sb_update_statusbox('backupstatus', 'Starting Backup ...');
-                sb_check_snapshot_progress('<?php echo $vm['id']; ?>', '<?php echo $settings['label'] . $thedatetime; ?>', 0);
+                function checkBackupNow() {
+                    if (confirm('Backup this VM Now?')) {
+                        sb_newsnapshot = 1;
+                        $(".gobutton").css('display', 'none');
+                        //start checking for status of snapshot
+                        sb_update_statusbox('backupstatus', 'Starting Backup ...');
+                        sb_check_snapshot_progress('<?php echo $vm['id']; ?>', '<?php echo $settings['label'] . $thedatetime; ?>', 0);
+                    }
+                }
             </script>
 			<?php
 

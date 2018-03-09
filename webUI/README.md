@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.5.3)
+# oVIRT_Simple_Backup - WebGUI (0.5.4)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -111,22 +111,23 @@ This code has the following functionality in a web GUI:
         24. chmod 777 /mnt/migrate/
         25. chmod 777 /mnt/backup
         26. chmod 777 /mnt/linux
-        27. mkdir /var/www/.ssh
-        28. chown www-data:www-data /var/www/.ssh
-        29. chmod 700 /var/www/.ssh
-        30. su www-data
-        31. ssh-keygen -t rsa
-        32. ssh-copy-id root@**ip.of.VMMIGRATE.VM**
-        33. ssh-copy-id root@**ip.of.XEN.HOST**
-        34. cd /var/www/html/
-        35. **Download the files and folders from
+        27. chmod 777 /dev/sr0
+        28. mkdir /var/www/.ssh
+        29. chown www-data:www-data /var/www/.ssh
+        30. chmod 700 /var/www/.ssh
+        31. su www-data
+        32. ssh-keygen -t rsa
+        33. ssh-copy-id root@**ip.of.VMMIGRATE.VM**
+        34. ssh-copy-id root@**ip.of.XEN.HOST**
+        35. cd /var/www/html/
+        36. **Download the files and folders from
             https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server
             into this folder**
-        36. touch /var/www/html/config.php
-        37. chown www-data:root /var/www -R
-        38. vi /var/www/html/allowed\_ips.php (And change allowed IP
+        37. touch /var/www/html/config.php
+        38. chown www-data:root /var/www -R
+        39. vi /var/www/html/allowed\_ips.php (And change allowed IP
             addresses)
-        39. vi /etc/crontab
+        40. vi /etc/crontab
             1. * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
             2. * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1
 

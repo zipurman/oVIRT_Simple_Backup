@@ -2,14 +2,12 @@
 
 	//TODO - add option for type of console - SPICE/VNC and then set on restores
 
-
 	if ( $savestep == 1 ) {
 
 		$backup_log         = varcheck( "backup_log", '' );
 		$cluster            = varcheck( "cluster", '' );
 		$drive_interface    = varcheck( "drive_interface", 0, "FILTER_VALIDATE_INT", 0 );
 		$drive_type         = varcheck( "drive_type", 0, "FILTER_VALIDATE_INT", 0 );
-		$increment_disks_yn = varcheck( "increment_disks_yn", 0, "FILTER_VALIDATE_INT", 0 );
 		$retention          = varcheck( "retention", 0, "FILTER_VALIDATE_INT", 0 );
 		$label              = varcheck( "label", '' );
 		$mount_backups      = varcheck( "mount_backups", '' );
@@ -23,6 +21,13 @@
 		$xen_migrate_uuid   = varcheck( "xen_migrate_uuid", '' );
 		$xen_migrate_ip     = varcheck( "xen_migrate_ip", '' );
 		$xen_ip             = varcheck( "xen_ip", '' );
+
+		$restore_console     = varcheck( "restore_console", '' );
+		$restore_os          = varcheck( "restore_os", '' );
+		$restore_vm_type     = varcheck( "restore_vm_type", '' );
+		$restore_cpu_sockets = varcheck( "restore_cpu_sockets", 0, "FILTER_VALIDATE_INT", 0 );
+		$restore_cpu_cores   = varcheck( "restore_cpu_cores", 0, "FILTER_VALIDATE_INT", 0 );
+		$restore_cpu_threads = varcheck( "restore_cpu_threads", 0, "FILTER_VALIDATE_INT", 0 );
 
 		$drive_interface = ( $drive_interface == 0 ) ? 'virtio' : 'virtio_scsi';
 		$drive_type      = ( $drive_type == 0 ) ? 'vd' : 'sd';
@@ -43,7 +48,6 @@
 		fwrite( $configfile, '"mount_backups" => "' . $mount_backups . '",' . "\n" );
 		fwrite( $configfile, '"drive_type" => "' . $drive_type . '",' . "\n" );
 		fwrite( $configfile, '"drive_interface" => "' . $drive_interface . '",' . "\n" );
-		fwrite( $configfile, '"increment_disks_yn" => ' . $increment_disks_yn . ',' . "\n" );
 		fwrite( $configfile, '"backup_log" => "' . $backup_log . '",' . "\n" );
 		fwrite( $configfile, '"email" => "' . $email . '",' . "\n" );
 		fwrite( $configfile, '"retention" => ' . $retention . ',' . "\n" );
@@ -53,29 +57,40 @@
 		fwrite( $configfile, '"xen_ip" => "' . $xen_ip . '",' . "\n" );
 		fwrite( $configfile, '"xen_migrate_uuid" => "' . $xen_migrate_uuid . '",' . "\n" );
 		fwrite( $configfile, '"xen_migrate_ip" => "' . $xen_migrate_ip . '",' . "\n" );
+		fwrite( $configfile, '"restore_console" => "' . $restore_console . '",' . "\n" );
+		fwrite( $configfile, '"restore_os" => "' . $restore_os . '",' . "\n" );
+		fwrite( $configfile, '"restore_vm_type" => "' . $restore_vm_type . '",' . "\n" );
+		fwrite( $configfile, '"restore_cpu_sockets" => "' . $restore_cpu_sockets . '",' . "\n" );
+		fwrite( $configfile, '"restore_cpu_cores" => "' . $restore_cpu_cores . '",' . "\n" );
+		fwrite( $configfile, '"restore_cpu_threads" => "' . $restore_cpu_threads . '",' . "\n" );
 		fwrite( $configfile, ');' . "\n" );
 		fclose( $configfile );
 
 		$settings = array(
-			"vms_to_backup"      => array( "" ),
-			"label"              => $label,
-			"uuid_backup_engine" => $uuid_backup_engine,
-			"ovirt_url"          => $ovirt_url,
-			"ovirt_user"         => $ovirt_user,
-			"ovirt_pass"         => $ovirt_pass,
-			"mount_backups"      => $mount_backups,
-			"drive_type"         => $drive_type,
-			"drive_interface"    => $drive_interface,
-			"increment_disks_yn" => $increment_disks_yn,
-			"backup_log"         => $backup_log,
-			"email"              => $email,
-			"retention"          => $retention,
-			"storage_domain"     => $storage_domain,
-			"cluster"            => $cluster,
-			"mount_migrate"      => $mount_migrate,
-			"xen_ip"             => $xen_ip,
-			"xen_migrate_uuid"   => $xen_migrate_uuid,
-			"xen_migrate_ip"     => $xen_migrate_ip,
+			"vms_to_backup"       => array( "" ),
+			"label"               => $label,
+			"uuid_backup_engine"  => $uuid_backup_engine,
+			"ovirt_url"           => $ovirt_url,
+			"ovirt_user"          => $ovirt_user,
+			"ovirt_pass"          => $ovirt_pass,
+			"mount_backups"       => $mount_backups,
+			"drive_type"          => $drive_type,
+			"drive_interface"     => $drive_interface,
+			"backup_log"          => $backup_log,
+			"email"               => $email,
+			"retention"           => $retention,
+			"storage_domain"      => $storage_domain,
+			"cluster"             => $cluster,
+			"mount_migrate"       => $mount_migrate,
+			"xen_ip"              => $xen_ip,
+			"xen_migrate_uuid"    => $xen_migrate_uuid,
+			"xen_migrate_ip"      => $xen_migrate_ip,
+			"restore_console"     => $restore_console,
+			"restore_os"          => $restore_os,
+			"restore_vm_type"     => $restore_vm_type,
+			"restore_cpu_sockets" => $restore_cpu_sockets,
+			"restore_cpu_cores"   => $restore_cpu_cores,
+			"restore_cpu_threads" => $restore_cpu_threads,
 		);
 
 	}
@@ -257,27 +272,6 @@
 
 	$rowdata = array(
 		array(
-			"text" => "Increment Disks:",
-		),
-		array(
-			"text" => sb_input( array(
-				'type'  => 'select',
-				'name'  => 'increment_disks_yn',
-				'value' => $settings['increment_disks_yn'],
-				'list'  => array(
-					array( 'id' => '0', 'name' => 'No (Recommended)', ),
-					array( 'id' => '1', 'name' => 'Yes', ),
-				),
-			) ),
-		),
-		array(
-			"text" => "Yes if VM wont release disk devices after each backup.",
-		),
-	);
-	sb_table_row( $rowdata );
-
-	$rowdata = array(
-		array(
 			"text" => "Path To Backup Log:",
 		),
 		array(
@@ -331,41 +325,26 @@
 	);
 	sb_table_row( $rowdata );
 
-	$rowdata = array(
-		array(
-			"text" => "Storage Domain Name:",
-		),
-		array(
-			"text" => sb_input( array(
-				'type'  => 'text',
-				'name'  => 'storage_domain',
-				'size'  => '36',
-				'value' => $settings['storage_domain'],
-			) ),
-		),
-		array(
-			"text" => "Name of Storage Domain on oVirt.",
-		),
-	);
-	sb_table_row( $rowdata );
+	sb_table_end();
+
+	echo '<br/><h3>Xen Migration Settings</h3>';
+	sb_table_start();
 
 	$rowdata = array(
 		array(
-			"text" => "Cluster Name:",
+			"text"  => "",
+			"width" => "20%",
 		),
 		array(
-			"text" => sb_input( array(
-				'type'  => 'text',
-				'name'  => 'cluster',
-				'size'  => '36',
-				'value' => $settings['cluster'],
-			) ),
+			"text"  => "",
+			"width" => "30%",
 		),
 		array(
-			"text" => "Name of Cluster on oVirt.",
+			"text"  => "",
+			"width" => "50%",
 		),
 	);
-	sb_table_row( $rowdata );
+	sb_table_heading( $rowdata );
 
 	$rowdata = array(
 		array(
@@ -439,14 +418,39 @@
 	);
 	sb_table_row( $rowdata );
 
+	sb_table_end();
+
+	echo '<br/><h3>Default Restore Options</h3>';
+	sb_table_start();
 	$rowdata = array(
 		array(
-			"text" => "",
+			"text"  => "",
+			"width" => "20%",
+		),
+		array(
+			"text"  => "",
+			"width" => "30%",
+		),
+		array(
+			"text"  => "",
+			"width" => "50%",
+		),
+	);
+	sb_table_heading( $rowdata );
+
+	$oslist   = sb_oslist();
+	$consoles = sb_consolelist();
+
+	$rowdata = array(
+		array(
+			"text" => "Console:",
 		),
 		array(
 			"text" => sb_input( array(
-				'type'  => 'submit',
-				'value' => 'Save Changes',
+				'type'  => 'select',
+				'name'  => 'restore_console',
+				'list'  => $consoles,
+				'value' => $settings['restore_console'],
 			) ),
 		),
 		array(
@@ -454,6 +458,145 @@
 		),
 	);
 	sb_table_row( $rowdata );
+
+	$rowdata = array(
+		array(
+			"text" => "OS:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'  => 'select',
+				'name'  => 'restore_os',
+				'list'  => $oslist,
+				'value' => $settings['restore_os'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	$clusters = sb_clusterlist();
+	$domains  = sb_domainlist();
+	$rowdata  = array(
+		array(
+			"text" => "Domain:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'  => 'select',
+				'name'  => 'storage_domain',
+				'list'  => $domains,
+				'value' => $settings['storage_domain'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	$rowdata = array(
+		array(
+			"text" => "Domain:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'  => 'select',
+				'name'  => 'cluster',
+				'list'  => $clusters,
+				'value' => $settings['cluster'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	$vmtypes = sb_vmtypelist();
+	$rowdata = array(
+		array(
+			"text" => "VM Type:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'  => 'select',
+				'name'  => 'restore_vm_type',
+				'list'  => $vmtypes,
+				'value' => $settings['restore_vm_type'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	$rowdata = array(
+		array(
+			"text" => "CPU Sockets:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'      => 'text',
+				'name'      => 'restore_cpu_sockets',
+				'size'      => '3',
+				'maxlength' => '3',
+				'value'     => $settings['restore_cpu_sockets'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	$rowdata = array(
+		array(
+			"text" => "CPU Cores:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'      => 'text',
+				'name'      => 'restore_cpu_cores',
+				'size'      => '3',
+				'maxlength' => '3',
+				'value'     => $settings['restore_cpu_cores'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	$rowdata = array(
+		array(
+			"text" => "CPU Threads:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'      => 'text',
+				'name'      => 'restore_cpu_threads',
+				'size'      => '3',
+				'maxlength' => '3',
+				'value'     => $settings['restore_cpu_threads'],
+			) ),
+		),
+		array(
+			"text" => "",
+		),
+	);
+	sb_table_row( $rowdata );
+
+	sb_table_end();
+
+	echo '<br/><br/>' . sb_input( array(
+			'type'  => 'submit',
+			'value' => 'Save Changes',
+		) );
 
 	echo sb_input( array(
 		'type'  => 'hidden',
@@ -467,5 +610,4 @@
 		'value' => '1',
 	) );
 
-	sb_table_end();
 	sb_form_end();

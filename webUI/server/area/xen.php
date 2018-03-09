@@ -173,6 +173,7 @@
                             <li>chmod 777 /mnt/migrate/</li>
                             <li>chmod 777 /mnt/backup</li>
                             <li>chmod 777 /mnt/linux</li>
+                            <li>chmod 777 /dev/sr0</li>
                             <li>mkdir /var/www/.ssh</li>
                             <li>chown www-data:www-data /var/www/.ssh</li>
                             <li>chmod 700 /var/www/.ssh</li>
@@ -236,7 +237,6 @@
 				array(
 					"text"  => "VM",
 					"width" => "50%",
-					x,
 				),
 				array(
 					"text"  => "Status",
@@ -311,16 +311,14 @@
 
 			exec( 'ssh root@' . $settings['xen_ip'] . ' xe vm-disk-list vm=' . $xenuuid, $output );
 
+			$size = 0;
 			foreach ( $output as $item ) {
 				if ( strpos( $item, 'virtual-size' ) !== false ) {
 					$size = preg_replace( '/^.*:/i', '', $item );
 				}
-				//
-
 			}
-			echo $output[10];
 
-			//		showme( $output );
+			//		showme( $output );5
 
 			exec( 'ssh root@' . $settings['xen_ip'] . ' xe vm-list is-control-domain=false uuid=' . $xenuuid, $output2 );
 			$status = str_replace( 'power-state ( RO): ', '', $output2['2'] );
@@ -358,6 +356,12 @@
 			);
 			sb_table_row( $rowdata );
 
+			if ( empty( $output['1'] ) ) {
+				$output['1'] = '???';
+			}
+			if ( empty( $output['7'] ) ) {
+				$output['7'] = '???';
+			}
 			$vbd_uuid = $output['1'];
 			$vdi_uuid = $output['7'];
 			$vbd_uuid = preg_replace( '/^.*:/i', '', $vbd_uuid );
@@ -385,46 +389,14 @@
 						'value' => 0,
 					) ),
 				),
-				array( "text" => 'New VM Name:', ),
-				array(
-					"text" => sb_input( array(
-						'type'      => 'text',
-						'name'      => 'restorenewname',
-						'size'      => '36',
-						'maxlength' => '36',
-						'value'     => '',
-					) ),
-				),
+				array( "text" => '', ),
+				array( "text" => '', ),
 			);
 			sb_table_row( $rowdata );
 
-			$rowdata = array(
-				array( "text" => 'Fix Grub:', ),
-				array(
-					"text" => sb_input( array(
-						'type'  => 'select',
-						'name'  => 'option_fixgrub',
-						'list'  => array(
-							array( 'id' => '0', 'name' => 'No', ),
-							array( 'id' => '1', 'name' => 'Yes', ),
-						),
-						'value' => 0,
-					) ),
-				),
-				array( "text" => 'Fix Swap:', ),
-				array(
-					"text" => sb_input( array(
-						'type'  => 'select',
-						'name'  => 'option_fixswap',
-						'list'  => array(
-							array( 'id' => '0', 'name' => 'No', ),
-							array( 'id' => '1', 'name' => 'Yes', ),
-						),
-						'value' => 0,
-					) ),
-				),
-			);
-			sb_table_row( $rowdata );
+			sb_table_end();
+
+			sb_new_vm_settings( $sizegb, 2, 2 );
 
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'disksize', 'value' => $sizegb, ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'vmname', 'value' => 'xen.img', ) );
@@ -438,8 +410,6 @@
 				'value' => $settings['uuid_backup_engine'],
 			) );//not used - just for validation areas
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'sb_area', 'value' => 4, ) );
-
-			sb_table_end();
 
 			sb_pagedescription( '<b><i>Migration process. The script will do the following:</i></b>
 				<ol>

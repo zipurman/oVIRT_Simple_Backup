@@ -3,6 +3,8 @@
 	$status   = 0;
 	$progress = 0;
 	$reason   = 'Disk Not Attached';
+	$vmuuid = 'XEN';
+	$snapshotname = 'XEN';
 
 /*	exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' fdisk -l', $output );
 	$disktoimage = '';
@@ -90,13 +92,12 @@
 	}
 
 	if ( empty( $status ) ) {
-		sb_cache_set( $vmuuid, $snapshotname, 'Imaging Failure - ' . $reason, $vm->name, 'write' );
+		sb_cache_set( $vmuuid, $snapshotname, 'Imaging Failure - ' . $reason, 'XEN', 'write' );
 	}
 
 	$jsonarray = array(
 		"status"     => $status,
 		"reason"     => $reason,
-		"snapshotid" => $snapshotid,
 		"progress"   => $progress,
 	);
 

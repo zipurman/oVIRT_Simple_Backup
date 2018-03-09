@@ -146,10 +146,10 @@
 		sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging Failure - ' . $reason, $diskname, 'write' );
 	}
 
+
 	$jsonarray = array(
 		"status"         => $status,
 		"reason"         => $reason,
-		"snapshotid"     => $snapshotid,
 		"progress"       => $progress,
 		"statusfilename" => $statusfilename,
 	);

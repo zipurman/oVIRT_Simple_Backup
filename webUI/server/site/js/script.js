@@ -4,13 +4,26 @@ var sb_completedtasks = [];
 var sb_currenttask = '';
 var sb_alerttext = '';
 var sb_xen_migrate_progress = 0;
+var sb_restore_area = 0;
+var sb_newsnapshot = 0;
 
+//used to monitor changes to forms
+var formwatchsomethingChanged = false;
+
+$(window).bind('beforeunload', function (e) {
+    if (formwatchsomethingChanged) {
+        return true;
+    }
+    e = null;
+});
 
 function sb_update_statusbox(domid, statustext) {
     if (statustext.toLowerCase().indexOf('complete') != -1) {
+        formwatchsomethingChanged = false;
         $("#" + domid).html('(' + statustext + ')');
     } else {
         $("#" + domid).html('<i class="fa fa-refresh fa-spin" style="font-size:14px; margin-right: 10px;"></i> ' + statustext);
+        formwatchsomethingChanged = true;
     }
 }
 
@@ -18,6 +31,7 @@ function sb_check_snapshot(vmuuid, snapshotname) {
     var queryx = {};
     queryx['comm'] = 'snapshot_status';
     queryx['vmuuid'] = vmuuid;
+    queryx['newsnapshot'] = sb_newsnapshot;
     queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
@@ -25,6 +39,7 @@ function sb_check_snapshot(vmuuid, snapshotname) {
         data: queryx,
         dataType: 'json',
         success: function (json) {
+            sb_newsnapshot = 0;
             if (json.status == 0 || json.status == -1) {
                 sb_check_snapshot_progress(vmuuid, snapshotname);
                 sb_update_statusbox('backupstatus', 'Creating Snapshot');
@@ -32,7 +47,6 @@ function sb_check_snapshot(vmuuid, snapshotname) {
                 $("#snapshotbar .progressbarinner").html('Snapshot 100% (COMPLETED)').css('width', '100%');
                 sb_update_statusbox('backupstatus', 'Snapshot Created');
                 sb_create_backup_directories(vmuuid, snapshotname);
-
             }
         }
     });
@@ -277,7 +291,7 @@ function sb_restore_imaging(diskname, disksize, diskuuid) {
     });
 }
 
-function sb_restore_run_options(diskname, diskuuid){
+function sb_restore_run_options(diskname, diskuuid) {
 
     var setstatus = 0;
     if (sb_currenttask == '') {
@@ -288,28 +302,28 @@ function sb_restore_run_options(diskname, diskuuid){
     var option_fixgrub = $("#option_fixgrub").val();
     var option_fixswap = $("#option_fixswap").val();
 
-    if (typeof sb_completedtasks['fix_grub'] !== 'undefined'){
+    if (typeof sb_completedtasks['fix_grub'] !== 'undefined') {
         option_fixgrub = 0;
     }
 
-    if (typeof sb_completedtasks['fix_swap'] !== 'undefined'){
+    if (typeof sb_completedtasks['fix_swap'] !== 'undefined') {
         option_fixswap = 0;
     }
 
     var runtask = 0;
 
-    if (option_fixgrub == 1){
+    if (option_fixgrub == 1) {
         runtask = 1;
         sb_currenttask = 'fix_grub';
-    } else if (option_fixswap == 1){
+    } else if (option_fixswap == 1) {
         runtask = 1;
         sb_currenttask = 'fix_swap';
     }
 
-    if (runtask == 0 && sb_currenttask == ''){
+    if (runtask == 0 && sb_currenttask == '') {
         sb_update_statusbox('restorestatus', 'All Optional Tasks Completed');
         sb_vm_create(diskname, diskuuid);
-    } else if (runtask == 1){
+    } else if (runtask == 1) {
         var queryx = {};
         queryx['comm'] = sb_currenttask;
         queryx['setstatus'] = setstatus;
@@ -327,7 +341,7 @@ function sb_restore_run_options(diskname, diskuuid){
                 } else if (json.status == 2) {
                     sb_update_statusbox('restorestatus', 'Completed: ' + sb_currenttask + '');
                     sb_completedtasks[sb_currenttask] = 1;
-                    if (sb_currenttask == 'fix_swap'){
+                    if (sb_currenttask == 'fix_swap') {
                         sb_alerttext += '\n\nSwap Repair Configured. \n\nYou will have to run:\n\n/root/fixswap1.sh *will auto restart*\n\n/root/fixswap2.sh\n\non the new VM once you start it.';
                     }
                     sb_currenttask = '';
@@ -341,9 +355,34 @@ function sb_restore_run_options(diskname, diskuuid){
 
 function sb_vm_create(diskname, diskuuid) {
 
+
+    var os = $("#os").val();
+    var console = $("#console").val();
+    var memory = $("#memory").val();
+    var memory_max = $("#memory_max").val();
+
+    var cpu_sockets = $("#sockets").val();
+    var cpu_cores = $("#cores").val();
+    var cpu_threads = $("#threads").val();
+    var cluster = $("#cluster").val();
+    var vmtype = $("#vmtype").val();
+    var nic1 = $("#nic1").val();
+
+
     var queryx = {};
     queryx['comm'] = 'restore_vm_create';
     queryx['diskname'] = diskname;
+    queryx['os'] = os;
+    queryx['console'] = console;
+    queryx['memory'] = memory;
+    queryx['memory_max'] = memory_max;
+    queryx['nic1'] = nic1;
+
+    queryx['cpu_sockets'] = cpu_sockets;
+    queryx['cpu_cores'] = cpu_cores;
+    queryx['cpu_threads'] = cpu_threads;
+    queryx['cluster'] = cluster;
+    queryx['vmtype'] = vmtype;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -397,7 +436,12 @@ function sb_disk_attach(vmuuid, diskuuid) {
             if (json.status == 0) {
                 sb_update_statusbox('restorestatus', 'Failed - ' + json.reason);
             } else if (json.status == 1) {
-                sb_update_statusbox('restorestatus', 'Disk Attached');
+                if (sb_restore_area == 0) {
+                    sb_update_statusbox('restorestatus', 'Disk Attached');
+                } else {
+                    sb_update_statusbox('restorestatus', 'Disk Attached & VM Completed');
+                }
+
             }
         }
     });
@@ -538,6 +582,7 @@ function sb_xen_removedisk(xstatus) {
 
             } else {
                 sb_update_statusbox('restorestatus', 'Failed: ' + json.reason);
+                sb_xen_removedisk(1);
             }
         }
     });

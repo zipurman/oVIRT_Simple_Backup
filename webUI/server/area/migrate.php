@@ -2,7 +2,7 @@
 
 	sb_pagetitle( 'Restore' );
 
-	$checkdisk = sb_check_disks(0);
+	$checkdisk = sb_check_disks( 0 );
 
 	if ( empty( $action ) ) {
 
@@ -42,10 +42,7 @@
 		$imagefile = $settings['mount_migrate'] . '/' . $vmname;
 
 		if ( file_exists( $imagefile ) ) {
-			$xmldata = file_get_contents( $xmlfile );
-			$xml     = simplexml_load_string( $xmldata );
 
-			//				showme( $xml );
 			sb_table_start();
 
 			$rowdata = array(
@@ -64,62 +61,26 @@
 			);
 			sb_table_row( $rowdata );
 
-			$imagesize = filesize( $imagefile ) / 1024 / 1024 / 1024;
-			$rowdata   = array(
-				array( "text" => 'Image Size:', ),
-				array( "text" => $imagesize . ' GB', ),
-				array( "text" => 'New VM Name:', ),
-				array(
-					"text" => sb_input( array(
-						'type'      => 'text',
-						'name'      => 'restorenewname',
-						'size'      => '36',
-						'maxlength' => '36',
-						'value'     => '',
-					) ),
-				),
-			);
-			sb_table_row( $rowdata );
+			sb_table_end();
 
-			$rowdata = array(
-				array( "text" => 'Fix Grub:', ),
-				array(
-					"text" => sb_input( array(
-						'type'  => 'select',
-						'name'  => 'option_fixgrub',
-						'list'  => array(
-							array( 'id' => '0', 'name' => 'No', ),
-							array( 'id' => '1', 'name' => 'Yes', ),
-						),
-						'value' => 0,
-					) ),
-				),
-				array( "text" => 'Fix Swap:', ),
-				array(
-					"text" => sb_input( array(
-						'type'  => 'select',
-						'name'  => 'option_fixswap',
-						'list'  => array(
-							array( 'id' => '0', 'name' => 'No', ),
-							array( 'id' => '1', 'name' => 'Yes', ),
-						),
-						'value' => 0,
-					) ),
-				),
-			);
-			sb_table_row( $rowdata );
+			$imagesize = filesize( $imagefile ) / 1024 / 1024 / 1024;
+			sb_new_vm_settings( $imagesize, 2, 2 );
 
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'disksize', 'value' => $imagesize, ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'vmname', 'value' => $vmname, ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'buname', 'value' => '-migrate-', ) );
-			echo sb_input( array( 'type'  => 'hidden',
-			                      'name'  => 'vmuuid',
-			                      'value' => $settings['uuid_backup_engine'],
+			echo sb_input( array(
+				'type'  => 'hidden',
+				'name'  => 'vmuuid',
+				'value' => $settings['uuid_backup_engine'],
 			) );//not used - just for validation areas
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'sb_area', 'value' => 4, ) );
 
-			sb_table_end();
-
+			?>
+            <script>
+                sb_restore_area = 2;
+            </script>
+			<?php
 			sb_gobutton( 'Restore This VM Now', '', 'checkRestoreNow(1);' );
 
 			sb_progress_bar( 'creatediskstatus' );

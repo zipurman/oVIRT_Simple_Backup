@@ -1,9 +1,8 @@
 <?php
 
-
 	sb_pagetitle( 'Restore' );
 
-	$checkdisk = sb_check_disks(0);
+	$checkdisk = sb_check_disks( 0 );
 
 	if ( empty( $action ) ) {
 
@@ -152,9 +151,9 @@
 
 				$rowdata = array(
 					array( "text" => 'Min Memory:', ),
-					array( "text" => $xml->Content->MinAllocatedMem, ),
+					array( "text" => $xml->Content->MinAllocatedMem / 1024 . ' GB', ),
 					array( "text" => 'Max Memory:', ),
-					array( "text" => $xml->Content->MaxMemorySizeMb, ),
+					array( "text" => $xml->Content->MaxMemorySizeMb / 1024 . ' GB', ),
 				);
 				sb_table_row( $rowdata );
 
@@ -166,50 +165,10 @@
 				);
 				sb_table_row( $rowdata );
 
-				$imagesize = filesize( $imagefile ) / 1024 / 1024 / 1024;
-				$rowdata   = array(
-					array( "text" => 'Image Size:', ),
-					array( "text" => $imagesize . ' GB', ),
-					array( "text" => 'New VM Name:', ),
-					array(
-						"text" => sb_input( array(
-							'type'      => 'text',
-							'name'      => 'restorenewname',
-							'size'      => '36',
-							'maxlength' => '36',
-							'value'     => '',
-						) ),
-					),
-				);
-				sb_table_row( $rowdata );
+				sb_table_end();
 
-				$rowdata = array(
-					array( "text" => 'Fix Grub:', ),
-					array(
-						"text" => sb_input( array(
-							'type'  => 'select',
-							'name'  => 'option_fixgrub',
-							'list'  => array(
-								array( 'id' => '0', 'name' => 'No', ),
-								array( 'id' => '1', 'name' => 'Yes', ),
-							),
-							'value' => 0,
-						) ),
-					),
-					array( "text" => 'Fix Swap:', ),
-					array(
-						"text" => sb_input( array(
-							'type'  => 'select',
-							'name'  => 'option_fixswap',
-							'list'  => array(
-								array( 'id' => '0', 'name' => 'No', ),
-								array( 'id' => '1', 'name' => 'Yes', ),
-							),
-							'value' => 0,
-						) ),
-					),
-				);
-				sb_table_row( $rowdata );
+				$imagesize = filesize( $imagefile ) / 1024 / 1024 / 1024;
+				sb_new_vm_settings($imagesize,$xml->Content->MinAllocatedMem / 1024, $xml->Content->MaxMemorySizeMb / 1024);
 
 				echo sb_input( array( 'type' => 'hidden', 'name' => 'disksize', 'value' => $imagesize, ) );
 				echo sb_input( array( 'type' => 'hidden', 'name' => 'vmname', 'value' => $xml->Content->Name, ) );
@@ -217,13 +176,13 @@
 				echo sb_input( array( 'type' => 'hidden', 'name' => 'vmuuid', 'value' => $uuid, ) );
 				echo sb_input( array( 'type' => 'hidden', 'name' => 'sb_area', 'value' => 3, ) );
 
-				sb_table_end();
 
 				sb_gobutton( 'Restore This VM Now', '', 'checkRestoreNow(1);' );
 
 				sb_progress_bar( 'creatediskstatus' );
 				sb_progress_bar( 'imagingbar' );
 				sb_status_box( 'restorestatus' );
+
 
 			} else {
 				echo 'No data.xml or image.img found.';

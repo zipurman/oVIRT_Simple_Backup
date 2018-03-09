@@ -22,7 +22,7 @@
 		$diskletter   = 'b';
 		$snap         = ovirt_rest_api_call( 'DELETE', 'vms/' . $vmuuid . '/diskattachments/' . $diskuuid );
 
-		sb_cache_set( $vmuuid, $snapshotname, 'Detatching Image', $diskuuid, 'write' );
+		sb_cache_set( $vmuuid, '', 'Detatching Image', $diskuuid, 'write' );
 		sleep( 1 );
 		$status = 1;
 		$reason = 'Disk Detatched';
@@ -30,13 +30,12 @@
 	}
 
 	if ( empty( $status ) ) {
-		sb_cache_set( $vmuuid, $snapshotname, 'Detatch Image Failure - ' . $reason, $diskuuid, 'write' );
+		sb_cache_set( $vmuuid, '', 'Detatch Image Failure - ' . $reason, $diskuuid, 'write' );
 	}
 
 	$jsonarray = array(
 		"status"     => $status,
 		"reason"     => $reason,
-		"snapshotid" => $snapshotid,
 	);
 
 	echo json_encode( $jsonarray );
