@@ -3,7 +3,25 @@
 ### A REST API backup from PHP for oVirt 4.2.x
 
 #### Screenshots
-![](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/screenshots/SS01.png)
+![ ](screenshots/SS01.png?raw=true)
+
+![ ](screenshots/SS02.png?raw=true)
+
+![ ](screenshots/SS03.png?raw=true)
+
+![ ](screenshots/SS04.png?raw=true)
+
+![ ](screenshots/SS05.png?raw=true)
+
+![ ](screenshots/SS06.png?raw=true)
+
+![ ](screenshots/SS07.png?raw=true)
+
+![ ](screenshots/SS08.png?raw=true)
+
+![ ](screenshots/SS09.png?raw=true)
+
+![ ](screenshots/SS10.png?raw=true)
 
 #### Outline
 
