@@ -14,6 +14,10 @@
 obusettings_write(){
     #settings set to file/line
     sed -i "${2}s/.*/${1}/" $menusettings
+    if [ ${2} -eq 2 ]; then
+        echo ${1} > $vmconfigfilephp
+        echo "working"
+    fi
 }
 obusettings_get(){
     #settings get from file/line
@@ -465,7 +469,12 @@ obuupdatevmsetting(){
 }
 obuloadsettings(){
     #load vars from settings
-    vmlisttobackup=$( obusettings_get 2 )
+    if [ -f $vmconfigfilephp ]; then
+        vmlisttobackup=`cat ${vmconfigfilephp}`
+    else
+        vmlisttobackup=$( obusettings_get 2 )
+    fi
+
     vmbackupname=$( obusettings_get 3 )
     thisbackupvmuuid=$( obusettings_get 4 )
     url=$( obusettings_get 5 ); url="https://${url}/ovirt-engine/api";

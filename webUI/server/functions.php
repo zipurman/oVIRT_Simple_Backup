@@ -169,6 +169,10 @@
 			$returndata .= '<input autocomplete="off" type="text" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
 		} else if ( $inputdata['type'] == 'password' ) {
 			$returndata .= '<input autocomplete="off" type="password" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
+		} else if ( $inputdata['type'] == 'checkbox' ) {
+			$returndata .= '<input autocomplete="off" type="checkbox" id="' . $inputdata['id'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" ';
+			$returndata .= ($inputdata['checked']) ? ' CHECKED' : '';
+			$returndata .= '/>';
 		} else if ( $inputdata['type'] == 'hidden' ) {
 			$returndata .= '<input autocomplete="off "type="hidden" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" value="' . $inputdata['value'] . '" />';
 		} else if ( $inputdata['type'] == 'submit' ) {

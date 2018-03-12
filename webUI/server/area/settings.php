@@ -276,10 +276,11 @@
 		),
 		array(
 			"text" => sb_input( array(
-				'type'  => 'text',
+				'type'  => 'hidden',
 				'name'  => 'backup_log',
 				'size'  => '36',
 				'value' => $settings['backup_log'],
+				'dataafter' => 'Set in Bash Script',
 			) ),
 		),
 		array(
@@ -294,10 +295,11 @@
 		),
 		array(
 			"text" => sb_input( array(
-				'type'  => 'text',
+				'type'  => 'hidden',
 				'name'  => 'email',
 				'size'  => '36',
 				'value' => $settings['email'],
+				'dataafter' => 'Set in Bash Script',
 			) ),
 		),
 		array(
@@ -312,11 +314,12 @@
 		),
 		array(
 			"text" => sb_input( array(
-				'type'      => 'text',
+				'type'      => 'hidden',
 				'name'      => 'retention',
 				'size'      => '3',
 				'maxlength' => '3',
 				'value'     => $settings['retention'],
+				'dataafter' => 'Set in Bash Script',
 			) ),
 		),
 		array(

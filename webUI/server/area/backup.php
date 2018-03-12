@@ -50,25 +50,26 @@
 
 			$rowlink = ( $vm['id'] == $settings['uuid_backup_engine'] ) ? '<a href="javascript: alert(\'You cannot backup the Backup Appliance VM using oVirt Simple Backup.\n\nThe best way to backup the appliance is to export it using the Web GUI to your export domain.\');">' . $vm->name . '</a> (This VM)' : '<a href="?area=2&action=select&vm=' . $vm['id'] . '">' . $vm->name . '</a>';
 
-			$rowdata = array(
-				array(
-					"text" => $rowlink,
-				),
-				array(
-					"text" => $status,
-				),
-				array(
-					"text" => $vm->memory / 1024 / 1024 / 1024 . 'GB',
-				),
-				array(
-					"text" => $disk->actual_size / 1024 / 1024 / 1024 . 'GB',
-				),
-				array(
-					"text" => $vm['id'],
-				),
-			);
-			sb_table_row( $rowdata );
-
+			if ($vm->name != 'HostedEngine') {
+				$rowdata = array(
+					array(
+						"text" => $rowlink,
+					),
+					array(
+						"text" => $status,
+					),
+					array(
+						"text" => $vm->memory / 1024 / 1024 / 1024 . 'GB',
+					),
+					array(
+						"text" => $disk->actual_size / 1024 / 1024 / 1024 . 'GB',
+					),
+					array(
+						"text" => $vm['id'],
+					),
+				);
+				sb_table_row( $rowdata );
+			}
 		}
 
 		sb_table_end();

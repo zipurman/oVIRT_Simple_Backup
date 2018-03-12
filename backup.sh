@@ -44,6 +44,7 @@ headless="0"
 menutmpfile=".backup.menu"
 menupositionfile=".backup.position.menu"
 menusettings=".backup.settings.menu"
+vmconfigfilephp="/var/www/html/.automated_backups_vmlist";
 
 
 
@@ -157,29 +158,30 @@ else
         vmdataarray=(${i//|/ })
         vmname="${vmdataarray[1]}"
         vmuuid="${vmdataarray[0]}"
-        obulog "========= ${vmname} ========="
+        obulog "${vmname}"
 
         if [ $vmname = "HostedEngine" ]
         then
             #SKIP HOSTED ENGINE FROM BACKUP
             sleep 1
-            obutext="VM: ($vmuuid)\n"
-            obutext="${obutext}VM Name: \Zb\Z4HostedEngine VM\ZB\Zn - Cannot Backup\n\n(SKIPPING)\n\n"
+            obutext=" - VM: ($vmuuid)\n"
+            obutext="${obutext} - VM Name: \Zb\Z4HostedEngine VM\ZB\Zn - Cannot Backup\n\n(SKIPPING)\n\n"
             obudialog "${obutitle}" "${obutext}" "HostedEnginge"
             obulog "${obutext}"
             sleep 2
         else
             sleep 1
-            obutext="VM: ($vmuuid)\n"
+            obutext=" - VM: ($vmuuid)"
             obudialog "${obutitle}" "${obutext}" "${vmname}"
             obulog "${obutext}"
             if [[ $vmlisttobackup == *"[$vmname]"* ]]; then
                 #BACKUP THIS VM
                 obubackup $vmname $vmuuid 0
+                obutext="VM Name: \Zb\Z4${vmname}\ZB\Zn - (** BACKING UP **)\n\n"
+                obulog "${obutext}"
             else
                 #SKIP IF NOT IN LIST
-                obutext="VM: ${vmuuid}\n"
-                obutext="${obutext}VM Name: \Zb\Z4${vmname}\ZB\Zn - Skipping - (Not in list)\n\n"
+                obutext=" - VM Name: \Zb\Z4${vmname}\ZB\Zn - Skipping - (Not in list)\n\n"
                 obudialog "${obutitle}" "${obutext}" "${vmname}"
                 obulog "${obutext}"
                 sleep 2
