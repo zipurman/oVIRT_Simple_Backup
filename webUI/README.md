@@ -60,21 +60,22 @@ This code has the following functionality in a web GUI:
 
         *  As root:
             *  vi /etc/ssh/sshd\_config
-                -   \#rem out this line:\
-                    \#PermitRootLogin without-password
-                -   \#add this line:\
-                    PermitRootLogin yes
+            ```
+                #rem out this line:
+                #PermitRootLogin without-password
+                
+                #add this line:
+                PermitRootLogin yes
+            ```
 
             *  /etc/init.d/ssh restart
             *  cd /root
-            *  wget
-                https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/xen_migrate/xen_migrate.sh
+            *  wget https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/xen_migrate/xen_migrate.sh
             *  chmod +e xen\_migrate.sh
             *  mkdir .ssh
             *  chmod 700 .ssh
             *  mkdir /mnt/migrate
-            *  vi /etc/fstab
-
+            *  vi /etc/fstab (setup your mount points for your NFS - /mnt/migrate)
             * mount /mnt/migrate
             * chmod 777 /mnt/migrate/
 
@@ -86,26 +87,27 @@ This code has the following functionality in a web GUI:
         *  xmlstarlet
         *  lsscsi
         *  dialog
-        *  exim4 (requires config of /etc/exim4/update-exim4.conf.conf
-            & /etc/init.d/exim4 restart)
+        *  exim4 (requires config of /etc/exim4/update-exim4.conf.conf & /etc/init.d/exim4 restart)
         *  uuid-runtime
         *  fsarchiver
         *  php5
-        * php5-curl
+        *  php5-curl
 
     *  As root:
         *  vi /etc/ssh/sshd\_config
-            -   \#rem out this line:\
-                \#PermitRootLogin without-password
-            -   \#add this line:\
-                PermitRootLogin yes
+            ```
+            #rem out this line:
+            #PermitRootLogin without-password
+                            
+            #add this line:
+            PermitRootLogin yes
+            ```
 
         *  /etc/init.d/ssh restart
         *  mkdir /mnt/backups
         *  mkdir /mnt/migrate
         *  mkdir /mnt/linux
-        *  vi /etc/fstab
-
+        *  vi /etc/fstab (setup mount point for NFS - /mnt/backups)
         *  mount /mnt/backups
         *  mount /mnt/migrate
         *  mkdir /root/.ssh
@@ -116,12 +118,11 @@ This code has the following functionality in a web GUI:
         * a2enmod ssl
         * service apache2 restart
         * mkdir /etc/apache2/ssl
-        * openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout
-            /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
-            **Do Not Add Pass Phrase**
+        * openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
+        * (**Do Not Add Pass Phrase**)
         * chmod 600 /etc/apache2/ssl/\*
         * vi /etc/apache2/sites-available/default-ssl.conf\
-            *  ServerName backupengine.**yourdomain**com:443
+            *  ServerName backupengine.**yourdomain**.com:443
             *  DocumentRoot /var/www/html/site
             *  SSLCertificateFile /etc/apache2/ssl/apache.crt
         * a2ensite default-ssl.conf
