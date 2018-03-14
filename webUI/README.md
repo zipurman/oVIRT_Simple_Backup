@@ -26,13 +26,13 @@
 #### Outline
 
 This code has the following functionality in a web GUI:
- - [*] oVirt Engine Web UI Plugin
- - [*] Settings Manager
- - [*] Backup a single VM
- - [*] Restore a single VM
- - [*] Import a single RAW.img
- - [*] Migrate from XEN SERVER (Citrix)
- - [*] Automated Schedules of backups
+ - [x] oVirt Engine Web UI Plugin
+ - [x] Settings Manager
+ - [x] Backup a single VM
+ - [x] Restore a single VM
+ - [x] Import a single RAW.img
+ - [x] Migrate from XEN SERVER (Citrix)
+ - [x] Automated Schedules of backups
  
 #### Items Not Yet Completed
  - [ ] VMs with Multiple Disks - Backup/Restore Not Yet Supported
