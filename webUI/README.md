@@ -121,7 +121,7 @@ This code has the following functionality in a web GUI:
         * openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
         * (**Do Not Add Pass Phrase**)
         * chmod 600 /etc/apache2/ssl/\*
-        * vi /etc/apache2/sites-available/default-ssl.conf\
+        * vi /etc/apache2/sites-available/default-ssl.conf
             *  ServerName backupengine.**yourdomain**.com:443
             *  DocumentRoot /var/www/html/site
             *  SSLCertificateFile /etc/apache2/ssl/apache.crt
@@ -137,9 +137,10 @@ This code has the following functionality in a web GUI:
         * chown www-data:www-data /var/www/.ssh
         * chmod 700 /var/www/.ssh
         * su www-data
-        * ssh-keygen -t rsa
-        * ssh-copy-id root@**ip.of.VMMIGRATE.VM**
-        * ssh-copy-id root@**ip.of.XEN.HOST**
+            * ssh-keygen -t rsa
+            * ssh-copy-id root@**ip.of.VMMIGRATE.VM**
+            * ssh-copy-id root@**ip.of.XEN.HOST**
+            * exit
         * cd /var/www/html/
         * **Download the files and folders from
             https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server
