@@ -32,9 +32,10 @@ This code has the following functionality in a web GUI:
  - Restore a single VM
  - Import a single RAW.img
  - Migrate from XEN SERVER (Citrix)
+ - Automated Schedules of backups
  
 #### Items Not Yet Completed
- - Automated Schedules of backups
+ - VMs with Multiple Disks - Backup/Restore Not Yet Supported
 ---
 
 ###### THIS SCRIPT IS CURRENTLY BETA and should only be used by those who understand the risks. 
