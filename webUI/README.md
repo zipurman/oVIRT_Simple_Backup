@@ -120,11 +120,9 @@ This code has the following functionality in a web GUI:
             **Do Not Add Pass Phrase**
         * chmod 600 /etc/apache2/ssl/\*
         * vi /etc/apache2/sites-available/default-ssl.conf\
-            1.  ServerName backupengine.**yourdomain**com:443
-            2.  DocumentRoot /var/www/html/site
-            3.  SSLCertificateFile /etc/apache2/ssl/apache.crt
-            4.  
-
+            *  ServerName backupengine.**yourdomain**com:443
+            *  DocumentRoot /var/www/html/site
+            *  SSLCertificateFile /etc/apache2/ssl/apache.crt
         * a2ensite default-ssl.conf
         * service apache2 reload
         * chsh -s /bin/bash www-data
@@ -149,8 +147,10 @@ This code has the following functionality in a web GUI:
         * vi /var/www/html/allowed\_ips.php (And change allowed IP
             addresses)
         * vi /etc/crontab
-            ```* * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
-            * * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1```
+            ```
+            * * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
+            * * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1
+            ```
 
 4.  on oVirtEngine VM
     *  As Root:
