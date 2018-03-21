@@ -27,11 +27,12 @@ then
     menuposition="restoresinglevm"
     optionstext=""
     optionid="1"
+
     if [ "$(ls -A $backup_nfs_mount_path)" ]; then
-        for filenamex in "${backup_nfs_mount_path}/*";
+        for filenamex in ${backup_nfs_mount_path}/*;
             do
                     filenamey=${filenamex//$backup_nfs_mount_path\//}
-                    vmname="${filenamey}_"
+                    vmname="${filenamey}"
                     optionstext="${optionstext} ${vmname} VM off"
                     optionid=$((optionid + 1))
         done
