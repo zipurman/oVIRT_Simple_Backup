@@ -7,6 +7,7 @@
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
     - [ ] Headless scheduled backups with retention periods.
+    - [ ] Version detetction on upgrade to clear caches and any other required version adjustments using a versioning function
     
  - 0.6.1 - 2018/03/25
     - Minor code adjustments and bug fixes
