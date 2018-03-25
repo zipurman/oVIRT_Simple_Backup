@@ -48,15 +48,12 @@ This code has the following functionality in a web GUI:
  - [x] Settings Manager
  - [x] Backup a single VM
  - [x] Restore a single VM
- - [x] Import a single RAW.img
  - [x] Migrate from XEN SERVER (Citrix)
  - [x] Automated Schedules of backups
- 
-#### Items Not Yet Completed
- - [ ] VMs with Multiple Disks - Backup/Restore Not Yet Supported
----
+ - [x] Log viewer
+ - [x] Multi-Disk VM now supported
 
-###### THIS SCRIPT IS CURRENTLY BETA and should only be used by those who understand the risks. 
+###### THIS SCRIPT IS CURRENTLY IN BETA and should only be used for testing 
 
 ---
 
@@ -68,7 +65,7 @@ This code has the following functionality in a web GUI:
         *  chmod 700 /root/.ssh
 
 2.  On Xen Server
-    * On a Xen HOST (required for faster ssh sessions to avoid large delays with script timings due to DNS issues. Xen's OpenSSH is ancient and is still too slow most of the time!)
+    * On a Xen HOST (recommended for faster ssh sessions to avoid possible delays with script timings due to DNS issues. Xen's OpenSSH is ancient and is still too slow most of the time!)
         *  vi /etc/ssh/sshd\_config
            ```bash
            #add the following to the end of the file
