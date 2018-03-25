@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.0)
+# oVIRT_Simple_Backup - WebGUI (0.6.1)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -7,6 +7,9 @@
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
     - [ ] Headless scheduled backups with retention periods.
+    
+ - 0.6.1 - 2018/03/25
+    - Minor code adjustments and bug fixes
     
  - 0.6.0 - 2018/03/25
     - [x] Obscured admin password for ovirt in code and config.php. This will require a re-config of your settings.
@@ -139,7 +142,6 @@ This code has the following functionality in a web GUI:
         * chmod 700 /root/.ssh
         * usermod -a -G disk www-data
         * chown root:disk /bin/dd
-        * chown www-data:disk /dev/vdb
         * a2enmod ssl
         * service apache2 restart
         * mkdir /etc/apache2/ssl
@@ -157,7 +159,6 @@ This code has the following functionality in a web GUI:
         * chmod 777 /mnt/migrate/
         * chmod 777 /mnt/backup
         * chmod 777 /mnt/linux
-        * chmod 777 /dev/sr0
         * mkdir /var/www/.ssh
         * chown www-data:www-data /var/www/.ssh
         * chmod 700 /var/www/.ssh

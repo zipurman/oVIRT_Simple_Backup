@@ -203,7 +203,7 @@
 
 	function ovirt_rest_api_call( $type = 'POST', $path = 'vms', $data = '', $allcontent = false ) {
 
-		GLOBAL $settings;
+		GLOBAL $settings, $salt, $pepper, $mykey;
 
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_URL, "https://{$settings['ovirt_url']}/ovirt-engine/api/{$path}" );
@@ -216,7 +216,8 @@
 		}
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0 );
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
-		curl_setopt( $ch, CURLOPT_USERPWD, "{$settings['ovirt_user']}:{$settings['ovirt_pass']}" );
+		$ovirt_pass = sb_decrypt3( $settings['ovirt_pass'], $salt, $pepper, $mykey );
+		curl_setopt( $ch, CURLOPT_USERPWD, "{$settings['ovirt_user']}:{$ovirt_pass}" );
 		if ( ! empty( $data ) ) {
 			curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
 		}
@@ -812,7 +813,6 @@
 				$numberofdisks = count( $diskarray );
 				fwrite( $cachefiledata, $numberofdisks . "\n" );
 
-
 				foreach ( $diskarray as $item ) {
 
 
@@ -914,7 +914,13 @@
 
 		$status = file_get_contents( $statusfile );
 
-		$status      = explode( "\n", $status );
+		$status = explode( "\n", $status );
+
+		//if file is missing lines (old version) then correct
+		for ( $i = count( $status ); $i <= 22; $i ++ ) {
+			$status[ $i ] = '';
+		}
+
 		$statusarray = array(
 			'status'    => $status[0],
 			'stage'     => $status[1],
@@ -1051,7 +1057,6 @@
 		}
 	}
 
-
 	// This encryption is simply to make password non-clear text.
 	// If the system is compromised, the password can easily be decrypted using functions below
 	// Not intended to keep password protected from compromised system, just obscured from view
@@ -1060,12 +1065,11 @@
 	 *
 	 * @return string
 	 */
-	function sb_crypto_iv_key3($mykey)
-	{
+	function sb_crypto_iv_key3( $mykey ) {
 
 		$outkey = $mykey . 'SBSimpleEncrypt';
-		$outkey = hash('md5', $outkey);
-		$outkey = substr($outkey, -16);
+		$outkey = hash( 'md5', $outkey );
+		$outkey = substr( $outkey, - 16 );
 
 		return $outkey;
 	}
@@ -1079,14 +1083,13 @@
 	 *
 	 * @return string
 	 */
-	function sb_encrypt3($string, $salt, $pepper, $mykey, $method = 'aes256')
-	{
+	function sb_encrypt3( $string, $salt, $pepper, $mykey, $method = 'aes256' ) {
 
-		$static_iv = sb_crypto_iv_key3($mykey);
-		$salt = hash('md5', $salt);
-		$x = openssl_encrypt($string, $method, $salt, 0, $static_iv);
-		$pepper = hash('md5', $pepper);
-		$x = openssl_encrypt($x, $method, $pepper, 0, $static_iv);
+		$static_iv = sb_crypto_iv_key3( $mykey );
+		$salt      = hash( 'md5', $salt );
+		$x         = openssl_encrypt( $string, $method, $salt, 0, $static_iv );
+		$pepper    = hash( 'md5', $pepper );
+		$x         = openssl_encrypt( $x, $method, $pepper, 0, $static_iv );
 
 		return $x;
 	}
@@ -1100,14 +1103,13 @@
 	 *
 	 * @return string
 	 */
-	function sb_decrypt3($string, $salt, $pepper, $mykey, $method = 'aes256')
-	{
+	function sb_decrypt3( $string, $salt, $pepper, $mykey, $method = 'aes256' ) {
 
-		$static_iv = sb_crypto_iv_key3($mykey);
-		$pepper = hash('md5', $pepper);
-		$x = openssl_decrypt($string, $method, $pepper, 0, $static_iv);
-		$salt = hash('md5', $salt);
-		$x = openssl_decrypt($x, $method, $salt, 0, $static_iv);
+		$static_iv = sb_crypto_iv_key3( $mykey );
+		$pepper    = hash( 'md5', $pepper );
+		$x         = openssl_decrypt( $string, $method, $pepper, 0, $static_iv );
+		$salt      = hash( 'md5', $salt );
+		$x         = openssl_decrypt( $x, $method, $salt, 0, $static_iv );
 
 		return $x;
 	}

@@ -19,10 +19,6 @@
 	$pepper = '27cge297ch2hUGJfg';
 	$mykey  = '&*iv^Fv79';
 
-	if ( ! empty( $settings['ovirt_pass'] ) ) {
-		$settings['ovirt_pass'] = sb_decrypt3( $settings['ovirt_pass'], $salt, $pepper, $mykey );
-	}
-
 	$UUIDv4  = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
 	$UUIDxen = '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i';
 

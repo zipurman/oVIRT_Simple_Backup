@@ -45,6 +45,7 @@
 		if ( $ovirt_pass != '********' && ! empty( $ovirt_pass ) ) {
 			$passenc = sb_encrypt3( $ovirt_pass, $salt, $pepper, $mykey );
 			fwrite( $configfile, '"ovirt_pass" => "' . $passenc . '",' . "\n" );
+			$settings['ovirt_pass'] = $passenc;
 		} else {
 			fwrite( $configfile, '"ovirt_pass" => "' . $settings['ovirt_pass'] . '",' . "\n" );
 		}
@@ -76,6 +77,7 @@
 			"uuid_backup_engine"  => $uuid_backup_engine,
 			"ovirt_url"           => $ovirt_url,
 			"ovirt_user"          => $ovirt_user,
+			"ovirt_pass"          => $settings['ovirt_pass'],
 			"mount_backups"       => $mount_backups,
 			"drive_type"          => $drive_type,
 			"drive_interface"     => $drive_interface,
@@ -96,9 +98,7 @@
 			"restore_cpu_threads" => $restore_cpu_threads,
 			"tz"                  => $tz,
 		);
-		if ( $ovirt_pass != '********' ) {
-			$settings['ovirt_pass'] = '********';
-		}
+
 	}
 
 	sb_form_start();

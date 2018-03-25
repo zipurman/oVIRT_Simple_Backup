@@ -121,6 +121,7 @@ input[type=submit] {
     border: 1px solid #d1d1d1;
     color: #4d5258;
     background-image: linear-gradient(to bottom,#fafafa 0,#ededed 100%);
+    cursor: pointer;
 }
 
 span.statusup {
