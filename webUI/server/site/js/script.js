@@ -6,6 +6,7 @@ var sb_alerttext = '';
 var sb_xen_migrate_progress = 0;
 var sb_restore_area = 0;
 var sb_newsnapshot = 0;
+var sb_imaging_numberofdisks = 0;
 
 //used to monitor changes to forms
 var formwatchsomethingChanged = false;
@@ -27,12 +28,10 @@ function sb_update_statusbox(domid, statustext) {
     }
 }
 
-function sb_check_snapshot(vmuuid, snapshotname) {
+function sb_check_snapshot(vmuuid) {
     var queryx = {};
     queryx['comm'] = 'snapshot_status';
     queryx['vmuuid'] = vmuuid;
-    queryx['newsnapshot'] = sb_newsnapshot;
-    queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -41,23 +40,23 @@ function sb_check_snapshot(vmuuid, snapshotname) {
         success: function (json) {
             sb_newsnapshot = 0;
             if (json.status == 0 || json.status == -1) {
-                sb_check_snapshot_progress(vmuuid, snapshotname);
+                sb_check_snapshot_progress(vmuuid);
                 sb_update_statusbox('backupstatus', 'Creating Snapshot');
             } else {
                 $("#snapshotbar .progressbarinner").html('Snapshot 100% (COMPLETED)').css('width', '100%');
                 sb_update_statusbox('backupstatus', 'Snapshot Created');
-                sb_create_backup_directories(vmuuid, snapshotname);
+                sb_create_backup_directories();
             }
         }
     });
 }
 
-function sb_check_snapshot_progress(vmuuid, snapshotname, progress) {
+function sb_check_snapshot_progress(vmuuid, progress) {
     $("#snapshotbar").css('display', 'block');
     if (progress == 0) sb_completedtasks = 10;
     sb_completedtasks++;
     // alert(sb_completedtasks);
-    sb_check_snapshot(vmuuid, snapshotname);
+    sb_check_snapshot(vmuuid);
     if (sb_completedtasks <= 100) {
         $("#snapshotbar .progressbarinner").html('Snapshot ' + sb_completedtasks + '%').css('width', sb_completedtasks + '%');
     } else {
@@ -65,12 +64,10 @@ function sb_check_snapshot_progress(vmuuid, snapshotname, progress) {
     }
 }
 
-function sb_create_backup_directories(vmuuid, snapshotname) {
+function sb_create_backup_directories() {
     sb_update_statusbox('backupstatus', 'Creating Backup Directories');
     var queryx = {};
     queryx['comm'] = 'backup_create_path';
-    queryx['vmuuid'] = vmuuid;
-    queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -79,7 +76,7 @@ function sb_create_backup_directories(vmuuid, snapshotname) {
         success: function (json) {
             if (json.status == 1) {
                 sb_update_statusbox('backupstatus', 'Backup Directories Created');
-                sb_snapshot_attach(vmuuid, snapshotname);
+                sb_snapshot_attach();
             } else {
                 sb_update_statusbox('backupstatus', 'Failed: ' + json.reason);
             }
@@ -87,12 +84,10 @@ function sb_create_backup_directories(vmuuid, snapshotname) {
     });
 }
 
-function sb_snapshot_attach(vmuuid, snapshotname) {
+function sb_snapshot_attach() {
     sb_update_statusbox('backupstatus', 'Attaching Snapshot To Backup Appliance For Imaging');
     var queryx = {};
     queryx['comm'] = 'backup_attach_image';
-    queryx['vmuuid'] = vmuuid;
-    queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -101,7 +96,7 @@ function sb_snapshot_attach(vmuuid, snapshotname) {
         success: function (json) {
             if (json.status == 1) {
                 sb_update_statusbox('backupstatus', 'Snapshot Attached');
-                sb_snapshot_imaging(vmuuid, snapshotname);
+                sb_snapshot_imaging();
             } else {
                 sb_update_statusbox('backupstatus', 'Failed: ' + json.reason);
             }
@@ -109,13 +104,11 @@ function sb_snapshot_attach(vmuuid, snapshotname) {
     });
 }
 
-function sb_snapshot_imaging(vmuuid, snapshotname) {
-    sb_update_statusbox('backupstatus', 'Imaging Disk');
+function sb_snapshot_imaging() {
+    sb_update_statusbox('backupstatus', 'Imaging Disk(s)');
     $("#imagingbar").css('display', 'block');
     var queryx = {};
     queryx['comm'] = 'backup_imaging';
-    queryx['vmuuid'] = vmuuid;
-    queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -123,17 +116,15 @@ function sb_snapshot_imaging(vmuuid, snapshotname) {
         dataType: 'json',
         success: function (json) {
             if (json.status == 1) {
-                sb_update_statusbox('backupstatus', 'Imaging Started');
-                sb_snapshot_imaging(vmuuid, snapshotname);
+                sb_update_statusbox('backupstatus', 'Imaging Started - Disk ' + json.thisdisk);
+                sb_snapshot_imaging();
             } else if (json.status == 2) {
-                sb_update_statusbox('backupstatus', 'Imaging In Progress');
-                $("#imagingbar .progressbarinner").html('Imaging ' + json.progress + '%').css('width', json.progress + '%');
-                if (json.progress == 100) {
-                    sb_update_statusbox('backupstatus', 'Imaging Complete');
-                    sb_snapshot_detatch(vmuuid, snapshotname);
-                } else {
-                    sb_snapshot_imaging(vmuuid, snapshotname);
-                }
+                sb_update_statusbox('backupstatus', 'Imaging In Progress - Disk ' + json.thisdisk);
+                $("#imagingbar .progressbarinner").html('Imaging ' + json.progress + '% - Disk ' + +json.thisdisk).css('width', json.progress + '%');
+                sb_snapshot_imaging();
+            } else if (json.status == 3) {
+                sb_update_statusbox('backupstatus', 'Imaging Complete - Disk ' + json.thisdisk);
+                sb_snapshot_detatch();
             } else {
                 sb_update_statusbox('backupstatus', 'Failed: ' + json.reason);
             }
@@ -141,12 +132,10 @@ function sb_snapshot_imaging(vmuuid, snapshotname) {
     });
 }
 
-function sb_snapshot_detatch(vmuuid, snapshotname) {
+function sb_snapshot_detatch() {
     sb_update_statusbox('backupstatus', 'Detaching Snapshot From Backup Appliance');
     var queryx = {};
     queryx['comm'] = 'backup_detatch_image';
-    queryx['vmuuid'] = vmuuid;
-    queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -155,7 +144,7 @@ function sb_snapshot_detatch(vmuuid, snapshotname) {
         success: function (json) {
             if (json.status == 1) {
                 sb_update_statusbox('backupstatus', 'Snapshot Detached');
-                sb_snapshot_delete(vmuuid, snapshotname);
+                sb_snapshot_delete();
             } else {
                 sb_update_statusbox('backupstatus', 'Failed: ' + json.reason);
             }
@@ -163,12 +152,10 @@ function sb_snapshot_detatch(vmuuid, snapshotname) {
     });
 }
 
-function sb_snapshot_delete(vmuuid, snapshotname) {
+function sb_snapshot_delete() {
     sb_update_statusbox('backupstatus', 'Detaching Snapshot From Backup Appliance');
     var queryx = {};
     queryx['comm'] = 'snapshot_delete';
-    queryx['vmuuid'] = vmuuid;
-    queryx['snapshotname'] = snapshotname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -176,8 +163,8 @@ function sb_snapshot_delete(vmuuid, snapshotname) {
         dataType: 'json',
         success: function (json) {
             if (json.status == 1) {
-                sb_update_statusbox('backupstatus', 'Snapshot Deleted');
                 sb_update_statusbox('backupstatus', 'Backup Completed');
+                alert('Backup Completed!');
             } else {
                 sb_update_statusbox('backupstatus', 'Failed: ' + json.reason);
             }
@@ -188,7 +175,6 @@ function sb_snapshot_delete(vmuuid, snapshotname) {
 function checkRestoreNow(askforokyn) {
 
     var newvmname = $("#restorenewname").val();
-    var disksize = $("#disksize").val();
     var newvmnamecheck = newvmname.replace(/[0-9a-zA-Z\-_]/g, "");
     if (newvmname == '') {
         alert('You must enter a New VM Name to restore this image to.')
@@ -198,23 +184,54 @@ function checkRestoreNow(askforokyn) {
         if (askforokyn == 1) {
             if (confirm('Restore this VM Now?')) {
                 $(".gobutton").css('display', 'none');
-                sb_check_disk_progress(newvmname, disksize, 0);
+                sb_check_disk_progress(newvmname);
             }
         } else {
             $(".gobutton").css('display', 'none');
-            sb_check_disk_progress(newvmname, disksize, 0);
+            sb_check_disk_progress(newvmname);
         }
     }
 }
 
 
-function sb_restore_disk_create(diskname, disksize) {
+function sb_restore_disk_create() {
+    var newvmname = $("#restorenewname").val();
+    var vmuuid = $("#vmuuid").val();
+    var vmname = $("#vmname").val();
+    var buname = $("#buname").val();
+    var option_fixgrub = $("#option_fixgrub").val();
+    var option_fixswap = $("#option_fixswap").val();
+    var fixestext = '';
+    if (option_fixgrub == 1) fixestext = fixestext + 'fixgrub';
+    if (option_fixswap == 1) fixestext = fixestext + 'fixswap';
+    var os = $("#os").val();
+    var console = $("#console").val();
+    var memory = $("#memory").val();
+    var memory_max = $("#memory_max").val();
+    var nic1 = $("#nic1").val();
+    var cpu_sockets = $("#sockets").val();
+    var cpu_cores = $("#cores").val();
+    var cpu_threads = $("#threads").val();
+    var cluster = $("#cluster").val();
+    var vmtype = $("#vmtype").val();
 
     var queryx = {};
     queryx['comm'] = 'restore_disk_create';
-    queryx['diskname'] = diskname;
-    queryx['disksize'] = disksize;
-    queryx['progress'] = sb_newdiskcreateprogress;
+    queryx['newvmname'] = newvmname;
+    queryx['vmuuid'] = vmuuid;
+    queryx['vmname'] = vmname;
+    queryx['buname'] = buname;
+    queryx['fixestext'] = fixestext;
+    queryx['os'] = os;
+    queryx['console'] = console;
+    queryx['memory'] = memory;
+    queryx['memory_max'] = memory_max;
+    queryx['nic1'] = nic1;
+    queryx['cpu_sockets'] = cpu_sockets;
+    queryx['cpu_cores'] = cpu_cores;
+    queryx['cpu_threads'] = cpu_threads;
+    queryx['cluster'] = cluster;
+    queryx['vmtype'] = vmtype;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -226,15 +243,15 @@ function sb_restore_disk_create(diskname, disksize) {
                 sb_update_statusbox('restorestatus', 'Failed - ' + json.reason);
                 $("#creatediskstatus").html('').css('display', 'none');
             } else if (json.status == 1) {
-                sb_check_disk_progress(diskname, disksize);
-                sb_update_statusbox('restorestatus', 'Creating Disk');
+                sb_check_disk_progress();
+                sb_update_statusbox('restorestatus', 'Creating Disk(s)');
             } else if (json.status == 2) {
-                sb_check_disk_progress(diskname, disksize);
-                sb_update_statusbox('restorestatus', 'Waiting for Disk');
+                sb_check_disk_progress();
+                sb_update_statusbox('restorestatus', 'Waiting for Disk(s)');
             } else if (json.status == 3) {
                 $("#creatediskstatus .progressbarinner").html('Disk 100% (COMPLETED)').css('width', '100%');
-                sb_update_statusbox('restorestatus', 'Disk Ready');
-                sb_restore_imaging(diskname, disksize, json.diskuuid);
+                sb_update_statusbox('restorestatus', 'Disk(s) Ready');
+                sb_restore_imaging();
             }
 
         }
@@ -244,28 +261,19 @@ function sb_restore_disk_create(diskname, disksize) {
 function sb_check_disk_progress(diskname, disksize, progress) {
     $("#creatediskstatus").css('display', 'block');
     if (progress == 0) sb_newdiskcreateprogress = 0;
-    sb_restore_disk_create(diskname, disksize);
+    sb_restore_disk_create();
     if (sb_newdiskcreateprogress <= 100) {
-        $("#creatediskstatus .progressbarinner").html('Disk ' + sb_newdiskcreateprogress + '%').css('width', sb_newdiskcreateprogress + '%');
+        $("#creatediskstatus .progressbarinner").html('Creating Disk(s) ' + sb_newdiskcreateprogress + '%').css('width', sb_newdiskcreateprogress + '%');
     } else {
-        $("#creatediskstatus .progressbarinner").html('Disk 100% (WAITING)');
+        $("#creatediskstatus .progressbarinner").html('Creating Disk(s) 100% (WAITING)');
     }
 }
 
-function sb_restore_imaging(diskname, disksize, diskuuid) {
-    sb_update_statusbox('restorestatus', 'Imaging Disk');
+function sb_restore_imaging() {
+    sb_update_statusbox('restorestatus', 'Imaging Disk(s)');
     $("#imagingbar").css('display', 'block');
-    var buname = $("#buname").val();
-    var vmname = $("#vmname").val();
-    var vmuuid = $("#vmuuid").val();
     var queryx = {};
     queryx['comm'] = 'restore_imaging';
-    queryx['diskname'] = diskname;
-    queryx['disksize'] = disksize;
-    queryx['diskuuid'] = diskuuid;
-    queryx['vmuuid'] = vmuuid;
-    queryx['buname'] = buname;
-    queryx['vmname'] = vmname;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -273,17 +281,24 @@ function sb_restore_imaging(diskname, disksize, diskuuid) {
         dataType: 'json',
         success: function (json) {
             if (json.status == 1) {
-                sb_update_statusbox('restorestatus', 'Imaging Started');
-                sb_restore_imaging(diskname, disksize, diskuuid);
+                sb_imaging_numberofdisks = json.numberofdisks;
+                sb_update_statusbox('restorestatus', 'Imaging Started - Disk ' + json.thisdisk);
+                sb_restore_imaging();
             } else if (json.status == 2) {
-                sb_update_statusbox('restorestatus', 'Imaging In Progress');
-                $("#imagingbar .progressbarinner").html('Imaging ' + json.progress + '%').css('width', json.progress + '%');
-                if (json.progress == 100) {
-                    sb_update_statusbox('restorestatus', 'Imaging Complete');
-                    sb_restore_run_options(diskname, diskuuid);
+                sb_update_statusbox('restorestatus', 'Imaging In Progress - Disk ' + json.thisdisk);
+                if (json.progress == 0) {
+                    $("#imagingbar .progressbarinner").html('Imaging ' + json.progress + '% ').css('width', json.progress + '%');
                 } else {
-                    sb_restore_imaging(diskname, disksize, diskuuid);
+                    $("#imagingbar .progressbarinner").html('Imaging ' + json.progress + '% - Disk ' + json.thisdisk).css('width', json.progress + '%');
                 }
+                sb_restore_imaging();
+            } else if (json.status == 3) {
+                if (json.numberofimages == json.thisdisk){
+                    sb_update_statusbox('restorestatus', 'Imaging Complete - All Disks');
+                }else {
+                    sb_update_statusbox('restorestatus', 'Imaging Complete - Disk ' + json.thisdisk);
+                }
+                sb_restore_run_options();
             } else {
                 sb_update_statusbox('restorestatus', 'Failed: ' + json.reason);
             }
@@ -291,7 +306,7 @@ function sb_restore_imaging(diskname, disksize, diskuuid) {
     });
 }
 
-function sb_restore_run_options(diskname, diskuuid) {
+function sb_restore_run_options() {
 
     var setstatus = 0;
     if (sb_currenttask == '') {
@@ -322,11 +337,10 @@ function sb_restore_run_options(diskname, diskuuid) {
 
     if (runtask == 0 && sb_currenttask == '') {
         sb_update_statusbox('restorestatus', 'All Optional Tasks Completed');
-        sb_vm_create(diskname, diskuuid);
+        sb_vm_create();
     } else if (runtask == 1) {
         var queryx = {};
         queryx['comm'] = sb_currenttask;
-        queryx['setstatus'] = setstatus;
         $.ajax({
             type: "GET",
             url: "index.php",
@@ -334,10 +348,10 @@ function sb_restore_run_options(diskname, diskuuid) {
             dataType: 'json',
             success: function (json) {
                 if (json.status == 0) {
-                    sb_restore_run_options(diskname, diskuuid);
+                    sb_restore_run_options();
                 } else if (json.status == 1) {
                     sb_update_statusbox('restorestatus', 'Running: ' + sb_currenttask + ' Please Wait...');
-                    sb_restore_run_options(diskname, diskuuid);
+                    sb_restore_run_options();
                 } else if (json.status == 2) {
                     sb_update_statusbox('restorestatus', 'Completed: ' + sb_currenttask + '');
                     sb_completedtasks[sb_currenttask] = 1;
@@ -345,7 +359,7 @@ function sb_restore_run_options(diskname, diskuuid) {
                         sb_alerttext += '\n\nSwap Repair Configured. \n\nYou will have to run:\n\n/root/fixswap1.sh *will auto restart*\n\n/root/fixswap2.sh\n\non the new VM once you start it.';
                     }
                     sb_currenttask = '';
-                    sb_restore_run_options(diskname, diskuuid);
+                    sb_restore_run_options();
                 }
             }
         });
@@ -353,36 +367,10 @@ function sb_restore_run_options(diskname, diskuuid) {
 
 }
 
-function sb_vm_create(diskname, diskuuid) {
-
-
-    var os = $("#os").val();
-    var console = $("#console").val();
-    var memory = $("#memory").val();
-    var memory_max = $("#memory_max").val();
-
-    var cpu_sockets = $("#sockets").val();
-    var cpu_cores = $("#cores").val();
-    var cpu_threads = $("#threads").val();
-    var cluster = $("#cluster").val();
-    var vmtype = $("#vmtype").val();
-    var nic1 = $("#nic1").val();
-
+function sb_vm_create() {
 
     var queryx = {};
     queryx['comm'] = 'restore_vm_create';
-    queryx['diskname'] = diskname;
-    queryx['os'] = os;
-    queryx['console'] = console;
-    queryx['memory'] = memory;
-    queryx['memory_max'] = memory_max;
-    queryx['nic1'] = nic1;
-
-    queryx['cpu_sockets'] = cpu_sockets;
-    queryx['cpu_cores'] = cpu_cores;
-    queryx['cpu_threads'] = cpu_threads;
-    queryx['cluster'] = cluster;
-    queryx['vmtype'] = vmtype;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -393,10 +381,7 @@ function sb_vm_create(diskname, diskuuid) {
                 sb_update_statusbox('restorestatus', 'Failed - ' + json.reason);
             } else if (json.status == 1) {
                 sb_update_statusbox('restorestatus', 'VM Created');
-                sb_disk_detatch('this', diskuuid);
-                setTimeout(sb_disk_attach(json.newvmuuid, diskuuid), 2000);
-                setTimeout(alert('The VM should now be restored, You will have to manually set the memory, NICs, CPUs etc to make sure all is as required.' + sb_alerttext), 5000);
-                sb_update_statusbox('restorestatus', 'VM Restore Completed');
+                sb_disk_detatch();
             }
         }
     });
@@ -405,8 +390,6 @@ function sb_vm_create(diskname, diskuuid) {
 function sb_disk_detatch(vmuuid, diskuuid) {
     var queryx = {};
     queryx['comm'] = 'disk_detatch';
-    queryx['vmuuid'] = vmuuid;
-    queryx['diskuuid'] = diskuuid;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -417,16 +400,18 @@ function sb_disk_detatch(vmuuid, diskuuid) {
                 sb_update_statusbox('restorestatus', 'Failed - ' + json.reason);
             } else if (json.status == 1) {
                 sb_update_statusbox('restorestatus', 'Disk Detatched');
+                setTimeout(sb_disk_attach(), 3000);
+                sb_update_statusbox('restorestatus', 'VM Restore Completed');
+                setTimeout(alert('The VM should now be restored, You will have to manually confirm the memory, NICs, CPUs etc to make sure all is as required.' + sb_alerttext), 5000);
+
             }
         }
     });
 }
 
-function sb_disk_attach(vmuuid, diskuuid) {
+function sb_disk_attach() {
     var queryx = {};
     queryx['comm'] = 'disk_attach';
-    queryx['vmuuid'] = vmuuid;
-    queryx['diskuuid'] = diskuuid;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -437,7 +422,7 @@ function sb_disk_attach(vmuuid, diskuuid) {
                 sb_update_statusbox('restorestatus', 'Failed - ' + json.reason);
             } else if (json.status == 1) {
                 if (sb_restore_area == 0) {
-                    sb_update_statusbox('restorestatus', 'Disk Attached');
+                    sb_update_statusbox('restorestatus', 'Disk Attached Completed');
                 } else {
                     sb_update_statusbox('restorestatus', 'Disk Attached & VM Completed');
                 }
@@ -471,7 +456,6 @@ function sb_vm_option(vmuuid, option, ovalue) {
 
 
 function sb_migrateXenStart() {
-
     var newvmname = $("#restorenewname").val();
     var disksize = $("#disksize").val();
     var newvmnamecheck = newvmname.replace(/[0-9a-zA-Z\-_]/g, "");
@@ -495,6 +479,7 @@ function sb_xen_start_migrate() {
 
 
 function sb_xen_shutdown(xstatus) {
+
     if (sb_xen_migrate_progress == 1) {
         var xenuuid = $("#xenuuid").val();
         var vmname = 'Xen VM';
@@ -509,7 +494,6 @@ function sb_xen_shutdown(xstatus) {
     var queryx = {};
     queryx['comm'] = 'xen_shutdown';
     queryx['xenuuid'] = xenuuid;
-    queryx['xstatus'] = xstatus;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -544,10 +528,6 @@ function sb_xen_shutdown(xstatus) {
 function sb_xen_removedisk(xstatus) {
     if (sb_xen_migrate_progress < 3) {
         sb_xen_migrate_progress = 2;
-        var vbd_uuid = $("#vbd_uuid").val();
-
-    } else {
-        var vbd_uuid = '-migrate-';
     }
 
     $("#xenbar .progressbarinner").html('').css('width', '0%');
@@ -555,8 +535,6 @@ function sb_xen_removedisk(xstatus) {
     $("#xenbar").css('display', 'block');
     var queryx = {};
     queryx['comm'] = 'xen_remove_vbd';
-    queryx['vbd_uuid'] = vbd_uuid;
-    queryx['xstatus'] = xstatus;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -564,7 +542,7 @@ function sb_xen_removedisk(xstatus) {
         dataType: 'json',
         success: function (json) {
             if (json.status == 1) {
-                sb_update_statusbox('restorestatus', 'Xen VM Removing Disk');
+                sb_update_statusbox('restorestatus', 'Xen VM Removing Disk(s)');
                 $("#xenbar .progressbarinner").html('Removing Disk 25%').css('width', '25%');
                 sb_xen_removedisk(1);
             } else if (json.status == 2) {
@@ -590,7 +568,6 @@ function sb_xen_removedisk(xstatus) {
 
 function sb_xen_attachdisk(xstatus) {
 
-    var vdi_uuid = $("#vdi_uuid").val();
     $("#xenbar .progressbarinner").html('').css('width', '0%');
     if (sb_xen_migrate_progress < 3) {
         sb_update_statusbox('restorestatus', 'Attaching Disk to BackupVM on Xen');
@@ -600,12 +577,6 @@ function sb_xen_attachdisk(xstatus) {
     $("#xenbar").css('display', 'block');
     var queryx = {};
     queryx['comm'] = 'xen_add_vbd';
-    queryx['vdi_uuid'] = vdi_uuid;
-    if (sb_xen_migrate_progress == 3) {
-        var xenuuid = $("#xenuuid").val();
-        queryx['xenuuid'] = xenuuid;
-    }
-    queryx['xstatus'] = xstatus;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -613,7 +584,7 @@ function sb_xen_attachdisk(xstatus) {
         dataType: 'json',
         success: function (json) {
             if (json.status == 1) {
-                sb_update_statusbox('restorestatus', 'Xen VM Attaching Disk');
+                sb_update_statusbox('restorestatus', 'Xen VM Attaching Disk(s)');
                 $("#xenbar .progressbarinner").html('Attaching Disk 25%').css('width', '25%');
                 sb_xen_attachdisk(1);
             } else if (json.status == 2) {
@@ -685,7 +656,7 @@ function sb_xen_startup(xstatus) {
 }
 
 function sb_xen_imagedisk() {
-    sb_update_statusbox('restorestatus', 'Imaging Xen Disk');
+    sb_update_statusbox('restorestatus', 'Imaging Xen Disk(s)');
     $("#xenimagingbar").css('display', 'block');
     var queryx = {};
     queryx['comm'] = 'xen_imaging';
@@ -696,18 +667,18 @@ function sb_xen_imagedisk() {
         dataType: 'json',
         success: function (json) {
             if (json.status == 1) {
-                sb_update_statusbox('restorestatus', 'Imaging Xen Started');
+                sb_imaging_numberofdisks = json.numberofdisks;
+                sb_update_statusbox('restorestatus', 'Imaging Xen Started - ' + sb_imaging_numberofdisks + ' Disk(s)');
                 sb_xen_imagedisk();
             } else if (json.status == 2) {
-                sb_update_statusbox('restorestatus', 'Imaging Xen In Progress');
-                $("#xenimagingbar .progressbarinner").html('Imaging Xen VM ' + json.progress + '%').css('width', json.progress + '%');
-                if (json.progress == 100) {
-                    sb_update_statusbox('restorestatus', 'Imaging Xen Complete');
-                    sb_xen_migrate_progress = 3;
-                    sb_xen_shutdown(0);
-                } else {
-                    sb_xen_imagedisk();
-                }
+                sb_update_statusbox('restorestatus', 'Imaging Xen In Progress - Disk ' + json.thisdisk);
+                $("#xenimagingbar .progressbarinner").html('Imaging Xen VM ' + json.progress + '% - Disk ' + json.thisdisk).css('width', json.progress + '%');
+                sb_xen_imagedisk();
+            } else if (json.status == 3) {
+                $("#xenimagingbar .progressbarinner").html('Imaging Xen VM 100% - Disk ' + json.thisdisk).css('width', '100%');
+                sb_update_statusbox('restorestatus', 'Imaging Xen Complete - Disk ' + json.thisdisk);
+                sb_xen_migrate_progress = 3;
+                sb_xen_shutdown(0);
             } else {
                 sb_update_statusbox('restorestatus', 'Failed: ' + json.reason);
                 sb_xen_imagedisk();

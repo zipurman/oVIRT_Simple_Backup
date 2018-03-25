@@ -6,7 +6,7 @@
 		exec( 'echo "" > ' . $vmconfigfile );
 	}
 
-	sb_pagetitle( 'Automated Backups' );
+	sb_pagetitle( 'Scheduled Backups' );
 
 	if ( $action == 2 ) {
 
@@ -106,10 +106,10 @@
 						"text" => $status,
 					),
 					array(
-						"text" => $vm->memory / 1024 / 1024 / 1024 . 'GB',
+						"text" => round($vm->memory / 1024 / 1024 / 1024) . 'GB',
 					),
 					array(
-						"text" => $disk->actual_size / 1024 / 1024 / 1024 . 'GB',
+						"text" => round($disk->actual_size / 1024 / 1024 / 1024) . 'GB',
 					),
 					array(
 						"text" => $vm['id'],

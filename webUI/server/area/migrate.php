@@ -1,19 +1,25 @@
 <?php
 
+    die('This area not currently supported');
+
 	sb_pagetitle( 'Restore' );
 
 	$checkdisk = sb_check_disks( 0 );
 
 	if ( empty( $action ) ) {
 
-		sb_pagedescription( 'This migrate utility assumes that you have imaged VMs to the same directory that you have outlined in your settings as your migrate path. ' . $settings['mount_migrate'] . '.' );
+		sb_pagedescription( 'This migrate utility allows you to try to import a RAW image file.img into oVirt. This may work, but may not depending on your image type. Only single disk is available. ' . $settings['mount_migrate'] . '.' );
 
 		sb_table_start();
 
 		$rowdata = array(
 			array(
-				"text"  => "Images",
-				"width" => "100%",
+				"text"  => "Image Name",
+				"width" => "50%",
+			),
+			array(
+				"text"  => "Size",
+				"width" => "50%",
 			),
 		);
 		sb_table_heading( $rowdata );
@@ -22,10 +28,15 @@
 
 		foreach ( $files as $file ) {
 
+			$imagesize = filesize( $file ) / 1024 / 1024 / 1024;
+
 			$file    = str_replace( $settings['mount_migrate'] . '/', '', $file );
 			$rowdata = array(
 				array(
 					"text" => '<a href="?area=4&action=selectedbackup&vmname=' . $file . '">' . $file . '</a>',
+				),
+				array(
+					"text" => $imagesize . ' GB',
 				),
 			);
 			sb_table_row( $rowdata );

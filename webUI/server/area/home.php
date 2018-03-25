@@ -2,19 +2,21 @@
 
 	<?php
 
-		$clearitem = varcheck( "clearitem", '' );
+		$sb_status = sb_status_fetch();
+
+		$clearitem  = varcheck( "clearitem", '' );
 		$clearimage = varcheck( "clearimage", '' );
 
 		if ( preg_match( $UUIDv4, $clearimage ) ) {
 			$vmname = varcheck( "vmname", '' );
 			$buname = varcheck( "buname", '' );
-			unlink( $settings['mount_backups'] . '/' . $vmname . '/' . $clearimage . '/' . $buname . '/image.img');
-			unlink( $settings['mount_backups'] . '/' . $vmname . '/' . $clearimage . '/' . $buname . '/*.dat');
+			unlink( $settings['mount_backups'] . '/' . $vmname . '/' . $clearimage . '/' . $buname . '/image.img' );
+			unlink( $settings['mount_backups'] . '/' . $vmname . '/' . $clearimage . '/' . $buname . '/*.dat' );
 			$clearitem = $clearimage;
 		}
 
-		if ( preg_match( $UUIDv4, $clearitem ) ) {
-			unlink( '../cache/' . $clearitem );
+		if ( ! empty( $clearitem ) ) {
+			unlink( '../cache/statusfile.dat' );
 		}
 		if ( ! file_exists( '../cache' ) ) {
 			exec( 'mkdir ../cache' );
@@ -23,9 +25,9 @@
 			echo 'Error creating cache directory.';
 		}
 
-		exec( 'ls ../cache/*', $filelist );
+		$sb_status = sb_status_fetch();
 
-		if ( ! empty( $filelist ) ) {
+		if ( $sb_status['status'] != 'ready' ) {
 
 			sb_pagetitle( 'Status of Running Processes (Simple Backup)' );
 			echo '<br/>';
@@ -46,7 +48,7 @@
 					"width" => "30%",
 				),
 				array(
-					"text"  => "Backup",
+					"text"  => "Stage",
 					"width" => "20%",
 				),
 			);
@@ -59,59 +61,42 @@
 			<?php
 		}
 
-		foreach ( $filelist as $fileitem ) {
-			exec( 'cat ' . $fileitem, $filedata );
-			$vmuuid       = $filedata[0];
-			$snapshotname = $filedata[1];
-			$status       = $filedata[2];
-			$vmname       = $filedata[3];
-			$recoveryurl  = $filedata[4];
-			$recoveryjs   = $filedata[5];
+		if ( $sb_status['status'] != 'ready' ) {
+			$sb_status['status'] .= ' (<a href="?area=0&clearitem=1">Clear</a>) ';
 
-			if ( strpos( $status, 'Failure' ) !== false || $vmuuid == $settings['uuid_backup_engine'] ) {
-				$status .= ' (<a href="?area=0&clearitem=' . $vmuuid . '">Clear</a>) ';
-			}
-
-			if ( $status == 'Imaging'  ) {
-				$status .= ' (<a href="?area=0&clearimage=' . $vmuuid . '&buname=' . $vmuuid .'&vmname=' . $vmname . '">Remove Stuck Image</a>) ';
-			}
-
-			if (!empty($recoveryurl)){
+			/*if (!empty($recoveryurl)){
 				$status .= ' (<a href="' . $recoveryurl . '">Recover</a>) ';
-			}
+			}*/
 
 			$rowdata = array(
 				array(
-					"text" => $vmname,
+					"text" => $sb_status['setting3'],
 				),
 				array(
-					"text" => $status,
+					"text" => $sb_status['status'],
 				),
 				array(
-					"text" => $vmuuid,
+					"text" => $sb_status['setting1'],
 				),
 				array(
-					"text" => $snapshotname,
+					"text" => $sb_status['stage'],
 				),
 
 			);
 			sb_table_row( $rowdata );
 
-		}
-
-		if ( ! empty( $filelist ) ) {
 			sb_table_end();
-			?>
-            <script>
-                function reloadMe() {
-                    window.location.reload(true);
-                }
-
-                setTimeout(reloadMe, 10 * 1000);
-
-            </script>
-			<?php
 		}
+	?>
+    <script>
+        function reloadMe() {
+            window.location.reload(true);
+        }
+
+        setTimeout(reloadMe, 10 * 1000);
+
+    </script>
+	<?php
 
 	?>
 

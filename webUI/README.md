@@ -1,6 +1,24 @@
-# oVIRT_Simple_Backup - WebGUI (0.5.4)
+# oVIRT_Simple_Backup - WebGUI (0.6.0)
 
 ### A REST API backup from PHP for oVirt 4.2.x
+
+#### Version History
+
+ - Coming features
+    - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
+    - [ ] Headless scheduled backups with retention periods.
+    
+ - 0.6.0 - 2018/03/25
+    - [x] Obscured admin password for ovirt in code and config.php. This will require a re-config of your settings.
+    - [x] Added a log viewer
+    - [x] Added logging to all areas
+    - [x] Complete JS re-work to move all state into php to allow for future recover processes
+    - [x] Complete re-work of php processes and functions for xen migrations, backups, and restores to allow for better tracking and state.
+    - [x] Added support for multi-disk VM backup/restore
+    - [x] Added timezone support so that logs will be reported in correct date/time and so that future scheduling features will have correct date/time
+    
+  - Prior Versions were not tracked for version history as project was just getting started.
+    
 
 #### Screenshots
 ![ ](screenshots/SS01.png?raw=true)
@@ -50,6 +68,14 @@ This code has the following functionality in a web GUI:
         *  chmod 700 /root/.ssh
 
 2.  On Xen Server
+    * On a Xen HOST (required for faster ssh sessions to avoid large delays with script timings due to DNS issues. Xen's OpenSSH is ancient and is still too slow most of the time!)
+        *  vi /etc/ssh/sshd\_config
+           ```bash
+           #add the following to the end of the file
+            UseDNS no
+           ```
+        * exit all ssh sessions and kill any remaining PIDs of sshd
+        * service sshd restart
     *  Create a Debian Linux VM named VMMIGRATE
         *  Install the following packages:
             *  pv
@@ -92,6 +118,7 @@ This code has the following functionality in a web GUI:
         *  fsarchiver
         *  php5
         *  php5-curl
+        *  parted
 
     *  As root:
         *  vi /etc/ssh/sshd\_config
@@ -99,8 +126,9 @@ This code has the following functionality in a web GUI:
             #rem out this line:
             #PermitRootLogin without-password
                             
-            #add this line:
+            #add these lines:
             PermitRootLogin yes
+            Use DNS no
             ```
 
         *  /etc/init.d/ssh restart

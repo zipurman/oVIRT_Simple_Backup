@@ -29,10 +29,6 @@
 #
 #####################################
 
-#required for cronjob
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
-export TERM=xterm
 
 #backup.cfg is old and will be alerted if still exists
 if [ -f "backup.cfg" ]; then source backup.cfg; fi
@@ -45,6 +41,12 @@ menutmpfile=".backup.menu"
 menupositionfile=".backup.position.menu"
 menusettings=".backup.settings.menu"
 vmconfigfilephp="/var/www/html/.automated_backups_vmlist";
+
+#required for cronjob
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+export TERM=xterm
+
 
 
 
@@ -125,6 +127,9 @@ if [ $headless -eq 0 ]
 then
     #load menu
     source src/menu/base.sh
+elif [[ $vmlisttobackup == '' ]]
+then
+    echo -e "Subject: oVirt Backup Skipped\nFrom: ${email}\nTo: ${email}\n\noVirt Backup Skipped. No VMs tagged for backup." | sendmail -t
 else
     #skip menu
     if [ -n "$email" ] && [ "$email" != "" ]

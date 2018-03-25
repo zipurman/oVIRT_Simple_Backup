@@ -1,70 +1,95 @@
 <?php
 
-	$vmuuid       = varcheck( "vmuuid", '' );
-	$snapshotname = varcheck( "snapshotname", '' );
+	$sb_status = sb_status_fetch();
+	$status    = 0;
+	$reason    = 'None';
 
-	$status = 0;
-	$reason = 'None';
-	sleep( 2 );
-	if ( empty( $snapshotname ) ) {
-		$status = 0;
-		$reason = 'Invalid Snapshot';
-	} else if ( preg_match( $UUIDv4, $vmuuid ) ) {
+	if ( $sb_status['status'] == 'backup' && $sb_status['stage'] == 'snapshot_attach' ) {
 
-		$vm = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid );
+		if ( preg_match( $UUIDv4, $sb_status['setting1'] ) ) {
 
-		$snapshots = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid . '/snapshots' );
+			if ( empty( $sb_status['setting3'] ) ) {
 
-		foreach ( $snapshots as $snapshot ) {
-			if ( $snapshot->description == $snapshotname ) {
-				$snapshotid = (string) $snapshot['id'];
+				$status = 0;
+				$reason = 'Snapshot Not Found';
+
+			} else if ( ! empty( $sb_status['setting4'] ) ) {
+
+				$disks        = ovirt_rest_api_call( 'GET', 'vms/' . $sb_status['setting1'] . '/snapshots/' . $sb_status['setting3'] . '/disks' );
+				$diskid       = $disks->disk['id'];
+				$diskletter   = 'a';
+				$morediskdata = ovirt_rest_api_call( 'GET', 'vms/' . $sb_status['setting1'] . '/diskattachments/' );
+				$disktypeget  = sb_check_disks();
+				$disktype     = $disktypeget['disktype'];
+				$disknumber   = 1;
+				$setdisk1     = 0;
+				if ( $sb_status['setting3'] != '-XEN-' ) {
+					//force boot disk to be adopted first regardless of how ovirt presents the list
+					foreach ( $disks->disk as $disk ) {
+						$morediskdatathis = array();
+						foreach ( $morediskdata as $morediskdatum ) {
+							if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
+								$morediskdatathis = $morediskdatum;
+							}
+						}
+						if ( ! empty( $morediskdatathis ) && $setdisk1 == 0 && $morediskdatathis->bootable == 'true' ) {
+							$diskletter = sb_next_drive_letter( $diskletter );
+							sb_disk_file_write( 1, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) $morediskdatathis->bootable, (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
+							$disknumber ++;
+							$setdisk1 = 1;
+						}
+					}
+					//non-boot disks
+					foreach ( $disks->disk as $disk ) {
+						$morediskdatathis = array();
+						foreach ( $morediskdata as $morediskdatum ) {
+							if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
+								$morediskdatathis = $morediskdatum;
+							}
+						}
+						if ( ! empty( $morediskdatathis ) && $morediskdatathis->bootable == 'false' ) {
+							$diskletter = sb_next_drive_letter( $diskletter );
+							sb_disk_file_write( $disknumber, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) $morediskdatathis->bootable, (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
+							$disknumber ++;
+						}
+					}
+				}
+				if ( $sb_status['setting3'] == '-XEN-' ) {
+					$processdisks = sb_disk_array_fetch( $settings['mount_migrate'] );
+				} else {
+					$processdisks = sb_disk_array_fetch( $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] );
+				}
+
+				foreach ( $processdisks as $processdisk ) {
+
+					sb_attach_disk( $processdisk['uuid'], $sb_status['setting3'], $processdisk['path'] );
+
+				}
+
+				$status = 1;
+				$reason = 'Disk(s) Attached';
+				sb_status_set( 'backup', 'backup_imaging', 1, $sb_status['setting1'], $sb_status['setting2'], $sb_status['setting3'] );
+
+			} else {
+				$status = 0;
+				$reason = 'Unmatched UUID';
 			}
-		}
 
-		if ( empty( $snapshotid ) ) {
-
-			$status = 0;
-			$reason = 'Snapshot Not Found';
-
-		} else if ( ! empty( $vm ) ) {
-
-			$disks = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid . '/snapshots/' . $snapshotid . '/disks' );
-			$diskid       = $disks->disk['id'];
-			$extradiskdev = '';//needed any more?
-			$diskletter   = 'b';
-
-			$xml  = '<disk_attachment>
-			        <disk id="' . $diskid . '">
-			        <snapshot id="' . $snapshotid . '"/>
-			        </disk>
-			        <active>true</active>
-			        <bootable>false</bootable>
-			        <interface>' . $settings['drive_interface'] . '</interface>
-			        <logical_name>/dev/' . $settings['drive_type'] . $extradiskdev . $diskletter . '</logical_name>
-			        </disk_attachment>';
-			$snap = ovirt_rest_api_call( 'POST', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/', $xml );
-			sb_cache_set( $vmuuid, $snapshotname, 'Attaching Image', $vm->name, 'write' );
-			$status = 1;
-			$reason = 'Disk Attached';
 		} else {
 			$status = 0;
-			$reason = 'Unmatched UUID';
+			$reason = 'Invalid UUID';
+
 		}
 
-	} else {
-		$status = 0;
-		$reason = 'Invalid UUID';
-
-	}
-
-	if ( empty( $status ) ) {
-		sb_cache_set( $vmuuid, $snapshotname, 'Attaching Image Failure - ' . $reason, $vm->name, 'write' );
+		if ( empty( $status ) ) {
+			sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Attaching Image Failure - ' . $reason, $sb_status['setting4'], 'write' );
+		}
 	}
 
 	$jsonarray = array(
-		"status"     => $status,
-		"reason"     => $reason,
-		"snapshotid" => $snapshotid,
+		"status" => $status,
+		"reason" => $reason,
 	);
+	sb_log('Attaching Image - ' . $reason);
 
 	echo json_encode( $jsonarray );

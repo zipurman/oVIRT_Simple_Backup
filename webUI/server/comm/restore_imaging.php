@@ -1,157 +1,139 @@
 <?php
 
-	$buname        = varcheck( "buname", '' );
-	$vmname        = varcheck( "vmname", '' );
-	$vmuuid        = varcheck( "vmuuid", '' );
-	$diskname      = varcheck( "diskname", '' );
-	$diskuuid      = varcheck( "diskuuid", '' );
-	$disksize      = varcheck( "disksize", 0, "FILTER_VALIDATE_INT", 0 );
-	$progress      = varcheck( "progress", 0, "FILTER_VALIDATE_INT", 0 );
-	$disknamecheck = preg_replace( '/[0-9a-zA-Z\-_]/i', '', $diskname );
+	$sb_status = sb_status_fetch();
+
+	$numberofdisks = 0;
+	$statusofimage = 0;
 
 	$status         = 0;
 	$progress       = 0;
 	$statusfilename = '';
 	$reason         = 'Disk Not Attached';
 
-	if ( ! empty( $disknamecheck ) ) {
+	if ( $sb_status['status'] == 'restore' && $sb_status['stage'] == 'restore_imaging' ) {
 
-		$status = 0;
-		$reason = 'Invalid Disk Name';
+		sleep( 2 );
+		$disktypeget    = sb_check_disks();
+		$numberofimages = count( $disktypeget['avaliabledisks'] );
 
-	} else if ( preg_match( $UUIDv4, $diskuuid ) ) {
-
-		$diskok = 0;
-		$disks  = ovirt_rest_api_call( 'GET', 'disks' );
-		foreach ( $disks as $disk ) {
-			if ( (string) $disk->name == $diskname . '_RDISK' ) {
-				if ( (string) $disk->status == 'ok' ) {
-					$diskok   = 1;
-					$diskuuid = (string) $disk['id'];
-				}
-			}
-		}
-
-		if ( $diskok == 0 ) {
-			$status = 2;
-			$reason = 'Disk Waiting';
-		} else {
-			$status = 3;
-			$reason = 'Disk Done';
-		}
-
-		if ( empty( $diskok ) ) {
-
-			$status = 0;
-			$reason = 'Disk Not Ready';
-
-		} else {
-
-			$extradiskdev = '';//needed any more?
-			$diskletter   = 'b';
+		if ( preg_match( $UUIDv4, $sb_status['setting2'] ) ) {
 
 			$status = 1;
 			$reason = 'Disk Attached';
 
-			$checkdisk = sb_check_disks(10);
-			$dev = $checkdisk['lastdev'];
-
-
-			if ( $buname == '-migrate-' ) {
-				$imagefile        = $settings['mount_migrate'] . '/' . $vmname;
-				$statusfilename   = $settings['mount_migrate'] . '/' . $vmname . '.status.dat';
-				$progressfilename = $settings['mount_migrate'] . '/' . $vmname . '.progress.dat';
-
+			if ($sb_status['setting3'] == '-XEN-'){
+				$filepath  = $settings['mount_migrate'] . '/';
 			} else {
-
-				$restorefrompath = $settings['mount_backups'] . '/' . $vmname . '/' . $vmuuid . '/' . $buname;
-
-				$imagefile = $restorefrompath . '/image.img';
-
-				$statusfilename = $restorefrompath . '/status.dat';
-
-				$progressfilename = $restorefrompath . '/progress.dat';
-
+				$filepath = $settings['mount_backups'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $sb_status['setting3'] . '/';
 			}
 
-			if ( file_exists( $imagefile ) ) {
-				if ( file_exists( $statusfilename ) ) {
-					$status     = 2;
-					$statusfile = fopen( $statusfilename, "r" );
-					fseek( $statusfile, - 1, SEEK_END );
-					$lastvalue = fgetc( $statusfile );
-					if ( $lastvalue == 1 ) {
-						$reason = 'Imaging already in progress.';
+			if ( file_exists( $filepath ) ) {
+				if ( $sb_status['step'] == 2 ) {
 
-						if ( file_exists( $progressfilename ) ) {
-							$line         = '';
-							$cursor       = - 1;
-							$progressfile = fopen( $progressfilename, "r" );
-							fseek( $progressfile, $cursor, SEEK_END );
-							$progress = fgetc( $progressfile );
-							/**
-							 * Trim trailing newline chars of the file
-							 */
-							while ( $progress === "\n" || $progress === "\r" ) {
-								fseek( $progressfile, $cursor --, SEEK_END );
-								$progress = fgetc( $progressfile );
-							}
-							/**
-							 * Read until the start of file or first newline char
-							 */
-							while ( $progress !== false && $progress !== "\n" && $progress !== "\r" ) {
-								$line = $progress . $line;
-								fseek( $progressfile, $cursor --, SEEK_END );
-								$progress = fgetc( $progressfile );
-							}
-							$progress = (int) $line;
-							sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging ' . $progress . '%', $diskname, 'write' );
-							sleep( 2 );
+					$status = 2;
+					$reason = 'Imaging in progress.';
 
-							if ( $progress >= 100 ) {
-								unlink( $statusfilename );
-							}
+					if ( file_exists( $filepath . 'progress.dat' ) ) {
+
+						exec( 'tail ' . $filepath . 'progress.dat' . ' -n 1', $filedata );
+						$progress = (int) $filedata[0];
+
+						sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging ' . $progress . '%', 'Disk' . $sb_status['setting5'], 'write' );
+						sleep( 2 );
+
+						if ( $progress >= 100 ) {
+							sb_status_set( 'restore', 'restore_imaging', 1 );
 						}
 					}
 
 				} else {
 
-					if ( $statusfile = fopen( $statusfilename, "w" ) ) {
-						fwrite( $statusfile, '1' );
-						fclose( $statusfile );
+
+					$disknumber = 0;
+
+					//setting5 = disknumber
+					if ( empty( $sb_status['setting5'] ) ) {
+						$disknumber = 1;
+					} else {
+						$disknumber = (integer) $sb_status['setting5'] + 1;
 					}
-					sleep( 2 );
-					$command = '(pv -n ' . $imagefile . ' | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
 
-					$status = 1;
-					$reason = 'Started Imaging ' . $imagefile . ' to ' . '/dev/' . $dev;
+					if ( $disknumber > $numberofimages ) {
 
-					exec( $command, $output );
-					sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging', $diskname, 'write' );
+						$status = 3;
+						$reason = 'Imaging Disk(s) Completed';
+						sb_status_set( 'restore', 'fixes', 0 );
+						sb_log($reason);
+
+
+					} else {
+
+						exec( 'echo "0" > ' . $filepath . 'progress.dat' );
+						$reason       = 'Imaging Disk ' . $filepath . 'progress.dat';
+						$processdisks = sb_disk_array_fetch( $filepath );
+
+						foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
+							foreach ( $processdisks as $processdisk ) {
+								if ( $processdisk['path'] == $avaliabledisk && empty( $dev ) && $processdisk['disknumber'] == 'Disk' . $disknumber ) {
+									$disknumberfile = $processdisk['disknumber'];
+									$dev            = $avaliabledisk;
+								}
+							}
+						}
+						if ( ! empty( $dev ) ) {
+
+							if ($sb_status['setting3'] == '-XEN-'){
+								$disknumberfile = 'xen' . str_replace( 'Disk', '', $disknumberfile);
+							}
+
+							$command = '(pv -n ' . $filepath . $disknumberfile . '.img | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $filepath . 'progress.dat' . ' 2>&1 &';//trailing & sends to background
+							exec( $command, $output );
+
+							sb_log('Imaging Disk - ' . $filepath . $disknumberfile);
+
+							sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Imaging', $sb_status['setting4'], 'write' );
+							sb_status_set( 'restore', 'restore_imaging', 2, '', '', '', '', $disknumber );
+							$sb_status['setting5'] = $disknumber;
+
+							$status = 1;
+							$reason = 'Started Imaging ' . $disknumberfile . ' to ' . '/dev/' . $dev;
+
+						} else {
+							$reason .= ' (BROKEN)';
+						}
+					}
+
+					sleep( 1 );
+
+
+
 				}
 			} else {
 				$status = 0;
 				$reason = 'Files Not Found';
 			}
 
+		} else {
+			$status = 0;
+			$reason = 'Invalid UUID';
+
 		}
 
-	} else {
-		$status = 0;
-		$reason = 'Invalid UUID';
+		if ( empty( $status ) ) {
+			sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging Failure - ' . $reason, $diskname, 'write' );
+		}
 
 	}
-
-	if ( empty( $status ) ) {
-		sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging Failure - ' . $reason, $diskname, 'write' );
-	}
-
 
 	$jsonarray = array(
 		"status"         => $status,
 		"reason"         => $reason,
 		"progress"       => $progress,
 		"statusfilename" => $statusfilename,
+		"numberofdisks"  => $numberofimages,
+		"thisdisk"       => $sb_status['setting5'],
 	);
+
+	sb_log('Restore Imaging: ' . $sb_status['setting5'] . '/' .$numberofimages. ' - ' . $progress . '% ' . $reason);
 
 	echo json_encode( $jsonarray );

@@ -1,67 +1,74 @@
 <?php
 
-	$vmuuid       = varcheck( "vmuuid", '' );
-	$snapshotname = varcheck( "snapshotname", '' );
+	$sb_status = sb_status_fetch();
 
 	$status = 0;
 	$reason = 'None';
-	if ( empty( $snapshotname ) ) {
-		$status = 0;
-		$reason = 'Invalid Snapshot';
-	} else if ( preg_match( $UUIDv4, $vmuuid ) ) {
 
-		$vm = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid );
+	if ( $sb_status['status'] == 'backup' && $sb_status['stage'] == 'backup_detatch_image' ) {
 
-		$snapshots = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid . '/snapshots' );
+		if ( preg_match( $UUIDv4, $sb_status['setting1'] ) ) {
 
-		foreach ( $snapshots as $snapshot ) {
-			if ( $snapshot->description == $snapshotname ) {
-				$snapshotid = (string) $snapshot['id'];
+
+			if ( empty( $sb_status['setting3'] ) ) {
+
+				$status = 0;
+				$reason = 'Snapshot Not Found';
+
+			} else if ( ! empty( $sb_status['setting4'] ) ) {
+
+
+				$disks        = ovirt_rest_api_call( 'GET', 'vms/' . $sb_status['setting1'] . '/snapshots/' . $sb_status['setting3'] . '/disks' );
+				$morediskdata = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' );
+				$disktypeget  = sb_check_disks();
+				$disktype     = $disktypeget['disktype'];
+				$disknumber   = 1;
+				foreach ( $disks->disk as $disk ) {
+
+					$morediskdatathis = array();
+					foreach ( $morediskdata as $morediskdatum ) {
+						if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
+							$morediskdatathis = $morediskdatum;
+						}
+					}
+					if ( ! empty( $morediskdatathis ) ) {
+						if ( (string) $morediskdatathis->bootable == 'false' ) {
+							$snap = ovirt_rest_api_call( 'DELETE', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' . $disk['id'] );
+							sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Detatching Image', $sb_status['setting4'], 'write' );
+						}
+					}
+				}
+
+				sb_status_set( 'backup', 'snapshot_delete', 1 );
+
+				$status = 1;
+				$reason = 'Disk(s) Detatched';
+
+				sleep( 2 );
+
+			} else {
+				$status = 0;
+				$reason = 'Unmatched UUID';
 			}
-		}
-
-		if ( empty( $snapshotid ) ) {
-
-			$status = 0;
-			$reason = 'Snapshot Not Found';
-
-		} else if ( ! empty( $vm ) ) {
-
-			$disks        = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid . '/snapshots/' . $snapshotid . '/disks' );
-			$diskid       = $disks->disk['id'];
-			$extradiskdev = '';//needed any more?
-			$diskletter   = 'b';
-			$snap         = ovirt_rest_api_call( 'DELETE', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' . $diskid );
-
-			sb_cache_set( $vmuuid, $snapshotname, 'Detatching Image', $vm->name, 'write' );
-
-			$statusfilename = $settings['mount_backups'] . '/' . $vm->name . '/' . $vm['id'] . '/' . $snapshotname . '/status.dat';
-			unlink( $statusfilename );
-
-			$status = 1;
-			$reason = 'Disk Detatched';
-
-			sleep( 2 );
 
 		} else {
 			$status = 0;
-			$reason = 'Unmatched UUID';
+			$reason = 'Invalid UUID';
+
 		}
 
-	} else {
-		$status = 0;
-		$reason = 'Invalid UUID';
-
-	}
-
-	if ( empty( $status ) ) {
-		sb_cache_set( $vmuuid, $snapshotname, 'Detatch Image Failure - ' . $reason, $vm->name, 'write' );
+		if ( empty( $status ) ) {
+			sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Detatch Image Failure - ' . $reason, $sb_status['setting4'], 'write' );
+		}
 	}
 
 	$jsonarray = array(
 		"status"     => $status,
 		"reason"     => $reason,
-		"snapshotid" => $snapshotid,
+		"snapshotid" => $sb_status['setting3'],
 	);
+
+	sb_log('Detatching Image - ' . $reason);
+
 
 	echo json_encode( $jsonarray );

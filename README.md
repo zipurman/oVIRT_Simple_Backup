@@ -2,6 +2,16 @@
 
 ### A REST API backup from BASH for oVirt 4.2.x
 
+- - - - 
+
+I am planning on not updating this part of the project any more as my php version is looking to be a much better option.
+
+https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI
+
+I will leave this code here for reference if anyone needs examples of the API integrations.
+
+- - - - 
+
 #### Outline
 
 This script has the following functionality in a linux command line GUI:

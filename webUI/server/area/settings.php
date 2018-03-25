@@ -1,8 +1,9 @@
 <?php
 
-	//TODO - add option for type of console - SPICE/VNC and then set on restores
+	sb_pagedescription( 'Note: If you lock your admin account out due to misconfigurations below, run the command (ovirt-aaa-jdbc-tool user unlock admin) on your oVirt Engine VM as root to unlock the admin account. A locked admin account or misconfigured account will make this UI very slow and options below for Domain and Cluster will be empty.' );
 
-	if ( $savestep == 1 ) {
+
+	if ( $savestep == 1 || empty( $settings ) ) {
 
 		$backup_log         = varcheck( "backup_log", '' );
 		$cluster            = varcheck( "cluster", '' );
@@ -10,6 +11,7 @@
 		$drive_type         = varcheck( "drive_type", 0, "FILTER_VALIDATE_INT", 0 );
 		$retention          = varcheck( "retention", 0, "FILTER_VALIDATE_INT", 0 );
 		$label              = varcheck( "label", '' );
+		$tz                 = varcheck( "tz", 'America/Regina' );
 		$mount_backups      = varcheck( "mount_backups", '' );
 		$mount_migrate      = varcheck( "mount_migrate", '' );
 		$ovirt_pass         = varcheck( "ovirt_pass", '' );
@@ -32,10 +34,6 @@
 		$drive_interface = ( $drive_interface == 0 ) ? 'virtio' : 'virtio_scsi';
 		$drive_type      = ( $drive_type == 0 ) ? 'vd' : 'sd';
 
-		if ( ! file_exists( '../config.php' ) ) {
-			exec( 'echo "" > /var/www/html/config.php' );
-		}
-
 		$configfile = fopen( "../config.php", "w" ) or die( "Unable to open config file.<br/><br/>Check permissions on config.php!" );
 		fwrite( $configfile, '<?php' . "\n" );
 		fwrite( $configfile, '$settings = array(' . "\n" );
@@ -44,7 +42,12 @@
 		fwrite( $configfile, '"uuid_backup_engine" => "' . $uuid_backup_engine . '",' . "\n" );
 		fwrite( $configfile, '"ovirt_url" => "' . $ovirt_url . '",' . "\n" );
 		fwrite( $configfile, '"ovirt_user" => "' . $ovirt_user . '",' . "\n" );
-		fwrite( $configfile, '"ovirt_pass" => "' . $ovirt_pass . '",' . "\n" );
+		if ( $ovirt_pass != '********' && ! empty( $ovirt_pass ) ) {
+			$passenc = sb_encrypt3( $ovirt_pass, $salt, $pepper, $mykey );
+			fwrite( $configfile, '"ovirt_pass" => "' . $passenc . '",' . "\n" );
+		} else {
+			fwrite( $configfile, '"ovirt_pass" => "' . $settings['ovirt_pass'] . '",' . "\n" );
+		}
 		fwrite( $configfile, '"mount_backups" => "' . $mount_backups . '",' . "\n" );
 		fwrite( $configfile, '"drive_type" => "' . $drive_type . '",' . "\n" );
 		fwrite( $configfile, '"drive_interface" => "' . $drive_interface . '",' . "\n" );
@@ -63,6 +66,7 @@
 		fwrite( $configfile, '"restore_cpu_sockets" => "' . $restore_cpu_sockets . '",' . "\n" );
 		fwrite( $configfile, '"restore_cpu_cores" => "' . $restore_cpu_cores . '",' . "\n" );
 		fwrite( $configfile, '"restore_cpu_threads" => "' . $restore_cpu_threads . '",' . "\n" );
+		fwrite( $configfile, '"tz" => "' . $tz . '",' . "\n" );
 		fwrite( $configfile, ');' . "\n" );
 		fclose( $configfile );
 
@@ -72,7 +76,6 @@
 			"uuid_backup_engine"  => $uuid_backup_engine,
 			"ovirt_url"           => $ovirt_url,
 			"ovirt_user"          => $ovirt_user,
-			"ovirt_pass"          => $ovirt_pass,
 			"mount_backups"       => $mount_backups,
 			"drive_type"          => $drive_type,
 			"drive_interface"     => $drive_interface,
@@ -91,8 +94,11 @@
 			"restore_cpu_sockets" => $restore_cpu_sockets,
 			"restore_cpu_cores"   => $restore_cpu_cores,
 			"restore_cpu_threads" => $restore_cpu_threads,
+			"tz"                  => $tz,
 		);
-
+		if ( $ovirt_pass != '********' ) {
+			$settings['ovirt_pass'] = '********';
+		}
 	}
 
 	sb_form_start();
@@ -113,6 +119,24 @@
 		),
 	);
 	sb_table_heading( $rowdata );
+
+	$rowdata = array(
+		array(
+			"text" => "Timezone:",
+		),
+		array(
+			"text" => sb_input( array(
+				'type'  => 'select',
+				'name'  => 'tz',
+				'value' => $settings['tz'],
+				'list'  => $tzlist,
+			) ),
+		),
+		array(
+			"text" => "This text will be prepended to all backup files.",
+		),
+	);
+	sb_table_row( $rowdata );
 
 	$rowdata = array(
 		array(
@@ -141,8 +165,8 @@
 			"text" => sb_input( array(
 				'type'      => 'text',
 				'name'      => 'uuid_backup_engine',
-				'size'      => '36',
-				'maxlength' => '36',
+				'size'      => '40',
+				'maxlength' => '40',
 				'value'     => $settings['uuid_backup_engine'],
 			) ),
 		),
@@ -160,8 +184,8 @@
 			"text" => sb_input( array(
 				'type'      => 'text',
 				'name'      => 'ovirt_url',
-				'size'      => '36',
-				'maxlength' => '36',
+				'size'      => '40',
+				'maxlength' => '40',
 				'value'     => $settings['ovirt_url'],
 			) ),
 		),
@@ -179,8 +203,8 @@
 			"text" => sb_input( array(
 				'type'      => 'text',
 				'name'      => 'ovirt_user',
-				'size'      => '36',
-				'maxlength' => '36',
+				'size'      => '40',
+				'maxlength' => '40',
 				'value'     => $settings['ovirt_user'],
 			) ),
 		),
@@ -198,9 +222,9 @@
 			"text" => sb_input( array(
 				'type'      => 'password',
 				'name'      => 'ovirt_pass',
-				'size'      => '36',
-				'maxlength' => '36',
-				'value'     => $settings['ovirt_pass'],
+				'size'      => '40',
+				'maxlength' => '40',
+				'value'     => '********',
 			) ),
 		),
 		array(
@@ -217,8 +241,8 @@
 			"text" => sb_input( array(
 				'type'      => 'text',
 				'name'      => 'mount_backups',
-				'size'      => '36',
-				'maxlength' => '36',
+				'size'      => '40',
+				'maxlength' => '40',
 				'value'     => $settings['mount_backups'],
 			) ),
 		),
@@ -228,19 +252,17 @@
 	);
 	sb_table_row( $rowdata );
 
+	$diskx   = sb_check_disks();
 	$rowdata = array(
 		array(
 			"text" => "Drive Type:",
 		),
 		array(
 			"text" => sb_input( array(
-				'type'  => 'select',
-				'name'  => 'drive_type',
-				'value' => $settings['drive_type'],
-				'list'  => array(
-					array( 'id' => '0', 'name' => 'vd (Recommended)', ),
-					array( 'id' => '1', 'name' => 'sd', ),
-				),
+				'type'      => 'hidden',
+				'name'      => 'drive_type',
+				'value'     => $diskx['disktype'],
+				'dataafter' => 'Auto detected as: ' . $diskx['disktype'],
 			) ),
 		),
 		array(
@@ -276,11 +298,11 @@
 		),
 		array(
 			"text" => sb_input( array(
-				'type'  => 'hidden',
-				'name'  => 'backup_log',
-				'size'  => '36',
-				'value' => $settings['backup_log'],
-				'dataafter' => 'Set in Bash Script',
+				'type'      => 'text',
+				'name'      => 'backup_log',
+				'size'      => '40',
+				'value'     => $settings['backup_log'],
+				'dataafter' => '',
 			) ),
 		),
 		array(
@@ -295,11 +317,11 @@
 		),
 		array(
 			"text" => sb_input( array(
-				'type'  => 'hidden',
-				'name'  => 'email',
-				'size'  => '36',
-				'value' => $settings['email'],
-				'dataafter' => 'Set in Bash Script',
+				'type'      => 'text',
+				'name'      => 'email',
+				'size'      => '40',
+				'value'     => $settings['email'],
+				'dataafter' => '',
 			) ),
 		),
 		array(
@@ -314,16 +336,16 @@
 		),
 		array(
 			"text" => sb_input( array(
-				'type'      => 'hidden',
+				'type'      => 'text',
 				'name'      => 'retention',
 				'size'      => '3',
 				'maxlength' => '3',
 				'value'     => $settings['retention'],
-				'dataafter' => 'Set in Bash Script',
+				'dataafter' => '',
 			) ),
 		),
 		array(
-			"text" => "Number of backups to keep for each VM. (Automated Backups Only)",
+			"text" => "Number of backups to keep for each VM. (Scheduled Backups Only)",
 		),
 	);
 	sb_table_row( $rowdata );
@@ -357,7 +379,7 @@
 			"text" => sb_input( array(
 				'type'  => 'text',
 				'name'  => 'mount_migrate',
-				'size'  => '36',
+				'size'  => '40',
 				'value' => $settings['mount_migrate'],
 			) ),
 		),
@@ -375,7 +397,7 @@
 			"text" => sb_input( array(
 				'type'  => 'text',
 				'name'  => 'xen_ip',
-				'size'  => '36',
+				'size'  => '40',
 				'value' => $settings['xen_ip'],
 			) ),
 		),
@@ -393,7 +415,7 @@
 			"text" => sb_input( array(
 				'type'  => 'text',
 				'name'  => 'xen_migrate_ip',
-				'size'  => '36',
+				'size'  => '40',
 				'value' => $settings['xen_migrate_ip'],
 			) ),
 		),
@@ -411,7 +433,7 @@
 			"text" => sb_input( array(
 				'type'  => 'text',
 				'name'  => 'xen_migrate_uuid',
-				'size'  => '36',
+				'size'  => '40',
 				'value' => $settings['xen_migrate_uuid'],
 			) ),
 		),
@@ -502,7 +524,7 @@
 
 	$rowdata = array(
 		array(
-			"text" => "Domain:",
+			"text" => "Cluster:",
 		),
 		array(
 			"text" => sb_input( array(

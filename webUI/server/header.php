@@ -1,9 +1,14 @@
 <?php
 
+	if ( ! file_exists( '../config.php' ) ) {
+		exec( 'echo "" > /var/www/html/config.php' );
+	}
+
 	require( '../allowed_ips.php' );
-	require( '../config.php' );
 	require( '../functions.php' );
+	require( '../config.php' );
 	require( '../reg.php' );
+	require( '../tz.php' );
 
 	if ( empty( $comm ) ) {
 		?>

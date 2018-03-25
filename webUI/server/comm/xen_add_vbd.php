@@ -1,62 +1,76 @@
 <?php
 
-	$vdi_uuid = varcheck( "vdi_uuid", '' );
-	$xenuuid  = varcheck( "xenuuid", '' );
-	$xstatus  = varcheck( "xstatus", 0, "FILTER_VALIDATE_INT", 0 );
-
-	if ( preg_match( $UUIDxen, $xenuuid ) ) {
-		$vmuuid = $xenuuid;
-	} else {
-		$vmuuid = $settings['xen_migrate_uuid'];
-	}
+	$sb_status = sb_status_fetch();
 
 	$status = 0;
 	$reason = 'None';
+	if ( $sb_status['status'] == 'xen_migrate'  && $sb_status['stage'] == 'xen_add_vbd' ) {
 
-	if ( preg_match( $UUIDxen, $vdi_uuid ) ) {
 
-		if ( empty( $xstatus ) ) {
-			//ask for shutdown
-			if ( $vmuuid != $settings['xen_migrate_uuid'] ) {
-				exec( 'ssh root@' . $settings['xen_ip'] . ' xe vbd-create vm-uuid=' . $vmuuid . ' device=0 bootable=true mode=RW type=Disk vdi-uuid=' . $vdi_uuid, $output );
+		if ( $sb_status['step'] == 0 ) {
+			$vmuuid = $settings['xen_migrate_uuid'];
+		} else {
+			$vmuuid = $sb_status['setting2'];
+		}
+
+		//get xen migrate disk profiles
+		$diskarray = sb_vm_disk_array_fetch( $diskfile );
+
+		//check how many disks attached to backup vm
+		exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vm-disk-list vm=' . $vmuuid, $buvmdisks );
+
+		if ( count( $buvmdisks ) / 13 == count( $diskarray ) + 1 || $vmuuid != $settings['xen_migrate_uuid'] && count( $buvmdisks ) / 13 == count( $diskarray ) ) {//13 lines per disk in output
+
+			$status = 3;
+			$reason = 'Disks Attached';
+
+			if ( $sb_status['step'] == 0 ) {
+				sb_status_set( 'xen_migrate', 'xen_start', 0 );
 			} else {
-				exec( 'ssh root@' . $settings['xen_ip'] . ' xe vbd-create vm-uuid=' . $vmuuid . ' device=50 bootable=false mode=RW type=Disk vdi-uuid=' . $vdi_uuid, $output );
+				sb_status_set( 'xen_migrate', 'xen_start', 2 );
+			}
+
+		} else {
+
+			//attach disks
+			$diskid     = 50;
+			$diskletter = 'a';
+			$bootablex  = 1;
+			$disktypeget    = sb_check_disks();
+
+			if ( count( $buvmdisks ) < 14 ) {//13 lines per disk in output
+				foreach ( $diskarray as $item ) {
+					//ask for attach disk
+					if ( $vmuuid != $settings['xen_migrate_uuid'] ) {
+
+						//if re-attaching to original VM
+						$bootstring = ( $item['vbd-userdevice'] == 0 ) ? 'bootable=true mode=RW type=Disk' : 'bootable=false mode=RW type=Disk';
+
+						exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vbd-create vm-uuid=' . $vmuuid . ' device=' . $item['vbd-userdevice'] . ' ' . $bootstring . ' vdi-uuid=' . $item['vdi-uuid'], $output );
+
+					} else {
+						exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vbd-create vm-uuid=' . $vmuuid . ' device=' . $diskid . ' bootable=false mode=RW type=Disk vdi-uuid=' . $item['vdi-uuid'], $output );
+
+					}
+
+					$diskid ++;
+
+				}
 			}
 			$status = 1;
 			$reason = 'Adding';
 
-		} else {
-
-			exec( 'ssh root@' . $settings['xen_ip'] . ' xe vm-disk-list vm=' . $vmuuid, $outputx );
-			$hasdisk = 0;
-			foreach ( $outputx as $item ) {
-				if ( strpos( $item, $vdi_uuid ) !== false ) {
-					$hasdisk = 1;
-				}
-			}
-
-			//check  status
-			if ( ! empty( $hasdisk ) ) {
-				$status = 3;
-				$reason = 'Disk Attached';
-			} else {
-				$status = 2;
-				$reason = 'Waiting';
-			}
-
 		}
-
-	} else {
-		$status = 0;
-		$reason = 'Invalid UUID';
-
 	}
 
-	sleep( 1 );
+	sleep( 2 );
 
 	$jsonarray = array(
 		"status" => $status,
 		"reason" => $reason,
 	);
+
+	sb_log('Xen - Add VBD - ' . $reason);
+
 
 	echo json_encode( $jsonarray );

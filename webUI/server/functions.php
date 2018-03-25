@@ -166,12 +166,15 @@
 		$returndata = '';
 
 		if ( $inputdata['type'] == 'text' ) {
+			if ( empty( $inputdata['maxlength'] ) ) {
+				$inputdata['maxlength'] = $inputdata['size'];
+			}
 			$returndata .= '<input autocomplete="off" type="text" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
 		} else if ( $inputdata['type'] == 'password' ) {
 			$returndata .= '<input autocomplete="off" type="password" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
 		} else if ( $inputdata['type'] == 'checkbox' ) {
 			$returndata .= '<input autocomplete="off" type="checkbox" id="' . $inputdata['id'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" ';
-			$returndata .= ($inputdata['checked']) ? ' CHECKED' : '';
+			$returndata .= ( $inputdata['checked'] ) ? ' CHECKED' : '';
 			$returndata .= '/>';
 		} else if ( $inputdata['type'] == 'hidden' ) {
 			$returndata .= '<input autocomplete="off "type="hidden" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" value="' . $inputdata['value'] . '" />';
@@ -233,7 +236,12 @@
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 		$server_output = curl_exec( $ch );
 		curl_close( $ch );
-		$server_output = new SimpleXMLElement( $server_output );
+
+		try {
+			$server_output = new SimpleXMLElement( $server_output );
+		} catch ( Exception $e ) {
+			$server_output = array();
+		}
 
 		return $server_output;
 	}
@@ -289,24 +297,27 @@
 		}
 	}
 
-	function sb_check_disks( $alloweddisks ) {
+	function sb_check_disks() {
 
-		GLOBAL $settings, $area;
+		GLOBAL $settings;
 
 		exec( 'fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
 		$disks              = 0;
 		$avaliabledisks     = array();
 		$avaliablediskstext = '';
 		$lastdev            = 'nodiskselected';
+		$disktype           = '';
 		foreach ( $output as $item ) {
 			$item = str_replace( ':', '', $item );
 			$item = str_replace( '/dev/', '', $item );
 
-			if ( $item != $settings['drive_type'] . 'a' ) {
+			if ( $item != 'vda' && $item != 'sda' ) {
 				$disks ++;
 				$avaliabledisks[ $item ] = $item;
 				$avaliablediskstext      .= '(' . $item . ')';
 				$lastdev                 = $item;
+			} else {
+				$disktype = substr( $item, 0, 2 );
 			}
 		}
 
@@ -315,21 +326,18 @@
 			"avaliabledisks"     => $avaliabledisks,
 			"avaliablediskstext" => $avaliablediskstext,
 			"lastdev"            => $lastdev,
+			"disktype"           => $disktype,
 		);
-
-		if ( $return['disks'] > $alloweddisks ) {
-			die( 'You must disconnect extra disks from the Backup VM. ' . $return['avaliablediskstext'] . '<br/><a href="?area=' . $area . '&disconnectdisks=1">Click Here to have the script disconnect the disk.</a>' );
-		}
 
 		return $return;
 
 	}
 
-	function sb_xen_check_disks( $alloweddisks ) {
+	function sb_xen_check_disks() {
 
-		GLOBAL $settings, $area;
+		GLOBAL $settings, $area, $extrasshsettings;
 
-		exec( 'ssh root@' . $settings['xen_migrate_ip'] . ' fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+		exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
 		$disks              = 0;
 		$avaliabledisks     = array();
 		$avaliablediskstext = '';
@@ -346,9 +354,20 @@
 			}
 		}
 
+		//alpha sort disks
+		ksort( $avaliabledisks );
+
+		//numeric disks after sort
+		$avaliabledisks_new = array();
+		$diskid             = 1;
+		foreach ( $avaliabledisks as $avaliabledisk ) {
+			$avaliabledisks_new[ $diskid ] = $avaliabledisk;
+			$diskid ++;
+		}
+
 		$return = array(
 			"disks"              => $disks,
-			"avaliabledisks"     => $avaliabledisks,
+			"avaliabledisks"     => $avaliabledisks_new,
 			"avaliablediskstext" => $avaliablediskstext,
 			"lastdev"            => $lastdev,
 		);
@@ -432,13 +451,13 @@
 
 	function sb_niclist() {
 
-		$list = array();
-		$list[ 0 ] = array( 'id' => 'none', 'name' => 'none', );
+		$list    = array();
+		$list[0] = array( 'id' => 'none', 'name' => 'none', );
 
 		$nics = ovirt_rest_api_call( 'GET', 'networks/' );
 		foreach ( $nics as $nic ) {
 			if ( $nic->usages->usage == 'vm' ) {
-				$vnics = ovirt_rest_api_call( 'GET', 'networks/' .  $nic['id'] . '/vnicprofiles' );
+				$vnics = ovirt_rest_api_call( 'GET', 'networks/' . $nic['id'] . '/vnicprofiles' );
 				foreach ( $vnics as $vnic ) {
 					$list[ (string) $nic->name ] = array( 'id' => $vnic['id'], 'name' => $nic->name, );
 				}
@@ -502,7 +521,7 @@
 
 		$rowdata = array(
 			array( "text" => 'Image Size:', ),
-			array( "text" => $disksize . ' GB', ),
+			array( "text" => 'Same As Backup Disk(s)', ),
 			array( "text" => 'New VM Name:', ),
 			array(
 				"text" => sb_input( array(
@@ -640,7 +659,7 @@
 		);
 		sb_table_row( $rowdata );
 
-		$nics = sb_niclist();
+		$nics    = sb_niclist();
 		$rowdata = array(
 			array( "text" => 'Network Card:', ),
 			array(
@@ -708,4 +727,387 @@
 		sb_table_end();
 	}
 
+	function sb_attach_disk( $diskid, $snapshotid, $device ) {
 
+		GLOBAL $settings;
+
+		$xml = '<disk_attachment>
+			        <disk id="' . $diskid . '">
+			        <snapshot id="' . $snapshotid . '"/>
+			        </disk>
+			        <active>true</active>
+			        <bootable>false</bootable>
+			        <interface>' . $settings['drive_interface'] . '</interface>
+			        <logical_name>/dev/' . $device . '</logical_name>
+			        </disk_attachment>';
+
+		//attach disk to backup vm
+		$snap = ovirt_rest_api_call( 'POST', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/', $xml );
+		//SLOW DOWN TO MAKE SURE VM MOUNTS DISKS IN ORDER!
+		sleep( 2 );
+
+	}
+
+	function sb_vm_disk_array_create( $diskfile, $removeold = 0, $vmuid ) {
+
+		GLOBAL $settings, $extrasshsettings;
+
+		exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vm-disk-list vm=' . $vmuid, $output );
+
+		if ( ! empty( $removeold ) ) {
+
+			if ( file_exists( $diskfile ) ) {
+				unlink( $diskfile );
+			}
+			$itemcount  = 1;
+			$diskarray  = array();
+			$diskitem   = array();
+			$itemnumber = 0;
+			foreach ( $output as $item ) {
+				if ( $itemcount == 1 ) {
+					//Disk 0 VBD:
+					$diskitem        = array();
+					$diskitem['vbd'] = $item;
+				} else if ( $itemcount == 2 ) {
+					//uuid ( RO)             : d72329cb-6de0-ef25-18d7-73ccfcc8784c
+					$item                 = preg_replace( '/uuid \( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vbd-uuid'] = $item;
+				} else if ( $itemcount == 3 ) {
+					//    vm-name-label ( RO): Backup of VSRV01 - PDNS
+					$item                  = preg_replace( '/ .* \( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vbd-label'] = $item;
+				} else if ( $itemcount == 4 ) {
+					//       userdevice ( RW): 2
+					$item                       = preg_replace( '/ .* userdevice .*\( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vbd-userdevice'] = (integer) $item;
+					$itemnumber                 = (integer) $item;
+				} else if ( $itemcount == 7 ) {
+					//Disk 0 VDI:
+					$diskitem['vdi'] = $item;
+				} else if ( $itemcount == 8 ) {
+					//uuid ( RO)             : d72329cb-6de0-ef25-18d7-73ccfcc8784c
+					$item                 = preg_replace( '/uuid \( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vdi-uuid'] = $item;
+				} else if ( $itemcount == 9 ) {
+					//    vm-name-label ( RO): Backup of VSRV01 - PDNS
+					$item                  = preg_replace( '/ .* \( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vdi-label'] = $item;
+				} else if ( $itemcount == 10 ) {
+					//       userdevice ( RW): 2
+					$item                          = preg_replace( '/ .* sr-name-label .*\( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vdi-sr-userdevice'] = $item;
+				} else if ( $itemcount == 11 ) {
+					//       userdevice ( RW): 2
+					$item                         = preg_replace( '/ .* virtual-size .*\( [A-Z][A-Z]\).*: /i', '', $item );
+					$diskitem['vdi-virtual-size'] = (integer) $item; //bytes
+				} else if ( $itemcount == 13 ) {
+					$itemcount                = 0;
+					$diskarray[ $itemnumber ] = $diskitem;
+				}
+				$itemcount ++;
+			}
+			ksort( $diskarray );
+
+			if ( $cachefiledata = fopen( $diskfile, "w" ) ) {
+				$numberofdisks = count( $diskarray );
+				fwrite( $cachefiledata, $numberofdisks . "\n" );
+
+
+				foreach ( $diskarray as $item ) {
+
+
+					fwrite( $cachefiledata, "-----\n" );
+					fwrite( $cachefiledata, $item['vbd-userdevice'] . "\n" );
+					fwrite( $cachefiledata, $item['vbd-uuid'] . "\n" );
+					fwrite( $cachefiledata, $item['vbd-label'] . "\n" );
+					fwrite( $cachefiledata, $item['vdi-uuid'] . "\n" );
+					fwrite( $cachefiledata, $item['vdi-label'] . "\n" );
+					fwrite( $cachefiledata, $item['vdi-virtual-size'] . "\n" );
+					fwrite( $cachefiledata, $vmuid . "\n" );
+
+				}
+
+				fclose( $cachefiledata );
+
+			}
+		}
+
+		return $output;
+	}
+
+	function sb_vm_disk_array_fetch( $diskfile ) {
+
+		$disk_settings = file_get_contents( $diskfile );
+
+		$disk_settings = explode( "\n", $disk_settings );
+
+		if ( count( $disk_settings ) > 2 ) {
+			$diskarray  = array();
+			$itemcount  = 1;
+			$itemnumber = 0;
+			foreach ( $disk_settings as $item ) {
+				if ( $itemcount == 3 ) {
+					$diskitem                   = array();
+					$diskitem['vbd-userdevice'] = (integer) $item;
+					$itemnumber                 = $item;
+				} else if ( $itemcount == 4 ) {
+					$diskitem['vbd-uuid'] = $item;
+				} else if ( $itemcount == 5 ) {
+					$diskitem['vbd-label'] = $item;
+				} else if ( $itemcount == 6 ) {
+					$diskitem['vdi-uuid'] = $item;
+				} else if ( $itemcount == 7 ) {
+					$diskitem['vdi-label'] = $item;
+				} else if ( $itemcount == 8 ) {
+					$diskitem['vdi-virtual-size'] = (integer) $item;
+				} else if ( $itemcount == 9 ) {
+					$diskitem['vmuuid']       = $item;
+					$itemcount                = 1;
+					$diskarray[ $itemnumber ] = $diskitem;
+				}
+				$itemcount ++;
+			}
+		} else {
+			$diskarray = array();
+		}
+
+		return $diskarray;
+	}
+
+	function sb_status_set( $status, $stage, $step, $setting1 = '', $setting2 = '', $setting3 = '', $setting4 = '', $setting5 = '', $setting6 = '', $setting7 = '', $setting8 = '', $setting9 = '', $setting10 = '', $setting11 = '', $setting12 = '', $setting13 = '', $setting14 = '', $setting15 = '', $setting16 = '', $setting17 = '', $setting18 = '', $setting19 = '', $setting20 = '' ) {
+
+		GLOBAL $statusfile;
+
+		//status: ready, backup, restore, xen_migrate
+
+		//if settings left blank, use previous value
+		if ( $status != 'ready' ) {
+			$oldsettings = sb_status_fetch();
+			for ( $i = 1; $i <= 20; $i ++ ) {
+				if ( empty( ${"setting$i"} ) && ! empty( $oldsettings[ 'setting' . $i ] ) ) {
+					${"setting$i"} = $oldsettings[ 'setting' . $i ];
+				}
+			}
+		}
+
+		if ( $cachefiledata = fopen( $statusfile, "w" ) ) {
+			fwrite( $cachefiledata, $status . "\n" );
+			fwrite( $cachefiledata, $stage . "\n" );
+			fwrite( $cachefiledata, $step . "\n" );
+			for ( $i = 1; $i <= 20; $i ++ ) {
+				fwrite( $cachefiledata, ${"setting$i"} . "\n" );
+			}
+			fclose( $cachefiledata );
+		}
+
+		sleep( 1 );//allow writes to complete
+
+	}
+
+	function sb_status_fetch() {
+
+		GLOBAL $statusfile;
+
+		if ( ! file_exists( $statusfile ) ) {
+			sb_status_set( 'ready', '', 0 );
+		}
+
+		$status = file_get_contents( $statusfile );
+
+		$status      = explode( "\n", $status );
+		$statusarray = array(
+			'status'    => $status[0],
+			'stage'     => $status[1],
+			'step'      => $status[2],
+			'setting1'  => $status[3],
+			'setting2'  => $status[4],
+			'setting3'  => $status[5],
+			'setting4'  => $status[6],
+			'setting5'  => $status[7],
+			'setting6'  => $status[8],
+			'setting7'  => $status[9],
+			'setting8'  => $status[10],
+			'setting9'  => $status[11],
+			'setting10' => $status[12],
+			'setting11' => $status[13],
+			'setting12' => $status[14],
+			'setting13' => $status[15],
+			'setting14' => $status[16],
+			'setting15' => $status[17],
+			'setting16' => $status[18],
+			'setting17' => $status[19],
+			'setting18' => $status[20],
+			'setting19' => $status[21],
+			'setting20' => $status[22],
+		);
+
+		return $statusarray;
+
+	}
+
+	function sb_next_drive_letter( $driveletter ) {
+
+		$thisascii = ord( $driveletter );
+		$thisascii ++;
+		$nextletter = chr( $thisascii );
+
+		return $nextletter;
+	}
+
+	function sb_not_ready() {
+
+		echo '<br/><br/>Simple Backup is Not Ready. <a href="?area=0">Click Here</a> to go to the Status page.';
+	}
+
+	function sb_disk_file_write( $disknumber, $diskname, $vmuuid, $uuid, $bootable, $interface, $size, $path, $vmname, $backupname ) {
+
+		GLOBAL $settings;
+
+		if ( $backupname == '-XEN-' ) {
+			$filepath = $settings['mount_migrate'] . '/' . '/Disk' . $disknumber . '.dat';
+		} else {
+			$filepath = $settings['mount_backups'] . '/' . $vmname . '/' . $vmuuid . '/' . $backupname . '/Disk' . $disknumber . '.dat';
+		}
+
+		if ( $diskfile = fopen( $filepath, "w" ) ) {
+			fwrite( $diskfile, 'Disk' . $disknumber . "\n" );
+			fwrite( $diskfile, $uuid . "\n" );
+			fwrite( $diskfile, $diskname . "\n" );
+			fwrite( $diskfile, $bootable . "\n" );
+			fwrite( $diskfile, $interface . "\n" );
+			fwrite( $diskfile, $size . "\n" );
+			fwrite( $diskfile, $path . "\n" );
+			fwrite( $diskfile, $vmname . "\n" );
+			fwrite( $diskfile, $backupname . "\n" );
+			fwrite( $diskfile, $vmuuid . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fclose( $diskfile );
+		}
+
+	}
+
+	function sb_disk_array_fetch( $pathtodisks, $filename = '' ) {
+
+		$diskseek  = 1;
+		$diskarray = array();
+		if ( file_exists( $pathtodisks ) ) {
+			for ( $i = 1; $diskseek == 1; $i ++ ) {
+
+				if ( empty( $filename ) ) {
+					$filetograb = '/Disk' . $i . '.dat';
+				} else {
+					$filetograb = '/' . $filename;
+				}
+
+				if ( file_exists( $pathtodisks . $filetograb ) ) {
+
+					$diskdata = file_get_contents( $pathtodisks . $filetograb );
+
+					$diskdata                    = explode( "\n", $diskdata );
+					$diskarray["{$diskdata[1]}"] = array(
+						'disknumber' => $diskdata[0],
+						'uuid'       => $diskdata[1],
+						'diskname'   => $diskdata[2],
+						'bootable'   => $diskdata[3],
+						'interface'  => $diskdata[4],
+						'size'       => $diskdata[5],
+						'path'       => $diskdata[6],
+						'vmname'     => $diskdata[7],
+						'backupname' => $diskdata[8],
+						'vmuuid'     => $diskdata[9],
+						'datapath'   => $pathtodisks,
+					);
+
+					if ( ! empty( $filename ) ) {
+						$diskseek = 0;
+					}
+
+				} else {
+					$diskseek = 0;
+				}
+			}
+		}
+
+		return $diskarray;
+
+	}
+
+	function sb_log( $logtext ) {
+
+		GLOBAL $settings;
+
+		if ( ! empty( $settings['backup_log'] ) ) {
+			$logtext = str_replace( '"', '', $logtext );
+
+			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
+
+			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $settings['backup_log'] );
+		}
+	}
+
+
+	// This encryption is simply to make password non-clear text.
+	// If the system is compromised, the password can easily be decrypted using functions below
+	// Not intended to keep password protected from compromised system, just obscured from view
+	/**
+	 * @param $mykey
+	 *
+	 * @return string
+	 */
+	function sb_crypto_iv_key3($mykey)
+	{
+
+		$outkey = $mykey . 'SBSimpleEncrypt';
+		$outkey = hash('md5', $outkey);
+		$outkey = substr($outkey, -16);
+
+		return $outkey;
+	}
+
+	/**
+	 * @param        $string
+	 * @param        $salt
+	 * @param        $pepper
+	 * @param        $mykey
+	 * @param string $method
+	 *
+	 * @return string
+	 */
+	function sb_encrypt3($string, $salt, $pepper, $mykey, $method = 'aes256')
+	{
+
+		$static_iv = sb_crypto_iv_key3($mykey);
+		$salt = hash('md5', $salt);
+		$x = openssl_encrypt($string, $method, $salt, 0, $static_iv);
+		$pepper = hash('md5', $pepper);
+		$x = openssl_encrypt($x, $method, $pepper, 0, $static_iv);
+
+		return $x;
+	}
+
+	/**
+	 * @param        $string
+	 * @param        $salt
+	 * @param        $pepper
+	 * @param        $mykey
+	 * @param string $method
+	 *
+	 * @return string
+	 */
+	function sb_decrypt3($string, $salt, $pepper, $mykey, $method = 'aes256')
+	{
+
+		$static_iv = sb_crypto_iv_key3($mykey);
+		$pepper = hash('md5', $pepper);
+		$x = openssl_decrypt($string, $method, $pepper, 0, $static_iv);
+		$salt = hash('md5', $salt);
+		$x = openssl_decrypt($x, $method, $salt, 0, $static_iv);
+
+		return $x;
+	}

@@ -1,231 +1,19 @@
 <?php
 
 	sb_pagetitle( 'XenServer(Citrix) Migrate' );
-	$howto = varcheck( "howto", 0, "FILTER_VALIDATE_INT", 0 );
 
-	if ( $howto == 1 ) {
+	$sb_status = sb_status_fetch();
 
-		?>
-        <h3>Steps to setting up Xen Migration and backup Scripts</h3>
-        <ol>
-            <li>
-                On one of your Xen Hosts to allow remote ssh for xe commands
-                <ol>
-                    <li>As Root:
-                        <ol>
-                            <li>
-                                mkdir /root/.ssh
-                            </li>
-                            <li>
-                                chmod 700 /root/.ssh
-                            </li>
-                        </ol>
-                    </li>
-                </ol>
-            </li>
-            <li>On Xen Server
-                <ol>
-                    <li>Create a Debian Linux VM named VMMIGRATE
-                        <ol>
-                            <li>Install the following packages:
-                                <ol>
-                                    <li>pv</li>
-                                    <li>dialog (only if using bash script)</li>
-                                    <li>fsarchiver</li>
-                                    <li>chroot</li>
-                                    <li>wget</li>
-                                </ol>
-                                </ul></li>
-                            <li>
-                                As root:
-                                <ol>
-                                    <li>
-                                        vi /etc/ssh/sshd_config
-                                        <ul>
-                                            <li>#rem out this line:<br/>#PermitRootLogin without-password</li>
-                                            <li>#add this line:<br/>PermitRootLogin yes</li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        /etc/init.d/ssh restart
-                                    </li>
-                                    <li>
-                                        cd /root
-                                    </li>
-                                    <li>
-                                        wget
-                                        https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/xen_migrate/xen_migrate.sh
-                                    </li>
-                                    <li>
-                                        chmod +e xen_migrate.sh
-                                    </li>
-                                    <li>
-                                        mkdir .ssh
-                                    </li>
-                                    <li>
-                                        chmod 700 .ssh
-                                    </li>
-                                    <li>
-                                        mkdir /mnt/migrate
-                                    </li>
-                                    <li>
-                                        vi /etc/fstab
-                                        <ul>
-                                            #add the following line with your IP and PATH info<br/>
-                                            192.168.1.123:/path/to/folder/on/nfs /mnt/migrate nfs
-                                            rw,async,hard,intr,noexec 0 0
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        mount /mnt/migrate
-                                    </li>
-                                    <li>
-                                        chmod 777 /mnt/migrate/
-                                    </li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </li>
-                </ol>
-            </li>
-            <li>On oVirt Server
-                <ol>
-                    <li>
-                        Create a Debian Linux VM named BackupEngine
-                    </li>
-                    <li>
-                        Install the following packages:
-                        <ol>
-                            <li>pv</li>
-                            <li>curl</li>
-                            <li>xmlstarlet</li>
-                            <li>lsscsi</li>
-                            <li>dialog</li>
-                            <li>exim4 (requires config of /etc/exim4/update-exim4.conf.conf & /etc/init.d/exim4
-                                restart)
-                            </li>
-                            <li>uuid-runtime</li>
-                            <li>fsarchiver</li>
-                            <li>php5</li>
-                            <li>php5-curl</li>
-                        </ol>
-                    </li>
-                    <li>
-                        As root:
-                        <ol>
-                            <li>
-                                vi /etc/ssh/sshd_config
-                                <ul>
-                                    <li>#rem out this line:<br/>#PermitRootLogin without-password</li>
-                                    <li>#add this line:<br/>PermitRootLogin yes</li>
-                                </ul>
-                            </li>
-                            <li>
-                                /etc/init.d/ssh restart
-                            </li>
-                            <li>mkdir /mnt/backups</li>
-                            <li>mkdir /mnt/migrate</li>
-                            <li>mkdir /mnt/linux</li>
-                            <li>vi /etc/fstab
-                                <ul>
-                                    #add the following line with your IP and PATH info<br/>
-                                    192.168.1.123:/path/to/folder/on/nfs /mnt/backups nfs rw,async,hard,intr,noexec 0
-                                    0<br/>
-                                    192.168.1.123:/path/to/folder/on/nfs /mnt/migrate nfs rw,async,hard,intr,noexec 0
-                                    0<br/>
-                                </ul>
-                            </li>
-                            <li>
-                                mount /mnt/backups
-                            </li>
-                            <li>
-                                mount /mnt/migrate
-                            </li>
-                            <li>
-                                mkdir /root/.ssh
-                            </li>
-                            <li>
-                                chmod 700 /root/.ssh
-                            </li>
-                            <li>usermod -a -G disk www-data</li>
-                            <li>chown root:disk /bin/dd</li>
-                            <li>chown www-data:disk /dev/vdb</li>
-                            <li>a2enmod ssl</li>
-                            <li>service apache2 restart</li>
-                            <li>mkdir /etc/apache2/ssl</li>
-                            <li>openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key
-                                -out /etc/apache2/ssl/apache.crt <b>Do Not Add Pass Phrase</b></li>
-                            <li>chmod 600 /etc/apache2/ssl/*</li>
-                            <li>vi /etc/apache2/sites-available/default-ssl.conf<br/>
-                                <ol>
-                                    <li>ServerName backupengine.<b>yourdomain</b>.com:443</li>
-                                    <li>DocumentRoot /var/www/html/site</li>
-                                    <li>SSLCertificateFile /etc/apache2/ssl/apache.crt</li>
-                                    <li>
-                                        <SSLCertificateKeyFile
-                                        /etc/apache2/ssl/apache.key/li>
-                                </ol>
-                            </li>
-                            <li>a2ensite default-ssl.conf</li>
-                            <li>service apache2 reload</li>
-                            <li>chsh -s /bin/bash www-data</li>
-                            <li>chmod 777 /mnt</li>
-                            <li>chmod 777 /mnt/migrate/</li>
-                            <li>chmod 777 /mnt/backup</li>
-                            <li>chmod 777 /mnt/linux</li>
-                            <li>chmod 777 /dev/sr0</li>
-                            <li>mkdir /var/www/.ssh</li>
-                            <li>chown www-data:www-data /var/www/.ssh</li>
-                            <li>chmod 700 /var/www/.ssh</li>
-                            <li>su www-data</li>
-                            <li>ssh-keygen -t rsa</li>
-                            <li>ssh-copy-id root@<b>ip.of.VMMIGRATE.VM</b></li>
-                            <li>ssh-copy-id root@<b>ip.of.XEN.HOST</b></li>
-                            <li>cd /var/www/html/</li>
-                            <li><b>Download the files and folders from
-                                    https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/server into this
-                                    folder</b>
-                            </li>
-                            <li>touch /var/www/html/config.php</li>
-                            <li>chown www-data:root /var/www -R</li>
-                            <li>vi /var/www/html/allowed_ips.php (And change allowed IP addresses)</li>
-                        </ol>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                on oVirtEngine VM
-                <ol>
-                    <li>As Root:
-                        <ol>
-                            <li>engine-config -s CORSSupport=true</li>
-                            <li>engine-config -s CORSAllowedOrigins=*</li>
-                        </ol>
-                    </li>
-                    <li>cd /usr/share/ovirt-engine/ui-plugins</li>
-                    <li><b>Download the files and folders from
-                            https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/webUI/plugin into this
-                            directory.</b></li>
-                    <li>vi simpleBackup.json
-                        <ul>
-                            <li>Change IP Address in simpleBackup.json to match your oVirt BackupEngine VM</li>
-                        </ul>
-                    </li>
-                    <li>service ovirt-engine restart</li>
-                </ol>
-            </li>
-            <li>
-                You should now be able to login to your oVirt Web UI and see the SimpleBackup menu item on the left.
-            </li>
-        </ol>
+	$disktypeget    = sb_check_disks();
+	$numberofimages = count( $disktypeget['avaliabledisks'] );
 
-		<?php
-
-	} else {
+	if ( $numberofimages > 1 ) {
+		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a migration.' );
+	} else if ( $sb_status['status'] == 'ready' ) {
 
 		$checkdisk = sb_check_disks( 0 );
 
-		sb_pagedescription( 'This tool requires all pieces to be configured correctly. <a href="?area=5&howto=1">Click Here</a> for the list of what is required for a successful migration.<br/><br/><b><i>NOTE: This utility will ONLY image a single disk VM from Xen to oVirt. It DOES NOT transfer NICs, MAC Addresses, MEMORY, or ANY settings from Xen Server. Once the VM image is migrated, you can then change the require settings in oVirt before launching your newly migrated VM.</i></b>' );
+		sb_pagedescription( 'This tool requires all pieces to be configured correctly. <a href="https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/webUI/README.md" target="_blank">Click Here</a> for the list of what is required for a successful migration.<br/><br/><b><i>NOTE: This utility will ONLY image the disks from the VM from Xen to oVirt. It DOES NOT transfer settings from NICs, MAC Addresses, MEMORY, or ANY settings from Xen Server. You can choose those settings below as required. Once the VM images are migrated, you can then change the require settings in oVirt before launching your newly migrated VM.</i></b>' );
 
 		if ( empty( $action ) ) {
 
@@ -250,7 +38,7 @@
 			sb_table_heading( $rowdata );
 
 			//is-control-domain=false (exclude servers)
-			exec( 'ssh root@' . $settings['xen_ip'] . ' xe vm-list is-control-domain=false', $output );
+			exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vm-list is-control-domain=false', $output );
 
 			$rowitem = 1;
 			foreach ( $output as $item ) {
@@ -309,7 +97,7 @@
 
 			echo '<a href="?area=5">&lt;-- BACK</a><br/><br/>';
 
-			exec( 'ssh root@' . $settings['xen_ip'] . ' xe vm-disk-list vm=' . $xenuuid, $output );
+			exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vm-disk-list vm=' . $xenuuid, $output );
 
 			$size = 0;
 			foreach ( $output as $item ) {
@@ -320,7 +108,7 @@
 
 			//		showme( $output );5
 
-			exec( 'ssh root@' . $settings['xen_ip'] . ' xe vm-list is-control-domain=false uuid=' . $xenuuid, $output2 );
+			exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vm-list is-control-domain=false uuid=' . $xenuuid, $output2 );
 			$status = str_replace( 'power-state ( RO): ', '', $output2['2'] );
 			$status = trim( $status );
 			if ( $status == 'running' ) {
@@ -347,10 +135,31 @@
 			);
 			sb_table_row( $rowdata );
 
-			$sizegb  = $size / 1024 / 1024 / 1024;
+			$xendisks  = sb_vm_disk_array_create( $diskfile, 0, $xenuuid );
+			$itemcount = 1;
+			$sizegbtxt = '';
+			$vbdtext   = '';
+			$vditext   = '';
+			foreach ( $xendisks as $xendisk ) {
+				if ( $itemcount == 11 ) {
+					$size                         = preg_replace( '/ .* virtual-size .*\( [A-Z][A-Z]\).*: /i', '', $xendisk );
+					$diskitem['vdi-virtual-size'] = (integer) $xendisk; //bytes
+					$sizegb                       = $size / 1024 / 1024 / 1024;
+					$sizegbtxt                    = ' ' . $sizegb . 'GB ' . $sizegbtxt;
+				} else if ( $itemcount == 2 ) {
+					$xendisk = preg_replace( '/uuid \( [A-Z][A-Z]\).*: /i', '', $xendisk );
+					$vbdtext .= $xendisk . '<br/>';
+				} else if ( $itemcount == 8 ) {
+					$xendisk = preg_replace( '/uuid \( [A-Z][A-Z]\).*: /i', '', $xendisk );
+					$vditext .= $xendisk . '<br/>';
+				} else if ( $itemcount == 13 ) {
+					$itemcount = 0;
+				}
+				$itemcount ++;
+			}
 			$rowdata = array(
-				array( "text" => 'Disk Size:', ),
-				array( "text" => $sizegb . 'GB', ),
+				array( "text" => 'Disk Size(s):', ),
+				array( "text" => $sizegbtxt . '', ),
 				array( "text" => 'Status:', ),
 				array( "text" => $status, ),
 			);
@@ -369,10 +178,10 @@
 			$vbd_uuid = str_replace( ' ', '', $vbd_uuid );
 			$vdi_uuid = str_replace( ' ', '', $vdi_uuid );
 			$rowdata  = array(
-				array( "text" => 'VBD UUID:', ),
-				array( "text" => $vbd_uuid, ),
-				array( "text" => 'VDI UUID:', ),
-				array( "text" => $vdi_uuid, ),
+				array( "text" => 'VBD UUID(s):', ),
+				array( "text" => $vbdtext, ),
+				array( "text" => 'VDI UUID(s):', ),
+				array( "text" => $vditext, ),
 			);
 			sb_table_row( $rowdata );
 
@@ -396,9 +205,9 @@
 
 			sb_table_end();
 
-			sb_new_vm_settings( $sizegb, 2, 2 );
+			sb_new_vm_settings( 'Same Sizes in ', 2, 2 );
 
-			echo sb_input( array( 'type' => 'hidden', 'name' => 'disksize', 'value' => $sizegb, ) );
+			echo sb_input( array( 'type' => 'hidden', 'name' => 'disksize', 'value' => '0', ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'vmname', 'value' => 'xen.img', ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'xenuuid', 'value' => $xenuuid, ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'vbd_uuid', 'value' => $vbd_uuid, ) );
@@ -424,7 +233,9 @@
 				<li>Re-Attach Xen Disk to original Xen VM</li>
 				<li>Optionally Start Xen  VM</li>
 				<li>Restore Disk Image to New oVirt VM</li>
-				</ol>' );
+				</ol>
+				<b>NOTE: If the migrate fails you may have to manually re-attach disks to your original VM.<br/> * * * * Make note of the UUIDs above to assist with that operation if required. * * * *</b>
+				' );
 
 			if ( empty( $vbd_uuid ) || empty( $vdi_uuid ) ) {
 				echo 'No Attached Disks';
@@ -439,4 +250,7 @@
 			sb_status_box( 'restorestatus' );
 
 		}
+
+	} else {
+		sb_not_ready();
 	}
