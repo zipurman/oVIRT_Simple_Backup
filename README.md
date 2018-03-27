@@ -217,7 +217,7 @@ This code has the following functionality in a web GUI:
 *  In the WebUI, open Scheduled Backups and select the VMs you want to backup on the schedule and click SAVE
 *  Add a cronjob as follows (to run daily at 12:01 am):
 ```bash
-1 0 * * * www-data php /var/www/html/site/automatedbackup.php > /dev/null 2>&1
+1 0 * * * www-data php /var/www/html/site/automatedbackup.php >/dev/null 2>&1
 ```
 
 
