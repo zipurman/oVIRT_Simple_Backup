@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.3)
+# oVIRT_Simple_Backup - WebGUI (0.6.4)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -6,6 +6,12 @@
 
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
+
+ - 0.6.4 - 2018/03/27
+    - Minor fixes
+    - Added docs: nfs-common required (on BackupVM)
+    - Added docs: chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R (On Engine VM)
+    - [x] Added a "Click Here" to the top of the settings page to test config with Engine.
 
  - 0.6.3 - 2018/03/26
     - [x] Scheduled backups with retention periods and email alerts have been added. Instructions below.
@@ -109,6 +115,7 @@ This code has the following functionality in a web GUI:
         *  uuid-runtime
         *  fsarchiver
         *  parted
+        *  nfs-common
         *  php5
             *  php5
             *  php5-curl
@@ -191,7 +198,7 @@ This code has the following functionality in a web GUI:
     *  vi simpleBackup.json
         -   Change IP Address in simpleBackup.json to match your oVirt
             BackupEngine VM
-
+    *  chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R
     *  service ovirt-engine restart
 
 5.  You should now be able to login to your oVirt Web UI and see the
