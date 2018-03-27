@@ -213,12 +213,12 @@ This code has the following functionality in a web GUI:
 
 #### Scheduling Backups
 
-    *  In the WebUI, open Settings and confirm the email address and retention
-    *  In the WebUI, open Scheduled Backups and select the VMs you want to backup on the schedule and click SAVE
-    *  Add a cronjob as follows (to run daily at 12:01 am):
-    ```bash
-    1 0 * * * www-data php /var/www/html/site/automatedbackup.php > /dev/null 2>&1
-    ```
+*  In the WebUI, open Settings and confirm the email address and retention
+*  In the WebUI, open Scheduled Backups and select the VMs you want to backup on the schedule and click SAVE
+*  Add a cronjob as follows (to run daily at 12:01 am):
+```bash
+1 0 * * * www-data php /var/www/html/site/automatedbackup.php > /dev/null 2>&1
+```
 
 
 #### Author
