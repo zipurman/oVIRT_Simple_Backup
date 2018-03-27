@@ -1,12 +1,14 @@
 <?php
 
-	require( '../header.php' );
+	$projectpath           = '/var/www/html/';
+
+	require( $projectpath . 'header.php' );
 
 	if (empty($comm)) {
-		require( '../area/' . $areafile . '.php' );
+		require( $projectpath . 'area/' . $areafile . '.php' );
 	} else {
-		require( '../comm/' . $comm . '.php' );
+		require( $projectpath . 'comm/' . $comm . '.php' );
 	}
 	if (empty($comm)) {
-		require( '../footer.php' );
+		require( $projectpath . 'footer.php' );
 	}

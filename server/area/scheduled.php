@@ -1,7 +1,5 @@
 <?php
 
-	$vmconfigfile = '/var/www/html/.automated_backups_vmlist';
-
 	if ( ! file_exists( $vmconfigfile ) ) {
 		exec( 'echo "" > ' . $vmconfigfile );
 	}

@@ -26,7 +26,7 @@
 			}
 		}
 
-		$attachments     = file_get_contents( '../cache/diskattachitems.dat' );
+		$attachments     = file_get_contents( $projectpath . 'cache/diskattachitems.dat' );
 		$attachments     = explode( "\n", $attachments );
 		$disknumbercheck = 1;
 		foreach ( $attachments as $attachment ) {

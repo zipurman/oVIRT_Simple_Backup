@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.1)
+# oVIRT_Simple_Backup - WebGUI (0.6.3)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -6,9 +6,14 @@
 
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
-    - [ ] Headless scheduled backups with retention periods.
-    - [ ] Version detetction on upgrade to clear caches and any other required version adjustments using a versioning function
-    
+
+ - 0.6.3 - 2018/03/26
+    - [x] Scheduled backups with retention periods have been added. Instructions below.
+
+ - 0.6.2 - 2018/03/26
+    - [x] Added version detection on upgrade to clear caches and any other required version adjustments using a versioning function
+    - [x] Retired old BASH Scripts and promoted PHP version to root of project
+
  - 0.6.1 - 2018/03/25
     - Minor code adjustments and bug fixes
     
@@ -117,11 +122,16 @@ This code has the following functionality in a web GUI:
         *  exim4 (requires config of /etc/exim4/update-exim4.conf.conf & /etc/init.d/exim4 restart)
         *  uuid-runtime
         *  fsarchiver
-        *  php5
-        *  php5-curl
-        *  php-libxml php-xml php-simplexml (CentOS/RH)
-        *  libapache2-mod-php5 (Debian)
         *  parted
+        *  php5
+            *  php5
+            *  php5-curl
+            *  php-libxml php-xml php-simplexml (CentOS/RH)
+            *  libapache2-mod-php5 (Debian)
+        *  php7
+            *  php7.0
+            *  php7.0-curl
+            *  php7.0-xml
 
     *  As root:
         *  vi /etc/ssh/sshd\_config
@@ -176,12 +186,11 @@ This code has the following functionality in a web GUI:
             into this folder**
         * touch /var/www/html/config.php
         * chown www-data:root /var/www -R
-        * vi /var/www/html/allowed\_ips.php (And change allowed IP
-            addresses)
+        * vi /var/www/html/allowed_ips.php (And change allowed IP addresses)
         * vi /etc/crontab
             ```
-            * * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
-            * * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1
+            * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
+            * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1
             ```
 
 4.  on oVirtEngine VM
@@ -202,7 +211,14 @@ This code has the following functionality in a web GUI:
 5.  You should now be able to login to your oVirt Web UI and see the
     SimpleBackup menu item on the left.
 
+#### Scheduling Backups
 
+    *  In the WebUI, open Settings and confirm the email address and retention
+    *  In the WebUI, open Scheduled Backups and select the VMs you want to backup on the schedule and click SAVE
+    *  Add a cronjob as follows (to run daily at 12:01 am):
+    ```bash
+    1 0 * * * www-data php /var/www/html/site/automatedbackup.php > /dev/null 2>&1
+    ```
 
 
 #### Author

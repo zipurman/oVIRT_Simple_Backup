@@ -24,4 +24,5 @@
 		array( "ip" => "/^192\.168\.1.*$/", "allow" => true, ),
 		array( "ip" => "/^192\.168\.1\.5$/", "allow" => false, ),
 		array( "ip" => "/^192\.168\.220\.2$/", "allow" => true, ),
+		array( "ip" => "/^127\.0\.0\.1$/", "allow" => true, ),
 	);

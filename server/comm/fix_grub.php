@@ -30,26 +30,26 @@
 
 			//set files to be grabbed by crontab job
 			if ( $sb_status['step'] == 0 ) {
-				if ( $cronsfile = fopen( '../crons/fixgrub.dat', "w" ) ) {
+				if ( $cronsfile = fopen( $projectpath . 'crons/fixgrub.dat', "w" ) ) {
 					fwrite( $cronsfile, '1' );
 					fclose( $cronsfile );
 				}
-				if ( $cronsfile = fopen( '../crons/fixgrubtarget.dat', "w" ) ) {
+				if ( $cronsfile = fopen( $projectpath . 'crons/fixgrubtarget.dat', "w" ) ) {
 					fwrite( $cronsfile, $dev );
 					fclose( $cronsfile );
 				}
 				sb_status_set( 'restore', 'fixes', 1 );
 			}
 
-			if ( file_exists( '../crons/fixgrub.dat' ) ) {
-				$cronsetting = file_get_contents( '../crons/fixgrub.dat' );
+			if ( file_exists( $projectpath . 'crons/fixgrub.dat' ) ) {
+				$cronsetting = file_get_contents( $projectpath . 'crons/fixgrub.dat' );
 				if ( $cronsetting == 1 ) {
 					$status = 1;
 					$reason = 'Waiting for cron job';
 				} else if ( $cronsetting == 2 ) {
 					$status = 2;
 					$reason = 'Completed';
-					if ( $cronsfile = fopen( '../crons/fixgrub.dat', "w" ) ) {
+					if ( $cronsfile = fopen( $projectpath . 'crons/fixgrub.dat', "w" ) ) {
 						fwrite( $cronsfile, 0 );
 						fclose( $cronsfile );
 					}

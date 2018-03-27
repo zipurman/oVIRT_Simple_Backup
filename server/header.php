@@ -1,14 +1,14 @@
 <?php
 
-	if ( ! file_exists( '../config.php' ) ) {
+	if ( ! file_exists( $projectpath . 'config.php' ) ) {
 		exec( 'echo "" > /var/www/html/config.php' );
 	}
 
-	require( '../allowed_ips.php' );
-	require( '../functions.php' );
-	require( '../config.php' );
-	require( '../reg.php' );
-	require( '../tz.php' );
+	require( $projectpath . 'allowed_ips.php' );
+	require( $projectpath . 'functions.php' );
+	require( $projectpath . 'config.php' );
+	require( $projectpath . 'reg.php' );
+	require( $projectpath . 'tz.php' );
 
 	if ( empty( $comm ) ) {
 		?>
@@ -29,7 +29,7 @@
         <div id="sb_head">
             oVirt Simple Backup (WebGUI) - Version: <?php echo $sb_version; ?>
         </div>
-		<?php require( '../menu.php' ); ?>
+		<?php require( $projectpath . 'menu.php' ); ?>
         <div id="sb_outerbox">
 		<?php
 	}

@@ -1,9 +1,12 @@
 <?php
 
-	$vmuuid       = varcheck( "vmuuid", '' );
+	if (!isset($vmuuid)) {
+		$vmuuid = varcheck( "vmuuid", '' );
+	}
 
 	$sb_status = sb_status_fetch();
 	$status     = - 1;
+	$reason = '';
 
 	//check if this is a new snapshot
 	if ( $sb_status['status'] == 'ready' ) {
@@ -44,6 +47,7 @@
 					sb_status_set('backup', 'snapshot', 2, $sb_status['setting1'], $sb_status['setting2']);
 				} else if ( $snapshot->snapshot_status == 'ok' ) {
 					$status = 1;
+					$reason = 'Snapshot Created';
 					$vm   = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid );
 					sb_status_set('backup', 'create_path', 1, $sb_status['setting1'], $sb_status['setting2'], $snapshot['id'],  $vm->name  );
 				}

@@ -1,6 +1,6 @@
 <?php
 
-	$sb_version = '0.6.0';
+	$sb_version = '0.6.3';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
 	$savestep        = varcheck( "savestep", 0, "FILTER_VALIDATE_INT", 0 );
@@ -10,9 +10,12 @@
 	$comm            = varcheck( "comm", '' );
 
 	//used for xen migration tracking disk data
-	$diskfile   = '../cache/xendisks.dat';
-	$diskfile2  = '../cache/xendisks2.dat';
-	$statusfile = '../cache/statusfile.dat';
+	$diskfile              = $projectpath . 'cache/xendisks.dat';
+	$diskfile2             = $projectpath . 'cache/xendisks2.dat';
+	$statusfile            = $projectpath . 'cache/statusfile.dat';
+	$vmconfigfile          = '/var/www/html/.automated_backups_vmlist';
+	$vmbackupinprocessfile = '/var/www/html/.automated_backups_inprocess';
+	$vmbackupemaillog = '/var/www/html/.automated_backups_emaillog';
 
 	//change the follow if you like. Used for password obscurity.
 	$salt   = 'ch8g7e2g2g';
@@ -21,6 +24,9 @@
 
 	$UUIDv4  = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
 	$UUIDxen = '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i';
+
+	//version checking
+	require( $projectpath . 'versioning.php' );
 
 	if ( ! empty( $settings['tz'] ) ) {
 		date_default_timezone_set( $settings['tz'] );
@@ -46,6 +52,10 @@
 
 	$thedatetime = strftime( "%Y%m%d_%H%M%S" );
 
+	if ( ! isset( $_SERVER['REMOTE_ADDR'] ) ) {
+		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+	}
+
 	$allowsite = - 1;
 	if ( ! empty( $allowed_ips ) ) {
 		if ( is_array( $allowed_ips ) ) {
@@ -60,7 +70,6 @@
 						}
 					}
 				}
-
 			}
 			if ( $allowsite == - 1 ) {
 				$allowsite = 0;

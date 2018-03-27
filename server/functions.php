@@ -173,7 +173,7 @@
 		} else if ( $inputdata['type'] == 'password' ) {
 			$returndata .= '<input autocomplete="off" type="password" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
 		} else if ( $inputdata['type'] == 'checkbox' ) {
-			$returndata .= '<input autocomplete="off" type="checkbox" id="' . $inputdata['id'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" ';
+			$returndata .= '<input autocomplete="off" type="checkbox" id="' . $inputdata['id'] . '" name="' . $inputdata['name'] . '" value="' . $inputdata['value'] . '" ';
 			$returndata .= ( $inputdata['checked'] ) ? ' CHECKED' : '';
 			$returndata .= '/>';
 		} else if ( $inputdata['type'] == 'hidden' ) {
@@ -283,8 +283,10 @@
 
 	function sb_cache_set( $vmuuid, $backupname, $status, $vmname, $op = 'write', $recoveryurl = '', $recoveryjs = '' ) {
 
+		GLOBAL $projectpath;
+
 		if ( $op == 'write' ) {
-			if ( $cachefile = fopen( '../cache/' . $vmuuid, "w" ) ) {
+			if ( $cachefile = fopen( $projectpath . 'cache/' . $vmuuid, "w" ) ) {
 				fwrite( $cachefile, $vmuuid . "\n" );
 				fwrite( $cachefile, $backupname . "\n" );
 				fwrite( $cachefile, $status . "\n" );
@@ -294,7 +296,7 @@
 				fclose( $cachefile );
 			}
 		} else if ( $op == 'delete' ) {
-			unlink( '../cache/' . $vmuuid );
+			unlink( $projectpath . 'cache/' . $vmuuid );
 		}
 	}
 
@@ -1054,7 +1056,17 @@
 			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
 
 			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $settings['backup_log'] );
+			sleep(0.1);
 		}
+	}
+
+	function sb_email_log( $logtext ) {
+
+		GLOBAL $vmbackupemaillog;
+
+			$logtext = str_replace( '"', '', $logtext );
+			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
+			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $vmbackupemaillog );
 	}
 
 	// This encryption is simply to make password non-clear text.
@@ -1112,4 +1124,32 @@
 		$x         = openssl_decrypt( $x, $method, $salt, 0, $static_iv );
 
 		return $x;
+	}
+
+	function sb_email($subject, $message){
+
+		GLOBAL $settings;
+
+		if (!empty($settings['email'])) {
+			$to = $settings['email'];
+
+			$message = '
+<html>
+<head>
+<title>' . $subject . '</title>
+</head>
+<body>
+' . $message . '
+</body>
+</html>
+';
+
+			$headers = "MIME-Version: 1.0" . "\r\n";
+			$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+			$headers .= 'From: <' . $to . '>' . "\r\n";
+			//		$headers .= 'Cc: myboss@example.com' . "\r\n";
+
+			mail( $to, $subject, $message, $headers );
+
+		}
 	}

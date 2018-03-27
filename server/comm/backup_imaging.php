@@ -44,11 +44,15 @@
 							$status = 2;
 
 							if ( $sb_status['step'] == 2 ) {
+
+								$filedata = null;
+
 								$reason = 'Imaging in progress.';
 
 								if ( file_exists( $progressfilename ) ) {
 
 									exec( 'tail ' . $progressfilename . ' -n 1', $filedata );
+
 									$progress = (int) $filedata[0];
 
 									sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Imaging ' . $progress . '%', $sb_status['setting4'], 'write', '?area=2&action=select&backupnow=1&vm=' . $sb_status['setting1'] . '&recovery=1', 'sb_snapshot_imaging(\'' . $sb_status['setting1'] . '\', \'' . $sb_status['setting2'] . '\');' );
@@ -57,6 +61,8 @@
 									if ($progress >= 100){
 										sb_status_set( 'backup', 'backup_imaging', 1 );
 									}
+								} else {
+									$reason .= ' - MISSING - ' .$progressfilename;
 								}
 							}
 
@@ -100,7 +106,7 @@
 								if ( ! empty( $dev ) ) {
 
 									$command = '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
-
+									$output = null;
 									exec( $command, $output );
 									sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Imaging', $sb_status['setting4'], 'write' );
 									sb_status_set( 'backup', 'backup_imaging', 2, '', '', '', '', $disknumber );
@@ -140,3 +146,5 @@
 	sb_log('Backup Imaging - ' . $sb_status['setting5'] . '/' .$numberofimages. ' - ' . $progress . '% ' . $reason);
 
 	echo json_encode( $jsonarray );
+
+	unset( $progress );

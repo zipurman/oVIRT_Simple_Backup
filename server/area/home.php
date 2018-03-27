@@ -16,12 +16,12 @@
 		}
 
 		if ( ! empty( $clearitem ) ) {
-			unlink( '../cache/statusfile.dat' );
+			unlink( $projectpath . 'cache/statusfile.dat' );
 		}
-		if ( ! file_exists( '../cache' ) ) {
+		if ( ! file_exists( $projectpath . 'cache' ) ) {
 			exec( 'mkdir ../cache' );
 		}
-		if ( ! file_exists( '../cache' ) ) {
+		if ( ! file_exists( $projectpath . 'cache' ) ) {
 			echo 'Error creating cache directory.';
 		}
 
