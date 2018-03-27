@@ -46,6 +46,7 @@ This code has the following functionality in a web GUI:
  - [x] Automated Schedules of backups
  - [x] Log viewer
  - [x] Multi-Disk VM now supported
+ - [x] Scheduled VMs backup now supported with retention
 
 ###### THIS SCRIPT IS CURRENTLY IN BETA and should only be used for testing 
 
@@ -195,6 +196,8 @@ This code has the following functionality in a web GUI:
 
 5.  You should now be able to login to your oVirt Web UI and see the
     SimpleBackup menu item on the left.
+
+---
 
 #### Scheduling Backups
 
