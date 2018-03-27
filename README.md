@@ -29,26 +29,11 @@
   - Prior Versions were not tracked for version history as project was just getting started.
     
 
-#### Screenshots
+
 ![ ](screenshots/SS01.png?raw=true)
 
-![ ](screenshots/SS02.png?raw=true)
+[More Snapshots](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/screenshots)
 
-![ ](screenshots/SS03.png?raw=true)
-
-![ ](screenshots/SS04.png?raw=true)
-
-![ ](screenshots/SS05.png?raw=true)
-
-![ ](screenshots/SS06.png?raw=true)
-
-![ ](screenshots/SS07.png?raw=true)
-
-![ ](screenshots/SS08.png?raw=true)
-
-![ ](screenshots/SS09.png?raw=true)
-
-![ ](screenshots/SS10.png?raw=true)
 
 #### Outline
 
