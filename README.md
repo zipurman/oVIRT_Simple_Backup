@@ -8,7 +8,7 @@
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
 
  - 0.6.3 - 2018/03/26
-    - [x] Scheduled backups with retention periods have been added. Instructions below.
+    - [x] Scheduled backups with retention periods and email alerts have been added. Instructions below.
 
  - 0.6.2 - 2018/03/26
     - [x] Added version detection on upgrade to clear caches and any other required version adjustments using a versioning function
@@ -46,7 +46,7 @@ This code has the following functionality in a web GUI:
  - [x] Automated Schedules of backups
  - [x] Log viewer
  - [x] Multi-Disk VM now supported
- - [x] Scheduled VMs backup now supported with retention
+ - [x] Scheduled VMs backup now supported with retention and email alerts
 
 ###### THIS SCRIPT IS CURRENTLY IN BETA and should only be used for testing 
 
