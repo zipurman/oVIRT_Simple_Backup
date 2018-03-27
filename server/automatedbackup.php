@@ -76,112 +76,120 @@
 	if ( ! empty( $backupoktorun ) ) {
 
 
-		sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
-		sb_log( 'Automated Backup Starting ....' );
-		sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
+		if ( empty( $backuplist ) ) {
 
-		sb_email( 'oVirt SimpleBackup Starting', 'Backup Starting ... A log will be emailed upon completion.' );
+			sb_email( 'oVirt SimpleBackup Skipped', 'Nothing selected to be backed up.' );
 
-		exec( 'rm ' . $vmbackupemaillog . ' -f' );
+		} else {
 
-		sb_email_log( '<b>Automated Backup Starting ....</b><br/>' );
-		$itemnum = 0;
+			sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
+			sb_log( 'Automated Backup Starting ....' );
+			sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
 
-		foreach ( $backuplist as $item ) {
+			sb_email( 'oVirt SimpleBackup Starting', 'Backup Starting ... A log will be emailed upon completion.' );
 
-			sb_log( 'Backing up VM UUID: ' . $item );
-			sb_email_log( 'Backing up VM UUID: ' . $item . ' - ' . $backuplist2[ $itemnum ] . '<br/>' );
+			exec( 'rm ' . $vmbackupemaillog . ' -f' );
 
-			$status = 0;
-			$vmuuid = $item;
-			while ( $status < 1 ) {
-				sleep( 2 );
-				require( $projectpath . 'comm/snapshot_status.php' );
-				if ( ! file_exists( $vmconfigfile ) ) {
-					die();
+			sb_email_log( '<b>Automated Backup Starting ....</b><br/>' );
+			$itemnum = 0;
+
+			foreach ( $backuplist as $item ) {
+
+				sb_log( 'Backing up VM UUID: ' . $item );
+				sb_email_log( 'Backing up VM UUID: ' . $item . ' - ' . $backuplist2[ $itemnum ] . '<br/>' );
+
+				$status = 0;
+				$vmuuid = $item;
+				while ( $status < 1 ) {
+					sleep( 2 );
+					require( $projectpath . 'comm/snapshot_status.php' );
+					if ( ! file_exists( $vmconfigfile ) ) {
+						die();
+					}
 				}
-			}
-			sb_email_log( $reason . '<br/>' );
+				sb_email_log( $reason . '<br/>' );
 
-			$status = 0;
-			while ( $status < 1 ) {
-				sleep( 2 );
-				require( $projectpath . 'comm/backup_create_path.php' );
-				if ( ! file_exists( $vmconfigfile ) ) {
-					die();
+				$status = 0;
+				while ( $status < 1 ) {
+					sleep( 2 );
+					require( $projectpath . 'comm/backup_create_path.php' );
+					if ( ! file_exists( $vmconfigfile ) ) {
+						die();
+					}
 				}
-			}
-			sb_email_log( $reason . '<br/>' );
+				sb_email_log( $reason . '<br/>' );
 
-			$status = 0;
-			while ( $status < 1 ) {
-				sleep( 2 );
-				require( $projectpath . 'comm/backup_attach_image.php' );
-				if ( ! file_exists( $vmconfigfile ) ) {
-					die();
+				$status = 0;
+				while ( $status < 1 ) {
+					sleep( 2 );
+					require( $projectpath . 'comm/backup_attach_image.php' );
+					if ( ! file_exists( $vmconfigfile ) ) {
+						die();
+					}
 				}
-			}
-			sb_email_log( $reason . '<br/>' );
+				sb_email_log( $reason . '<br/>' );
 
-			$status = 0;
-			while ( $status < 3 ) {
-				sleep( 2 );
-				require( $projectpath . 'comm/backup_imaging.php' );
-				if ( ! file_exists( $vmconfigfile ) ) {
-					die();
+				$status = 0;
+				while ( $status < 3 ) {
+					sleep( 2 );
+					require( $projectpath . 'comm/backup_imaging.php' );
+					if ( ! file_exists( $vmconfigfile ) ) {
+						die();
+					}
 				}
-			}
-			sb_email_log( $reason . '<br/>' );
+				sb_email_log( $reason . '<br/>' );
 
-			$status = 0;
-			while ( $status < 1 ) {
-				sleep( 2 );
-				require( $projectpath . 'comm/backup_detatch_image.php' );
-				if ( ! file_exists( $vmconfigfile ) ) {
-					die();
+				$status = 0;
+				while ( $status < 1 ) {
+					sleep( 2 );
+					require( $projectpath . 'comm/backup_detatch_image.php' );
+					if ( ! file_exists( $vmconfigfile ) ) {
+						die();
+					}
 				}
-			}
-			sb_email_log( $reason . '<br/>' );
+				sb_email_log( $reason . '<br/>' );
 
-			$status = 0;
-			while ( $status < 1 ) {
-				sleep( 2 );
-				require( $projectpath . 'comm/snapshot_delete.php' );
-				if ( ! file_exists( $vmconfigfile ) ) {
-					die();
+				$status = 0;
+				while ( $status < 1 ) {
+					sleep( 2 );
+					require( $projectpath . 'comm/snapshot_delete.php' );
+					if ( ! file_exists( $vmconfigfile ) ) {
+						die();
+					}
 				}
-			}
-			sb_email_log( $reason . '<br/>' );
+				sb_email_log( $reason . '<br/>' );
 
-			$backuppath = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
-			exec( 'ls ' . $backuppath, $files );
-			rsort( $files );
-			$numsofar = 1;
-			foreach ( $files as $file ) {
-				echo '' . $file . '<br/>';
+				$backuppath = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
+				exec( 'ls ' . $backuppath, $files );
+				rsort( $files );
+				$numsofar = 1;
+				foreach ( $files as $file ) {
+					echo '' . $file . '<br/>';
 
-				if ( $numsofar > $settings['retention'] ) {
-					exec( 'rm ' . $backuppath . '/' . $file . ' -r -f' );
-					sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] );
-					sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
+					if ( $numsofar > $settings['retention'] ) {
+						exec( 'rm ' . $backuppath . '/' . $file . ' -r -f' );
+						sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] );
+						sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
+					}
+					$numsofar ++;
+
 				}
-				$numsofar ++;
+
+				$itemnum ++;
 
 			}
+			sb_log
+			( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
+			sb_log( '---- Automated Backup Done' );
+			sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
 
-			$itemnum ++;
+			sb_email_log( '<b>...Automated Backup Done</b><br/>' );
+
+			$vmbackupemaillog = file_get_contents( $vmbackupemaillog );
+
+			sb_email( 'oVirt SimpleBackup Completed', $vmbackupemaillog );
 
 		}
-
-		sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
-		sb_log( '---- Automated Backup Done' );
-		sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
-
-		sb_email_log( '<b>...Automated Backup Done</b><br/>' );
-
-		$vmbackupemaillog = file_get_contents( $vmbackupemaillog );
-
-		sb_email( 'oVirt SimpleBackup Completed', $vmbackupemaillog );
 
 		if ( ! empty( $vmbackupinprocessfile ) ) {
 			if ( file_exists( $vmbackupinprocessfile ) ) {
