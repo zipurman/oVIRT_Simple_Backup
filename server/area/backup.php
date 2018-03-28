@@ -71,7 +71,7 @@
 							"text" => round( $vm->memory / 1024 / 1024 / 1024 ) . 'GB',
 						),
 						array(
-							"text" => round( $disk->actual_size / 1024 / 1024 / 1024 ) . 'GB',
+							"text" => round( $disk->provisioned_size / 1024 / 1024 / 1024 ) . 'GB',
 						),
 						array(
 							"text" => $vm['id'],
