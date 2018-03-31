@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.4)
+# oVIRT_Simple_Backup - WebGUI (0.6.5)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -7,6 +7,11 @@
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
 
+ 
+ - 0.6.5 - 2018/03/30
+    - [x] BackupEngine now checks for any snapshots on BackupEngine VM as this will disallow attaching disks dynamically. Warnings will now show if snapshots exist on the BackupEngine VM.
+    - [x] BackupEngine will now detect if Storage Domain is not yet set and hide the main menu (other than settings) if Storage Domain has not yet been set.
+    
  - 0.6.4 - 2018/03/27
     - Minor fixes
     - Added docs: nfs-common required (on BackupVM)

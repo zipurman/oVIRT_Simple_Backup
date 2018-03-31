@@ -1,6 +1,7 @@
 <div id="sb_menu">
 
 	<?php
+
 		$menuspace = 0;
 		if ( empty( $settings['uuid_backup_engine'] ) ) {
 			$snapshotcheck = array();
