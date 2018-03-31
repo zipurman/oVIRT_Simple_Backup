@@ -11,6 +11,7 @@
  - 0.6.5 - 2018/03/30
     - [x] BackupEngine now checks for any snapshots on BackupEngine VM as this will disallow attaching disks dynamically. Warnings will now show if snapshots exist on the BackupEngine VM.
     - [x] BackupEngine will now detect if Storage Domain is not yet set and hide the main menu (other than settings) if Storage Domain has not yet been set.
+    - [x] Settings will now fix bad log file path.
     
  - 0.6.4 - 2018/03/27
     - Minor fixes

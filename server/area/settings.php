@@ -1,37 +1,36 @@
 <?php
 
-	$configcheck            = varcheck( "configcheck", 0, "FILTER_VALIDATE_INT", 0 );
+	$configcheck = varcheck( "configcheck", 0, "FILTER_VALIDATE_INT", 0 );
 
-	if (!empty($configcheck)){
+	if ( ! empty( $configcheck ) ) {
 
 		echo 'Connecting to Ovirt Engine...<br/><br/>';
 
 		$vms = ovirt_rest_api_call( 'GET', 'vms' );
-		echo '<b>VMs: ' . count($vms) . '</b><br/><br/>';
+		echo '<b>VMs: ' . count( $vms ) . '</b><br/><br/>';
 		foreach ( $vms as $vm ) {
 			echo ' - ' . $vm->name . '<br/>';
 		}
 		echo '<br/><br/>';
 
 		$clusters = sb_clusterlist();
-		echo '<b>Clusters: ' . count($clusters) . '</b><br/><br/>';
+		echo '<b>Clusters: ' . count( $clusters ) . '</b><br/><br/>';
 		foreach ( $clusters as $cluster ) {
 			echo ' - ' . $cluster['name'] . '<br/>';
 		}
 		echo '<br/><br/>';
 
-		$domains  = sb_domainlist();
-		echo '<b>Domains: ' . count($domains) . '</b><br/><br/>';
+		$domains = sb_domainlist();
+		echo '<b>Domains: ' . count( $domains ) . '</b><br/><br/>';
 		foreach ( $domains as $domain ) {
 			echo ' - ' . $domain['name'] . '<br/>';
 		}
 		echo '<br/><br/>';
 
 		$disks = ovirt_rest_api_call( 'GET', 'disks' );
-		echo '<b>Disks: ' . count($disks) . '</b><br/><br/>';
+		echo '<b>Disks: ' . count( $disks ) . '</b><br/><br/>';
 
 		sb_pagedescription( '<a href="?area=99">Click Here</a> to return to settings.' );
-
 
 	} else {
 		sb_pagedescription( 'Note: If you lock your admin account out due to misconfigurations below, run the command (ovirt-aaa-jdbc-tool user unlock admin) on your oVirt Engine VM as root to unlock the admin account. A locked admin account or misconfigured account will make this UI very slow and options below for Domain and Cluster will be empty. <a href="?area=99&configcheck=1">Click Here</a> for an output of what we can connect to on oVirt Engine.' );
@@ -66,6 +65,17 @@
 
 			$drive_interface = ( $drive_interface == 0 ) ? 'virtio' : 'virtio_scsi';
 			$drive_type      = ( $drive_type == 0 ) ? 'vd' : 'sd';
+
+			//make sure log file is valid if defined
+			if ( ! empty( $backup_log ) ) {
+				if ( strpos( $backup_log, '.log' ) == false ) {
+					if ( substr( $backup_log, - 1 ) == '/' ) {
+						$backup_log .= 'simplebackup.log';
+					} else if ( substr( $backup_log, - 4, 4 ) != '.log' ) {
+						$backup_log .= '_simplebackup.log';
+					}
+				}
+			}
 
 			$configfile = fopen( "../config.php", "w" ) or die( "Unable to open config file.<br/><br/>Check permissions on config.php!" );
 			fwrite( $configfile, '<?php' . "\n" );
