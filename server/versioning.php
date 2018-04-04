@@ -29,7 +29,7 @@
 			} else if ( $old_minor == 6 && $new_minor == 6 ) {
 				//example logic for upgrade from == 0.6 to 0.6.x
 
-				if ( $old_patch < 6 && $new_patch == 6 ) {
+				if ( $old_patch < 6 && $new_patch >= 6 ) {
 					//0.6.0 -> 0.6.1
 					$diskx   = sb_check_disks();
 

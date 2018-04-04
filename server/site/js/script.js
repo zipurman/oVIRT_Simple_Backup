@@ -249,7 +249,7 @@ function sb_restore_disk_create() {
                 sb_check_disk_progress();
                 sb_update_statusbox('restorestatus', 'Waiting for Disk(s)');
             } else if (json.status == 3) {
-                $("#creatediskstatus .progressbarinner").html('Disk 100% (COMPLETED)').css('width', '100%');
+                $("#creatediskstatus .progressbarinner").html('Disk Create (COMPLETED)').css('width', '100%');
                 sb_update_statusbox('restorestatus', 'Disk(s) Ready');
                 sb_restore_imaging();
             }

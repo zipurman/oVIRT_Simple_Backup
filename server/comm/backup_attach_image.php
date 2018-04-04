@@ -23,6 +23,17 @@
 				$disktype     = $disktypeget['disktype'];
 				$disknumber   = 1;
 				$setdisk1     = 0;
+
+
+
+				foreach ( $disks->disk as $disk ) {
+
+					sb_attach_disk( $disk['id'], $sb_status['setting3'], '' );
+
+				}
+
+				sleep( 5 );
+				
 				if ( $sb_status['setting3'] != '-XEN-' ) {
 					//force boot disk to be adopted first regardless of how ovirt presents the list
 					foreach ( $disks->disk as $disk ) {
@@ -32,9 +43,10 @@
 								$morediskdatathis = $morediskdatum;
 							}
 						}
-						if ( ! empty( $morediskdatathis ) && $setdisk1 == 0 && $morediskdatathis->bootable == 'true' ) {
+						if ( ! empty( $morediskdatathis ) && $setdisk1 == 0 && (string) $morediskdatathis->bootable == 'true' ) {
+							error_log( "Disk - " . $diskletter, 0 );
 							$diskletter = sb_next_drive_letter( $diskletter );
-							sb_disk_file_write( 1, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) $morediskdatathis->bootable, (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
+							sb_disk_file_write( 1, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'true', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
 							$disknumber ++;
 							$setdisk1 = 1;
 						}
@@ -47,24 +59,14 @@
 								$morediskdatathis = $morediskdatum;
 							}
 						}
-						if ( ! empty( $morediskdatathis ) && $morediskdatathis->bootable == 'false' ) {
+						if ( ! empty( $morediskdatathis ) && (string) $morediskdatathis->bootable == 'false' ) {
 							$diskletter = sb_next_drive_letter( $diskletter );
-							sb_disk_file_write( $disknumber, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) $morediskdatathis->bootable, (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
+							sb_disk_file_write( $disknumber, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'false', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
 							$disknumber ++;
 						}
 					}
 				}
-				if ( $sb_status['setting3'] == '-XEN-' ) {
-					$processdisks = sb_disk_array_fetch( $settings['mount_migrate'] );
-				} else {
-					$processdisks = sb_disk_array_fetch( $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] );
-				}
 
-				foreach ( $processdisks as $processdisk ) {
-
-					sb_attach_disk( $processdisk['uuid'], $sb_status['setting3'], $processdisk['path'] );
-
-				}
 
 				$status = 1;
 				$reason = 'Disk(s) Attached';

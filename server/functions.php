@@ -961,13 +961,34 @@
 
 	}
 
-	function sb_next_drive_letter( $driveletter ) {
+	function sb_next_drive_letter( $driveletter, $output = null ) {
+
+		GLOBAL $settings;
 
 		$thisascii = ord( $driveletter );
 		$thisascii ++;
 		$nextletter = chr( $thisascii );
 
-		return $nextletter;
+		if (empty($output)) {
+			//$settings['drive_type']
+			exec( 'fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+		}
+		$diskok = 0;
+		foreach ( $output as $item ) {
+			if ( strpos( $item, 'mapper' ) == false ) {
+				$item = str_replace( ':', '', $item );
+				$item = str_replace( '/dev/', '', $item );
+				if ( $item == $settings['drive_type'] . $nextletter ) {
+					$diskok = 1;
+				}
+			}
+		}
+
+		if ($diskok == 1 || $nextletter == 'z') {
+			return $nextletter;
+		} else {
+			return sb_next_drive_letter( $nextletter, $output );
+		}
 	}
 
 	function sb_not_ready() {

@@ -4,6 +4,12 @@
 
 	$projectpath = '/var/www/html/';
 
+	require( $projectpath . 'allowed_ips.php' );
+	require( $projectpath . 'functions.php' );
+	require( $projectpath . 'config.php' );
+	require( $projectpath . 'reg.php' );
+	require( $projectpath . 'tz.php' );
+
 	$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
 
 	if ($snapshotcheck != 1){
@@ -11,11 +17,7 @@
 	}
 
 	if ( file_exists( $projectpath . 'config.php' ) ) {
-		require( $projectpath . 'allowed_ips.php' );
-		require( $projectpath . 'functions.php' );
-		require( $projectpath . 'config.php' );
-		require( $projectpath . 'reg.php' );
-		require( $projectpath . 'tz.php' );
+
 
 		$backupoktorun = 0;
 

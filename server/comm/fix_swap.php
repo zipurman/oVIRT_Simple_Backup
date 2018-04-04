@@ -19,7 +19,7 @@
 
 			foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
 				foreach ( $processdisks as $processdisk ) {
-					if ( $processdisk['path'] == $avaliabledisk && empty( $dev ) && $processdisk['bootable'] == 'true' ) {
+					if ( empty( $dev ) && $processdisk['bootable'] == 'true' ) {
 						$disknumberfile = $processdisk['disknumber'];
 						$dev            = $avaliabledisk;
 					}

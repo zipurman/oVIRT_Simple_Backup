@@ -30,15 +30,17 @@
 	if ( $setxen == 1 ) {
 		sb_log('Restoring Xen Images - Migrating Disk Data');
 		//MIGRATE DISK DATA
-		$diskletter = 'b';
+		$diskletter = 'a';
 		$disknumber = 1;
 		$diskarray  = sb_vm_disk_array_fetch( $diskfile );
 		foreach ( $diskarray as $item ) {
+
+			$diskletter = sb_next_drive_letter( $diskletter );
+
 			$bootablex = ( $item['vbd-userdevice'] == 0 ) ? 'true' : 'false';
 			sb_disk_file_write( $disknumber, $item['vdi-label'], $item['vmuuid'], $item['vdi-uuid'], $bootablex, $settings['drive_interface'], $item['vdi-virtual-size'], $settings['drive_type'] . $diskletter, $item['vbd-label'], '-XEN-' );
 			sb_log('Disk ' . $disknumber . ' - ' . $settings['drive_type'] . $diskletter . ' Bootable: ' . $bootablex . ' Size: ' . $item['vdi-virtual-size'] . ' Label: ' . $item['vdi-label'] . '(;(' . $item['vbd-label'] . ')');
 
-			$diskletter = sb_next_drive_letter( $diskletter );
 			$disknumber ++;
 		}
 		$sb_status['step'] = 44;

@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.6)
+# oVIRT_Simple_Backup - WebGUI (0.6.7)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -7,6 +7,9 @@
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
     - [ ] multiple schedules with targeted vms and time on each managed in the UI
+ 
+ - 0.6.7 - 2018/04/04
+    - [x] Revise disk mount process to adapt to /dev/?d* to avoid issues with disks not being freed up in time by the BackupEngineVM OS
  
  - 0.6.6 - 2018/04/04
     - [x] Auto detect virtio/virtio_scsi from /dev/*da to avoid misconfigurations
@@ -197,6 +200,7 @@ This code has the following functionality in a web GUI:
             ```
         * touch /path/to/mylog/file.log
         * chown www-data:www-data /path/to/mylog/file.log
+        * usermod -a -G cdrom www-data
         
 4.  on oVirtEngine VM
     *  As Root:

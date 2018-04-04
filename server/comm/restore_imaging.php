@@ -74,7 +74,7 @@
 
 						foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
 							foreach ( $processdisks as $processdisk ) {
-								if ( $processdisk['path'] == $avaliabledisk && empty( $dev ) && $processdisk['disknumber'] == 'Disk' . $disknumber ) {
+								if ( empty( $dev ) && $processdisk['disknumber'] == 'Disk' . $disknumber ) {
 									$disknumberfile = $processdisk['disknumber'];
 									$dev            = $avaliabledisk;
 								}
