@@ -311,17 +311,24 @@
 		$lastdev            = 'nodiskselected';
 		$disktype           = '';
 		foreach ( $output as $item ) {
-			$item = str_replace( ':', '', $item );
-			$item = str_replace( '/dev/', '', $item );
-
-			if ( $item != 'vda' && $item != 'sda' ) {
-				$disks ++;
-				$avaliabledisks[ $item ] = $item;
-				$avaliablediskstext      .= '(' . $item . ')';
-				$lastdev                 = $item;
-			} else {
-				$disktype = substr( $item, 0, 2 );
+			if ( strpos( $item, 'mapper' ) == false ) {
+				$item = str_replace( ':', '', $item );
+				$item = str_replace( '/dev/', '', $item );
+				if ( $item != 'vda' && $item != 'sda' ) {
+					$disks ++;
+					$avaliabledisks[ $item ] = $item;
+					$avaliablediskstext      .= '(' . $item . ')';
+					$lastdev                 = $item;
+				} else {
+					$disktype = substr( $item, 0, 2 );
+				}
 			}
+		}
+
+		if ( $disktype == 'vd' ) {
+			$driveinterface = 'virtio';
+		} else {
+			$driveinterface = 'virtio_scsi';
 		}
 
 		$return = array(
@@ -330,6 +337,7 @@
 			"avaliablediskstext" => $avaliablediskstext,
 			"lastdev"            => $lastdev,
 			"disktype"           => $disktype,
+			"driveinterface"     => $driveinterface,
 		);
 
 		return $return;
@@ -1056,7 +1064,7 @@
 			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
 
 			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $settings['backup_log'] );
-			sleep(0.1);
+			sleep( 0.1 );
 		}
 	}
 
@@ -1064,9 +1072,9 @@
 
 		GLOBAL $vmbackupemaillog;
 
-			$logtext = str_replace( '"', '', $logtext );
-			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
-			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $vmbackupemaillog );
+		$logtext = str_replace( '"', '', $logtext );
+		$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
+		exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $vmbackupemaillog );
 	}
 
 	// This encryption is simply to make password non-clear text.
@@ -1126,11 +1134,11 @@
 		return $x;
 	}
 
-	function sb_email($subject, $message){
+	function sb_email( $subject, $message ) {
 
 		GLOBAL $settings;
 
-		if (!empty($settings['email'])) {
+		if ( ! empty( $settings['email'] ) ) {
 			$to = $settings['email'];
 
 			$message = '
@@ -1152,4 +1160,50 @@
 			mail( $to, $subject, $message, $headers );
 
 		}
+	}
+
+	function sb_setting_update( $setting, $value ) {
+
+		GLOBAL $settings;
+
+		$settings[$setting] = $value;
+
+		$configfile = fopen( "../config.php", "w" ) or die( "Unable to open config file.<br/><br/>Check permissions on config.php!" );
+		fwrite( $configfile, '<?php' . "\n" );
+		fwrite( $configfile, '$settings = array(' . "\n" );
+		fwrite( $configfile, '"vms_to_backup" => array(' );
+
+		foreach ( $settings['vms_to_backup'] as $vm ) {
+			fwrite( $configfile, '"' . $vm  . '", ' );
+		}
+		fwrite( $configfile, '),' . "\n" );
+		fwrite( $configfile, '"label" => "' . $settings['label'] . '",' . "\n" );
+		fwrite( $configfile, '"uuid_backup_engine" => "' . $settings['uuid_backup_engine'] . '",' . "\n" );
+		fwrite( $configfile, '"ovirt_url" => "' . $settings['ovirt_url'] . '",' . "\n" );
+		fwrite( $configfile, '"ovirt_user" => "' . $settings['ovirt_user'] . '",' . "\n" );
+		fwrite( $configfile, '"ovirt_pass" => "' . $settings['ovirt_pass'] . '",' . "\n" );
+		fwrite( $configfile, '"mount_backups" => "' . $settings['mount_backups'] . '",' . "\n" );
+		fwrite( $configfile, '"drive_type" => "' . $settings['drive_type'] . '",' . "\n" );
+		fwrite( $configfile, '"drive_interface" => "' . $settings['drive_interface'] . '",' . "\n" );
+		fwrite( $configfile, '"backup_log" => "' . $settings['backup_log'] . '",' . "\n" );
+		fwrite( $configfile, '"email" => "' . $settings['email'] . '",' . "\n" );
+		fwrite( $configfile, '"retention" => ' . $settings['retention'] . ',' . "\n" );
+		fwrite( $configfile, '"storage_domain" => "' . $settings['storage_domain'] . '",' . "\n" );
+		fwrite( $configfile, '"cluster" => "' . $settings['cluster'] . '",' . "\n" );
+		fwrite( $configfile, '"mount_migrate" => "' . $settings['mount_migrate'] . '",' . "\n" );
+		fwrite( $configfile, '"xen_ip" => "' . $settings['xen_ip'] . '",' . "\n" );
+		fwrite( $configfile, '"xen_migrate_uuid" => "' . $settings['xen_migrate_uuid'] . '",' . "\n" );
+		fwrite( $configfile, '"xen_migrate_ip" => "' . $settings['xen_migrate_ip'] . '",' . "\n" );
+		fwrite( $configfile, '"restore_console" => "' . $settings['restore_console'] . '",' . "\n" );
+		fwrite( $configfile, '"restore_os" => "' . $settings['restore_os'] . '",' . "\n" );
+		fwrite( $configfile, '"restore_vm_type" => "' . $settings['restore_vm_type'] . '",' . "\n" );
+		fwrite( $configfile, '"restore_cpu_sockets" => "' . $settings['restore_cpu_sockets'] . '",' . "\n" );
+		fwrite( $configfile, '"restore_cpu_cores" => "' . $settings['restore_cpu_cores'] . '",' . "\n" );
+		fwrite( $configfile, '"restore_cpu_threads" => "' . $settings['restore_cpu_threads'] . '",' . "\n" );
+		fwrite( $configfile, '"tz" => "' . $settings['tz'] . '",' . "\n" );
+		fwrite( $configfile, ');' . "\n" );
+		fclose( $configfile );
+
+		sleep( .5 );
+
 	}

@@ -80,7 +80,12 @@
 			$configfile = fopen( "../config.php", "w" ) or die( "Unable to open config file.<br/><br/>Check permissions on config.php!" );
 			fwrite( $configfile, '<?php' . "\n" );
 			fwrite( $configfile, '$settings = array(' . "\n" );
-			fwrite( $configfile, '"vms_to_backup" => array(""),' . "\n" );
+			fwrite( $configfile, '"vms_to_backup" => array(' );
+
+			foreach ( $settings['vms_to_backup'] as $vmz ) {
+				fwrite( $configfile, '"' . $vmz  . '", ' );
+			}
+			fwrite( $configfile, '),' . "\n" );
 			fwrite( $configfile, '"label" => "' . $label . '",' . "\n" );
 			fwrite( $configfile, '"uuid_backup_engine" => "' . $uuid_backup_engine . '",' . "\n" );
 			fwrite( $configfile, '"ovirt_url" => "' . $ovirt_url . '",' . "\n" );
@@ -320,13 +325,10 @@
 			),
 			array(
 				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'drive_interface',
-					'value' => $settings['drive_interface'],
-					'list'  => array(
-						array( 'id' => '0', 'name' => 'virtio (Recommended)', ),
-						array( 'id' => '1', 'name' => 'virtio_scsi', ),
-					),
+					'type'      => 'hidden',
+					'name'      => 'drive_interface',
+					'value'     => $diskx['driveinterface'],
+					'dataafter' => 'Auto detected as: ' . $diskx['driveinterface'],
 				) ),
 			),
 			array(

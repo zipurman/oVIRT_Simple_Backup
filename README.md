@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.5)
+# oVIRT_Simple_Backup - WebGUI (0.6.6)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -6,7 +6,11 @@
 
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
-
+    - [ ] multiple schedules with targeted vms and time on each managed in the UI
+ 
+ - 0.6.6 - 2018/04/04
+    - [x] Auto detect virtio/virtio_scsi from /dev/*da to avoid misconfigurations
+    - [x] Versioning patches will now auto apply
  
  - 0.6.5 - 2018/03/30
     - [x] BackupEngine now checks for any snapshots on BackupEngine VM as this will disallow attaching disks dynamically. Warnings will now show if snapshots exist on the BackupEngine VM.
@@ -191,7 +195,9 @@ This code has the following functionality in a web GUI:
             * * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1
             * * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1
             ```
-
+        * touch /path/to/mylog/file.log
+        * chown www-data:www-data /path/to/mylog/file.log
+        
 4.  on oVirtEngine VM
     *  As Root:
         *  engine-config -s CORSSupport=true

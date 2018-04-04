@@ -7,10 +7,9 @@
 	exec( 'cat /var/www/html/version.php', $version_check );
 
 	//check if version upgrades required
-	if ($version_check[0] != $sb_version){
-		$oldversion = explode('.', $version_check[0]);
-		$newversion = explode('.', $sb_version);
-
+	if ( $version_check[0] != $sb_version ) {
+		$oldversion = explode( '.', $version_check[0] );
+		$newversion = explode( '.', $sb_version );
 
 		$old_major = $oldversion[0];
 		$old_minor = $oldversion[1];
@@ -23,15 +22,28 @@
 		echo 'Version upgrades ... ';
 		echo 'from ' . $version_check[0] . ' to ' . $sb_version;
 
-		if ($old_major == 0 && $new_major == 0){
-			if ($old_minor < 6 && $new_minor == 6){
-				//example logic
+		if ( $old_major == 0 && $new_major == 0 ) {
+			if ( $old_minor < 6 && $new_minor == 6 ) {
+				//example logic for upgrade from < 0.6 to 0.6.x
 
-			} else if ($old_minor == 6 && $new_minor == 6){
-				if ($old_patch == 0 && $new_patch == 1){
-					//example logic
-					//		echo '<br/>Patching 123';
-					//		exec( 'rm /var/www/html/cache/statusfile.dat -f' );
+			} else if ( $old_minor == 6 && $new_minor == 6 ) {
+				//example logic for upgrade from == 0.6 to 0.6.x
+
+				if ( $old_patch < 6 && $new_patch == 6 ) {
+					//0.6.0 -> 0.6.1
+					$diskx   = sb_check_disks();
+
+					if ($settings['drive_type'] != $diskx['disktype']){
+						echo '<br/>Patching Disk Setup to use: ' . $diskx['disktype'];
+						sb_setting_update('drive_type', $diskx['disktype']);
+					}
+
+					if ($settings['drive_interface'] != $diskx['driveinterface']){
+						echo '<br/>Patching Drive Interface to use: ' . $diskx['driveinterface'];
+						sb_setting_update('drive_interface', $diskx['driveinterface']);
+					}
+
+
 
 				}
 			}
