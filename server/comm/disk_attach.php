@@ -28,16 +28,16 @@
 
 		$attachments     = file_get_contents( $projectpath . 'cache/diskattachitems.dat' );
 		$attachments     = explode( "\n", $attachments );
-		$disknumbercheck = 1;
+		$disknumbercheck = 0;
 		foreach ( $attachments as $attachment ) {
 			if ( ! empty( $attachment ) ) {
 
 				$attachmentdata = explode( " ", $attachment );
 
 				if ( $sb_status['setting3'] == '-XEN-' ) {
-					$bootable = ( strpos( $attachmentdata[0], 'RDISK_' . $disknumber ) !== false ) ? 'true' : 'false';
+					$bootable = ( strpos( $attachmentdata[0], 'RDISK_' . $disknumbercheck ) !== false ) ? 'true' : 'false';
 				} else {
-					$bootable = ( strpos( $attachmentdata[0], 'Disk' . $disknumber ) !== false ) ? 'true' : 'false';
+					$bootable = ( strpos( $attachmentdata[0], 'Disk' . $disknumbercheck ) !== false ) ? 'true' : 'false';
 				}
 
 				sb_log( '-- DISK ATTACH -- ' . $disknumbercheck . ' bootable: ' . $bootable );
