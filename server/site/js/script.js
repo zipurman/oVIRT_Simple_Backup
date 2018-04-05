@@ -213,6 +213,7 @@ function sb_restore_disk_create() {
     var cpu_cores = $("#cores").val();
     var cpu_threads = $("#threads").val();
     var cluster = $("#cluster").val();
+    var domain = $("#domain").val();
     var vmtype = $("#vmtype").val();
 
     var queryx = {};
@@ -231,6 +232,7 @@ function sb_restore_disk_create() {
     queryx['cpu_cores'] = cpu_cores;
     queryx['cpu_threads'] = cpu_threads;
     queryx['cluster'] = cluster;
+    queryx['domain'] = domain;
     queryx['vmtype'] = vmtype;
     $.ajax({
         type: "GET",

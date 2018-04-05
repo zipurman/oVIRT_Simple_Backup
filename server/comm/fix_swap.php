@@ -8,23 +8,16 @@
 
 		if ( strpos( $sb_status['setting6'], 'fixswap' ) !== false ) {
 
-			if ($sb_status['setting3'] == '-XEN-') {
-				$filepath     = $settings['mount_migrate']  . '/';
+			if ( $sb_status['setting3'] == '-XEN-' ) {
+				$filepath = $settings['mount_migrate'] . '/';
 			} else {
-				$filepath     = $settings['mount_backups'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $sb_status['setting3'] . '/';
+				$filepath = $settings['mount_backups'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $sb_status['setting3'] . '/';
 			}
 			$disktypeget    = sb_check_disks();
 			$numberofimages = count( $disktypeget['avaliabledisks'] );
 			$processdisks   = sb_disk_array_fetch( $filepath );
 
-			foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
-				foreach ( $processdisks as $processdisk ) {
-					if ( empty( $dev ) && $processdisk['bootable'] == 'true' ) {
-						$disknumberfile = $processdisk['disknumber'];
-						$dev            = $avaliabledisk;
-					}
-				}
-			}
+			$dev = $disktypeget['newbootdisk'];
 
 			if ( $sb_status['step'] == 0 ) {
 				if ( $cronsfile = fopen( $projectpath . 'crons/fixswap.dat', "w" ) ) {
@@ -35,6 +28,9 @@
 					fwrite( $cronsfile, $dev );
 					fclose( $cronsfile );
 				}
+
+				sb_log('Fix Swap - DEVICE: ' . $dev);
+
 				sb_status_set( 'restore', 'fixes', 1 );
 
 			}
@@ -73,6 +69,6 @@
 		"status" => $status,
 		"reason" => $reason,
 	);
-	sb_log('Fix Swap - ' . $reason);
+	sb_log( 'Fix Swap - ' . $reason );
 
 	echo json_encode( $jsonarray );

@@ -19,14 +19,7 @@
 			$numberofimages = count( $disktypeget['avaliabledisks'] );
 			$processdisks   = sb_disk_array_fetch( $filepath );
 
-			foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
-				foreach ( $processdisks as $processdisk ) {
-					if ( empty( $dev ) && $processdisk['bootable'] == 'true' ) {
-						$disknumberfile = $processdisk['disknumber'];
-						$dev            = $avaliabledisk;
-					}
-				}
-			}
+			$dev = $disktypeget['newbootdisk'];
 
 			//set files to be grabbed by crontab job
 			if ( $sb_status['step'] == 0 ) {
@@ -38,6 +31,8 @@
 					fwrite( $cronsfile, $dev );
 					fclose( $cronsfile );
 				}
+				sb_log('Fix Grub - DEVICE: ' . $dev);
+
 				sb_status_set( 'restore', 'fixes', 1 );
 			}
 

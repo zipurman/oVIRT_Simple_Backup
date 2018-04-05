@@ -44,7 +44,7 @@
 							}
 						}
 						if ( ! empty( $morediskdatathis ) && $setdisk1 == 0 && (string) $morediskdatathis->bootable == 'true' ) {
-							error_log( "Disk - " . $diskletter, 0 );
+//							error_log( "Disk - " . $diskletter, 0 );
 							$diskletter = sb_next_drive_letter( $diskletter );
 							sb_disk_file_write( 1, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'true', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
 							$disknumber ++;

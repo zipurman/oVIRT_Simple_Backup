@@ -71,14 +71,15 @@
 						exec( 'echo "0" > ' . $filepath . 'progress.dat' );
 						$reason       = 'Imaging Disk ' . $filepath . 'progress.dat';
 						$processdisks = sb_disk_array_fetch( $filepath );
-
+						$diskloop = 1;
 						foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
 							foreach ( $processdisks as $processdisk ) {
-								if ( empty( $dev ) && $processdisk['disknumber'] == 'Disk' . $disknumber ) {
+								if ( $diskloop == $disknumber && empty( $dev ) && $processdisk['disknumber'] == 'Disk' . $disknumber ) {
 									$disknumberfile = $processdisk['disknumber'];
 									$dev            = $avaliabledisk;
 								}
 							}
+							$diskloop ++;
 						}
 						if ( ! empty( $dev ) ) {
 
@@ -88,6 +89,8 @@
 
 							$command = '(pv -n ' . $filepath . $disknumberfile . '.img | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $filepath . 'progress.dat' . ' 2>&1 &';//trailing & sends to background
 							exec( $command, $output );
+
+							sb_log('Restore - Imaging - /dev/' . $dev);
 
 							sb_log('Imaging Disk - ' . $filepath . $disknumberfile);
 

@@ -108,6 +108,9 @@
 									$command = '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
 									$output = null;
 									exec( $command, $output );
+
+									sb_log('Backup - Imaging - /dev/' . $dev);
+
 									sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Imaging', $sb_status['setting4'], 'write' );
 									sb_status_set( 'backup', 'backup_imaging', 2, '', '', '', '', $disknumber );
 									$sb_status['setting5'] = $disknumber;

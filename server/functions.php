@@ -310,12 +310,16 @@
 		$avaliablediskstext = '';
 		$lastdev            = 'nodiskselected';
 		$disktype           = '';
+		$newbootdisk        = '';
 		foreach ( $output as $item ) {
 			if ( strpos( $item, 'mapper' ) == false ) {
 				$item = str_replace( ':', '', $item );
 				$item = str_replace( '/dev/', '', $item );
 				if ( $item != 'vda' && $item != 'sda' ) {
 					$disks ++;
+					if ( empty( $newbootdisk ) ) {
+						$newbootdisk = $item;
+					}
 					$avaliabledisks[ $item ] = $item;
 					$avaliablediskstext      .= '(' . $item . ')';
 					$lastdev                 = $item;
@@ -338,6 +342,7 @@
 			"lastdev"            => $lastdev,
 			"disktype"           => $disktype,
 			"driveinterface"     => $driveinterface,
+			"newbootdisk"        => $newbootdisk,
 		);
 
 		return $return;
@@ -969,7 +974,7 @@
 		$thisascii ++;
 		$nextletter = chr( $thisascii );
 
-		if (empty($output)) {
+		if ( empty( $output ) ) {
 			//$settings['drive_type']
 			exec( 'fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
 		}
@@ -984,7 +989,7 @@
 			}
 		}
 
-		if ($diskok == 1 || $nextletter == 'z') {
+		if ( $diskok == 1 || $nextletter == 'z' ) {
 			return $nextletter;
 		} else {
 			return sb_next_drive_letter( $nextletter, $output );
@@ -1187,7 +1192,7 @@
 
 		GLOBAL $settings;
 
-		$settings[$setting] = $value;
+		$settings[ $setting ] = $value;
 
 		$configfile = fopen( "../config.php", "w" ) or die( "Unable to open config file.<br/><br/>Check permissions on config.php!" );
 		fwrite( $configfile, '<?php' . "\n" );
@@ -1195,7 +1200,7 @@
 		fwrite( $configfile, '"vms_to_backup" => array(' );
 
 		foreach ( $settings['vms_to_backup'] as $vm ) {
-			fwrite( $configfile, '"' . $vm  . '", ' );
+			fwrite( $configfile, '"' . $vm . '", ' );
 		}
 		fwrite( $configfile, '),' . "\n" );
 		fwrite( $configfile, '"label" => "' . $settings['label'] . '",' . "\n" );

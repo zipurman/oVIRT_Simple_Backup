@@ -62,6 +62,7 @@
 		$nic1        = varcheck( "nic1", '' );
 		$vmtype      = varcheck( "vmtype", '' );
 		$cluster     = varcheck( "cluster", '' );
+		$domain     = varcheck( "domain", '' );
 		$console     = varcheck( "console", '' );
 		$memory      = varcheck( "memory", 1, "FILTER_VALIDATE_INT", 1 );
 		$memory_max  = varcheck( "memory_max", 1, "FILTER_VALIDATE_INT", 1 );
@@ -111,7 +112,7 @@
 		                <provisioned_size>' . $diskbytes . '</provisioned_size>
 		                <storage_domains>
 		                    <storage_domain>
-		                        <name>' . $settings['storage_domain'] . '</name>
+		                        <name>' . $domain . '</name>
 		                    </storage_domain>
 		                </storage_domains>
 		            </disk>
@@ -133,7 +134,7 @@
 					0,
 					$fixestext,
 					'',
-					'',
+					$domain,
 					'',
 					$os,
 					$nic1,
@@ -176,7 +177,7 @@
 			                <provisioned_size>' . $diskdatum['size'] . '</provisioned_size>
 			                <storage_domains>
 			                    <storage_domain>
-			                        <name>' . $settings['storage_domain'] . '</name>
+			                        <name>' . $domain . '</name>
 			                    </storage_domain>
 			                </storage_domains>
 			            </disk>
@@ -200,7 +201,7 @@
 					0,
 					$fixestext,
 					'',
-					'',
+					$domain,
 					'',
 					$os,
 					$nic1,

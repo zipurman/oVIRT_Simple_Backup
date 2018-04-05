@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.7)
+# oVIRT_Simple_Backup - WebGUI (0.6.8)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -7,7 +7,12 @@
  - Coming features
     - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
     - [ ] multiple schedules with targeted vms and time on each managed in the UI
+    - [ ] Allow thin provisioned disks
+    - [ ] if using virtio_scsi driver to have the option to enable discard checkbox
  
+ - 0.6.8 - 2018/04/04
+    - Bug fixes in Restore of Multiple Disk VMs
+    
  - 0.6.7 - 2018/04/04
     - [x] Revise disk mount process to adapt to /dev/?d* to avoid issues with disks not being freed up in time by the BackupEngineVM OS
  
