@@ -28,7 +28,7 @@
 
 		$attachments     = file_get_contents( $projectpath . 'cache/diskattachitems.dat' );
 		$attachments     = explode( "\n", $attachments );
-		$disknumbercheck = 0;
+		$disknumbercheck = 1;
 		foreach ( $attachments as $attachment ) {
 			if ( ! empty( $attachment ) ) {
 
