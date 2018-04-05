@@ -9,13 +9,13 @@
     - [ ] Allow thin provisioned disks
     - [ ] If using virtio_scsi driver to have the option to enable discard checkbox
       
-[ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/screenshots)
+[ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
 
-
+---
 
 ![ ](screenshots/SS01.png?raw=true)
 
-[More Snapshots](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
+[More Snapshots](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/screenshots)
 
 
 #### Outline
