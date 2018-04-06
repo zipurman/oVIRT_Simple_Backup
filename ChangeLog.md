@@ -4,7 +4,7 @@
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
   - 0.6.10 - 2018/04/05
-     - [x] recover running tasks if browser is closed and re-opened.  Just visit status page and click the link yto continue the running job.
+     - [x] recover running tasks if browser is closed and re-opened.  Just visit status page and click the link to continue the running job.
   
   - 0.6.9 - 2018/04/05
      - Additional Bug fixes in Restore of Multiple Disk VMs
