@@ -184,24 +184,24 @@
 				}
 				sb_email_log( $reason . '<br/>' );
 
+				if ( isset( $filestodelete ) ) {
+					unset( $filestodelete );
+				}
 				$backuppath = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
-				exec( 'ls ' . $backuppath, $files );
-				rsort( $files );
+				exec( 'ls ' . $backuppath, $filestodelete );
+				rsort( $filestodelete );
 				$numsofar       = 1;
 				$arrayofdeleted = array();
-				foreach ( $files as $file ) {
-					echo '' . $file . '<br/>';
-
+				foreach ( $filestodelete as $filetodelete ) {
 					if ( $numsofar > $settings['retention'] ) {
-						if ( empty( $arrayofdeleted[ $file ] ) ) {
-							$arrayofdeleted[ $file ] = 1;
-							exec( 'rm ' . $backuppath . '/' . $file . ' -r -f' );
-							sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] );
-							sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
+						if ( empty( $arrayofdeleted[ $filetodelete ] ) ) {
+							$arrayofdeleted[ $filetodelete ] = 1;
+							exec( 'rm ' . $backuppath . '/' . $filetodelete . ' -r -f' );
+							sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $filetodelete . ' based on retention of ' . $settings['retention'] );
+							sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $filetodelete . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
 						}
 					}
 					$numsofar ++;
-
 				}
 
 				$vmendtime              = new DateTime();
