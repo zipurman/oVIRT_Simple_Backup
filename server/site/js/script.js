@@ -743,32 +743,36 @@ function sb_xen_launch_restore() {
     checkRestoreNow(0);
 }
 
-function sb_domain_check(){
+function sb_domain_check() {
     var domain = $("#domain").val();
     var domainsupportsdiscard = $("#domain option:selected").attr('data-supportsdiscard');
-    if (domainsupportsdiscard == 'false'){
-        $("#passdiscard").val(0);
-        $("#passdiscardtext").text('Selected Domain Does Not Support This Feature.');
-        $('#passdiscard').attr("style", "pointer-events: none;");
-    } else {
-        $("#passdiscardtext").text('');
-        $('#passdiscard').attr("style", "pointer-events: all;");
+    var passdiscard = $("#passdiscard").val();
+
+    if (passdiscard == 1) {
+        if (domainsupportsdiscard == 'false') {
+            // $("#passdiscardtext").text('Selected Domain Does Not Support This Feature.');
+            // $('#passdiscard').attr("style", "pointer-events: none;");
+            alert('Selected Domain does NOT appear to Support this feature.\n\nYou can still choose this feature but may have issue booting the VM if not supported.');
+        } else {
+            // $("#passdiscardtext").text('');
+            // $('#passdiscard').attr("style", "pointer-events: all;");
+        }
     }
 
     //
 }
 
 
-function sbCheckSoftwareUpdates(){
-    if (confirm('Would you like to check all files for update now? Be patient as it can take a minute or so.')){
-        window.location='/?area=98&action=update';
+function sbCheckSoftwareUpdates() {
+    if (confirm('Would you like to check all files for update now? Be patient as it can take a minute or so.')) {
+        window.location = '/?area=98&action=update';
     }
 }
 
 
-function sbProcessSoftwareUpdates(){
-    if (confirm('Would you like to update all files that need an upgrade? Be patient as it can take a minute or so.')){
-        window.location='/?area=98&action=updatenow';
+function sbProcessSoftwareUpdates() {
+    if (confirm('Would you like to update all files that need an upgrade? Be patient as it can take a minute or so.')) {
+        window.location = '/?area=98&action=updatenow';
     }
 }
 

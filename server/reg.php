@@ -1,7 +1,7 @@
 <?php
 
 	$sb_version = '0.6.14';
-	$mediaverstion = '.100';
+	$mediaverstion = '.101';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
 	$savestep        = varcheck( "savestep", 0, "FILTER_VALIDATE_INT", 0 );
@@ -14,9 +14,9 @@
 	$diskfile              = $projectpath . 'cache/xendisks.dat';
 	$diskfile2             = $projectpath . 'cache/xendisks2.dat';
 	$statusfile            = $projectpath . 'cache/statusfile.dat';
-	$vmconfigfile          = '/var/www/html/.automated_backups_vmlist';
-	$vmbackupinprocessfile = '/var/www/html/.automated_backups_inprocess';
-	$vmbackupemaillog = '/var/www/html/.automated_backups_emaillog';
+	$vmconfigfile          = $projectpath . '.automated_backups_vmlist';
+	$vmbackupinprocessfile = $projectpath . '.automated_backups_inprocess';
+	$vmbackupemaillog = $projectpath . '.automated_backups_emaillog';
 
 	//change the follow if you like. Used for password obscurity.
 	$salt   = 'ch8g7e2g2g';
