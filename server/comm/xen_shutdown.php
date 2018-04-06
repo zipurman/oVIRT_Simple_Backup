@@ -36,6 +36,11 @@
 			$memory_max          = $memory_max * 1024 * 1024 * 1024;
 			$option_restartxenyn              = varcheck( "option_restartxenyn", 0, "FILTER_VALIDATE_INT", 0 );
 
+			$thinprovision  = varcheck( "thinprovision", 0, "FILTER_VALIDATE_INT", 0 );
+			$passdiscard  = varcheck( "passdiscard", 0, "FILTER_VALIDATE_INT", 0 );
+
+
+
 			sb_status_set( 'xen_migrate', 'xen_shutdown', 1,
 				trim($vmname),
 				$xenuuid,
@@ -56,7 +61,9 @@
 				$cpu_sockets,
 				$cpu_cores,
 				$cpu_threads,
-				$option_restartxenyn
+				$option_restartxenyn,
+				$thinprovision,
+				$passdiscard
 			);
 
 			$sb_status['setting2'] = $xenuuid;

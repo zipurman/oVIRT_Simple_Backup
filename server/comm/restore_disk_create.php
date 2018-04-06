@@ -66,6 +66,9 @@
 		$console     = varcheck( "console", '' );
 		$memory      = varcheck( "memory", 1, "FILTER_VALIDATE_INT", 1 );
 		$memory_max  = varcheck( "memory_max", 1, "FILTER_VALIDATE_INT", 1 );
+		$thinprovision  = varcheck( "thinprovision", 0, "FILTER_VALIDATE_INT", 0 );
+		$passdiscard  = varcheck( "passdiscard", 0, "FILTER_VALIDATE_INT", 0 );
+
 		$cpu_sockets = varcheck( "cpu_sockets", 1, "FILTER_VALIDATE_INT", 1 );
 		$cpu_cores   = varcheck( "cpu_cores", 1, "FILTER_VALIDATE_INT", 1 );
 		$cpu_threads = varcheck( "cpu_threads", 1, "FILTER_VALIDATE_INT", 1 );
@@ -97,17 +100,22 @@
 				}
 			}
 			if ( $diskok == 1 ) {
+
+				$thinprovisiontext = ($thinprovision == 0) ? 'false' : 'true';
+				$passdiscardtext = ($passdiscard == 0) ? 'false' : 'true';
+
 				foreach ( $diskarray as $item ) {
 
 					$diskbytes = $item['vdi-virtual-size'];
 					$xml       = '<disk_attachment>
 		            <bootable>false</bootable>
+		            <pass_discard>' . $passdiscardtext . '</pass_discard>
 		            <interface>' . $settings['drive_interface'] . '</interface>
 		            <active>true</active>
 		            <disk>
 		                <description></description>
 		                <format>raw</format>
-		                <sparse>false</sparse>
+		                <sparse>' . $thinprovisiontext . '</sparse>
 		                <name>' . $newvmname . '_RDISK_' . $item['vbd-userdevice'] . '</name>
 		                <provisioned_size>' . $diskbytes . '</provisioned_size>
 		                <storage_domains>
@@ -145,7 +153,10 @@
 					$memory_max,
 					$cpu_sockets,
 					$cpu_cores,
-					$cpu_threads
+					$cpu_threads,
+				'',
+					$thinprovision,
+					$passdiscard
 				);
 
 				$status = 1;
@@ -165,14 +176,18 @@
 				$diskdata = sb_disk_array_fetch( $filepath );
 				foreach ( $diskdata as $diskdatum ) {
 
+					$thinprovisiontext = ($thinprovision == 0) ? 'false' : 'true';
+					$passdiscardtext = ($passdiscard == 0) ? 'false' : 'true';
+
 					$xml = '<disk_attachment>
 			            <bootable>false</bootable>
+		            	<pass_discard>' . $passdiscardtext . '</pass_discard>
 			            <interface>' . $settings['drive_interface'] . '</interface>
 			            <active>true</active>
 			            <disk>
 			                <description></description>
 			                <format>raw</format>
-			                <sparse>false</sparse>
+			                <sparse>' . $thinprovisiontext . '</sparse>
 			                <name>' . $newvmname . '_RDISK_' . $diskdatum['disknumber'] . '</name>
 			                <provisioned_size>' . $diskdatum['size'] . '</provisioned_size>
 			                <storage_domains>
@@ -212,7 +227,10 @@
 					$memory_max,
 					$cpu_sockets,
 					$cpu_cores,
-					$cpu_threads
+					$cpu_threads,
+					'',
+					$thinprovision,
+					$passdiscard
 				);
 
 				$status = 1;

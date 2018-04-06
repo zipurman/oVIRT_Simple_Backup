@@ -1,12 +1,10 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.11)
+# oVIRT_Simple_Backup - WebGUI (0.6.12)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
 
  - Coming features
     - [ ] multiple schedules with targeted vms and time on each managed in the UI
-    - [ ] Allow thin provisioned disks
-    - [ ] If using virtio_scsi driver to have the option to enable discard checkbox
       
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
 

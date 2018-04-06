@@ -181,12 +181,24 @@
 		} else if ( $inputdata['type'] == 'submit' ) {
 			$returndata .= '<input type="submit" value="' . $inputdata['value'] . '" />';
 		} else if ( $inputdata['type'] == 'select' ) {
-			$returndata .= '<select autocomplete="off" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" >';
+
+			$returndata .= '<select autocomplete="off" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '"';
+			if ( ! empty( $inputdata['onchange'] ) ) {
+				$returndata .= ' onChange="' . $inputdata['onchange'] . '"';
+			}
+			$returndata .= ' >';
 			foreach ( $inputdata['list'] as $returndatum ) {
 				$returndata .= '<option value="' . $returndatum['id'] . '"';
 				if ( $returndatum['id'] == $inputdata['value'] ) {
 					$returndata .= ' SELECTED';
 				}
+
+				foreach ( $returndatum as $dataitem => $datavalue ) {
+					if ( $dataitem != 'id' && $dataitem != 'value' ) {
+						$returndata .= ' data-' . $dataitem . '="' . $datavalue . '"';
+					}
+				}
+
 				$returndata .= '>';
 				$returndata .= $returndatum['name'];
 				$returndata .= '</option>';
@@ -457,7 +469,11 @@
 		$domains = ovirt_rest_api_call( 'GET', 'storagedomains/' );
 		foreach ( $domains as $domain ) {
 			if ( $domain->type == 'data' ) {
-				$list[ (string) $domain->name ] = array( 'id' => $domain->name, 'name' => $domain->name, );
+				$list[ (string) $domain->name ] = array(
+					'id'              => $domain->name,
+					'name'            => $domain->name,
+					'supportsdiscard' => $domain->supports_discard,
+				);
 			}
 		}
 
@@ -629,7 +645,9 @@
 
 		$clusters = sb_clusterlist();
 		$domains  = sb_domainlist();
-		$rowdata  = array(
+		showme( $domains );
+
+		$rowdata = array(
 			array( "text" => 'Restore to Cluster:', ),
 			array(
 				"text" => sb_input( array(
@@ -642,10 +660,11 @@
 			array( "text" => 'Restore to Domain:', ),
 			array(
 				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'domain',
-					'list'  => $domains,
-					'value' => $settings['storage_domain'],
+					'type'     => 'select',
+					'name'     => 'domain',
+					'onchange' => 'sb_domain_check();',
+					'list'     => $domains,
+					'value'    => $settings['storage_domain'],
 				) ),
 			),
 		);
@@ -675,6 +694,16 @@
 		);
 		sb_table_row( $rowdata );
 
+		$disksizeoption = sb_input( array(
+			'type'  => 'select',
+			'name'  => 'thinprovision',
+			'list'  => array(
+				array( 'id' => '0', 'name' => 'No', ),
+				array( 'id' => '1', 'name' => 'Yes', ),
+			),
+			'value' => 0,
+		) );
+
 		$nics    = sb_niclist();
 		$rowdata = array(
 			array( "text" => 'Network Card:', ),
@@ -685,6 +714,27 @@
 					'list'  => $nics,
 					'value' => '',
 				) ),
+			),
+			array( "text" => 'Thin Provisioning:', ),
+			array(
+				"text" => $disksizeoption,
+			),
+		);
+		sb_table_row( $rowdata );
+
+		$discardoptions = sb_input( array(
+			'type'  => 'select',
+			'name'  => 'passdiscard',
+			'list'  => array(
+				array( 'id' => '0', 'name' => 'No', ),
+				array( 'id' => '1', 'name' => 'Yes', ),
+			),
+			'value' => 0,
+		) );
+		$rowdata = array(
+			array( "text" => 'Pass Discard:', ),
+			array(
+				"text" => $discardoptions . ' <span id="passdiscardtext"></span>',
 			),
 			array( "text" => '', ),
 			array( "text" => '', ),
@@ -741,6 +791,15 @@
 		);
 		sb_table_row( $rowdata );
 		sb_table_end();
+
+		?>
+        <script>
+            $(function () {
+                sb_domain_check();
+            });
+        </script>
+		<?php
+
 	}
 
 	function sb_attach_disk( $diskid, $snapshotid, $device ) {
@@ -889,7 +948,7 @@
 		return $diskarray;
 	}
 
-	function sb_status_set( $status, $stage, $step, $setting1 = '', $setting2 = '', $setting3 = '', $setting4 = '', $setting5 = '', $setting6 = '', $setting7 = '', $setting8 = '', $setting9 = '', $setting10 = '', $setting11 = '', $setting12 = '', $setting13 = '', $setting14 = '', $setting15 = '', $setting16 = '', $setting17 = '', $setting18 = '', $setting19 = '', $setting20 = '' ) {
+	function sb_status_set( $status, $stage, $step, $setting1 = '', $setting2 = '', $setting3 = '', $setting4 = '', $setting5 = '', $setting6 = '', $setting7 = '', $setting8 = '', $setting9 = '', $setting10 = '', $setting11 = '', $setting12 = '', $setting13 = '', $setting14 = '', $setting15 = '', $setting16 = '', $setting17 = '', $setting18 = '', $setting19 = '', $setting20 = '', $setting21 = '', $setting22 = '' ) {
 
 		GLOBAL $statusfile;
 
@@ -898,7 +957,7 @@
 		//if settings left blank, use previous value
 		if ( $status != 'ready' ) {
 			$oldsettings = sb_status_fetch();
-			for ( $i = 1; $i <= 20; $i ++ ) {
+			for ( $i = 1; $i <= 22; $i ++ ) {
 				if ( ${"setting$i"} == '' && $oldsettings[ 'setting' . $i ] != '' ) {
 					${"setting$i"} = $oldsettings[ 'setting' . $i ];
 				}
@@ -909,7 +968,7 @@
 			fwrite( $cachefiledata, $status . "\n" );
 			fwrite( $cachefiledata, $stage . "\n" );
 			fwrite( $cachefiledata, $step . "\n" );
-			for ( $i = 1; $i <= 20; $i ++ ) {
+			for ( $i = 1; $i <= 22; $i ++ ) {
 				fwrite( $cachefiledata, ${"setting$i"} . "\n" );
 			}
 			fclose( $cachefiledata );
@@ -932,7 +991,7 @@
 		$status = explode( "\n", $status );
 
 		//if file is missing lines (old version) then correct
-		for ( $i = count( $status ); $i <= 22; $i ++ ) {
+		for ( $i = count( $status ); $i <= 24; $i ++ ) {
 			$status[ $i ] = '';
 		}
 
@@ -960,6 +1019,8 @@
 			'setting18' => $status[20],
 			'setting19' => $status[21],
 			'setting20' => $status[22],
+			'setting21' => $status[23],
+			'setting22' => $status[24],
 		);
 
 		return $statusarray;

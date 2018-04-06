@@ -332,6 +332,8 @@
                             $("#cores").val("<?php echo $sb_status['setting18']; ?>");
                             $("#threads").val("<?php echo $sb_status['setting19']; ?>");
                             $("#option_restartxenyn").val("<?php echo $sb_status['setting20']; ?>");
+                            $("#thinprovision").val("<?php echo $sb_status['setting21']; ?>");
+                            $("#passdiscard").val("<?php echo $sb_status['setting22']; ?>");
 							<?php
 							if ( strpos( $sb_status['setting6'], 'fixgrub' ) !== false ) {
 							?>

@@ -215,6 +215,8 @@ function sb_restore_disk_create() {
     var cluster = $("#cluster").val();
     var domain = $("#domain").val();
     var vmtype = $("#vmtype").val();
+    var passdiscard = $("#passdiscard").val();
+    var thinprovision = $("#thinprovision").val();
 
     var queryx = {};
     queryx['comm'] = 'restore_disk_create';
@@ -234,6 +236,8 @@ function sb_restore_disk_create() {
     queryx['cluster'] = cluster;
     queryx['domain'] = domain;
     queryx['vmtype'] = vmtype;
+    queryx['passdiscard'] = passdiscard;
+    queryx['thinprovision'] = thinprovision;
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -516,6 +520,8 @@ function sb_xen_shutdown() {
     var domain = $("#domain").val();
     var vmtype = $("#vmtype").val();
     var option_restartxenyn = $("#option_restartxenyn").val();
+    var passdiscard = $("#passdiscard").val();
+    var thinprovision = $("#thinprovision").val();
 
     var queryx = {};
     queryx['comm'] = 'xen_shutdown';
@@ -531,6 +537,7 @@ function sb_xen_shutdown() {
     queryx['memory'] = memory;
     queryx['memory_max'] = memory_max;
     queryx['nic1'] = nic1;
+    queryx['thinprovision'] = thinprovision;
     queryx['cpu_sockets'] = cpu_sockets;
     queryx['cpu_cores'] = cpu_cores;
     queryx['cpu_threads'] = cpu_threads;
@@ -538,6 +545,7 @@ function sb_xen_shutdown() {
     queryx['domain'] = domain;
     queryx['vmtype'] = vmtype;
     queryx['option_restartxenyn'] = option_restartxenyn;
+    queryx['passdiscard'] = passdiscard;
     queryx['vmname'] = vmname;
 
     $.ajax({
@@ -733,6 +741,21 @@ function sb_xen_imagedisk() {
 
 function sb_xen_launch_restore() {
     checkRestoreNow(0);
+}
+
+function sb_domain_check(){
+    var domain = $("#domain").val();
+    var domainsupportsdiscard = $("#domain option:selected").attr('data-supportsdiscard');
+    if (domainsupportsdiscard == 'false'){
+        $("#passdiscard").val(0);
+        $("#passdiscardtext").text('Selected Domain Does Not Support This Feature.');
+        $('#passdiscard').attr("style", "pointer-events: none;");
+    } else {
+        $("#passdiscardtext").text('');
+        $('#passdiscard').attr("style", "pointer-events: all;");
+    }
+
+    //
 }
 
 
