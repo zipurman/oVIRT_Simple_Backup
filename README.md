@@ -23,14 +23,19 @@
  - [x] Multi-Disk VM now supported
  - [x] Log viewer
 
+---
+
+#### Install
+
 [Debian Install Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/install_debian.md)
 
+---
 
 ![ ](screenshots/SS01.png?raw=true)
 
-[More Snapshots](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/screenshots)
+[More Screenshots](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/screenshots)
 
-
+---
 
 #### Author
 
