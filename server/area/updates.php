@@ -87,6 +87,7 @@
 		foreach ( $filearray['files'] as $item ) {
 
 			$remotefile = file_get_contents( 'https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server' . $folder . '/' . $item );
+
 			$remotehash = hash( 'md5', $remotefile );
 
 			$localhash = hash_file( 'md5', substr( $projectpath, 0, - 1 ) . $folder . '/' . $item );
