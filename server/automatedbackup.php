@@ -10,8 +10,6 @@
 	require( $projectpath . 'reg.php' );
 	require( $projectpath . 'tz.php' );
 
-
-
 	$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
 
 	if ( $snapshotcheck > 1 ) {
@@ -114,9 +112,9 @@
 				sb_email_log( '<b>Backing up VM:</b> ' . $backuplist2[ $itemnum ] . '<br/>' );
 				sb_email_log( '<b>UUID:</b> ' . $item . '<br/>' );
 
-				$status = 0;
+				$status            = 0;
 				$totaldisksizeofvm = 0;
-				$vmuuid = $item;
+				$vmuuid            = $item;
 				while ( $status < 1 ) {
 					sleep( 2 );
 					require( $projectpath . 'comm/snapshot_status.php' );
@@ -140,7 +138,7 @@
 				while ( $status < 1 ) {
 					sleep( 2 );
 					require( $projectpath . 'comm/backup_attach_image.php' );
-					if (!empty($totaldisksize)){
+					if ( ! empty( $totaldisksize ) ) {
 						$totaldisksizeofvm += $totaldisksize;
 					}
 					if ( ! file_exists( $vmconfigfile ) ) {
@@ -166,7 +164,6 @@
 
 				$vmendtimeimage = new DateTime();
 
-
 				$status = 0;
 				while ( $status < 1 ) {
 					sleep( 2 );
@@ -190,34 +187,38 @@
 				$backuppath = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
 				exec( 'ls ' . $backuppath, $files );
 				rsort( $files );
-				$numsofar = 1;
+				$numsofar       = 1;
+				$arrayofdeleted = array();
 				foreach ( $files as $file ) {
 					echo '' . $file . '<br/>';
 
 					if ( $numsofar > $settings['retention'] ) {
-						exec( 'rm ' . $backuppath . '/' . $file . ' -r -f' );
-						sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] );
-						sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
+						if ( empty( $arrayofdeleted[ $file ] ) ) {
+							$arrayofdeleted[ $file ] = 1;
+							exec( 'rm ' . $backuppath . '/' . $file . ' -r -f' );
+							sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] );
+							sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $file . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
+						}
 					}
 					$numsofar ++;
 
 				}
 
-				$vmendtime = new DateTime();
-				$dteDiff   = $vmstarttime->diff( $vmendtime );
-				$dteDiffimage   = $vmstarttimeimage->diff( $vmendtimeimage );
-				$durationinseconds  = (int) ($dteDiff->format( "%H" ) * 3600) + (int)  ($dteDiff->format( "%I" ) * 60) + (int) ($dteDiff->format( "%S" ));
-				$durationinsecondsimage  = (int) ($dteDiffimage->format( "%H" ) * 3600) + (int)  ($dteDiffimage->format( "%I" ) * 60) + (int) ($dteDiffimage->format( "%S" ));
-				if ($durationinseconds > 3600){
-					$duration = round($durationinseconds / 3600, 2) . ' hours';
-				} else if ($durationinseconds > 60){
-					$duration = round($durationinseconds / 60, 1) . ' minutes';
+				$vmendtime              = new DateTime();
+				$dteDiff                = $vmstarttime->diff( $vmendtime );
+				$dteDiffimage           = $vmstarttimeimage->diff( $vmendtimeimage );
+				$durationinseconds      = (int) ( $dteDiff->format( "%H" ) * 3600 ) + (int) ( $dteDiff->format( "%I" ) * 60 ) + (int) ( $dteDiff->format( "%S" ) );
+				$durationinsecondsimage = (int) ( $dteDiffimage->format( "%H" ) * 3600 ) + (int) ( $dteDiffimage->format( "%I" ) * 60 ) + (int) ( $dteDiffimage->format( "%S" ) );
+				if ( $durationinseconds > 3600 ) {
+					$duration = round( $durationinseconds / 3600, 2 ) . ' hours';
+				} else if ( $durationinseconds > 60 ) {
+					$duration = round( $durationinseconds / 60, 1 ) . ' minutes';
 				} else {
-					$duration = round($durationinseconds) . ' seconds';
+					$duration = round( $durationinseconds ) . ' seconds';
 				}
 
-				sb_email_log( '<b>VM Size:</b> ' . round($totaldisksizeofvm / 1024 / 1024 / 1024) . ' GB<br/>' );
-				sb_email_log( '<b>Transfer Speed:</b> ' . round(($totaldisksizeofvm / 1024 / 1024) / $durationinsecondsimage, 2) . ' MB/s<br/>' );
+				sb_email_log( '<b>VM Size:</b> ' . round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) . ' GB<br/>' );
+				sb_email_log( '<b>Transfer Speed:</b> ' . round( ( $totaldisksizeofvm / 1024 / 1024 ) / $durationinsecondsimage, 2 ) . ' MB/s<br/>' );
 				sb_email_log( '<b>Backup Time:</b> ' . $duration . '.<br/><br/><hr/><br/>' );
 				$itemnum ++;
 
@@ -227,15 +228,15 @@
 			sb_log( '---- Automated Backup Done' );
 			sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
 
-			$overallendtime = new DateTime();
-			$dteDiff   = $overallstarttime->diff( $overallendtime );
-			$durationinseconds  = (int) ($dteDiff->format( "%H" ) * 3600) + (int)  ($dteDiff->format( "%I" ) * 60) + (int) ($dteDiff->format( "%S" ));
-			if ($durationinseconds > 3600){
-				$duration = round($durationinseconds / 3600, 2) . ' hours';
-			} else if ($durationinseconds > 60){
-				$duration = round($durationinseconds / 60, 1) . ' minutes';
+			$overallendtime    = new DateTime();
+			$dteDiff           = $overallstarttime->diff( $overallendtime );
+			$durationinseconds = (int) ( $dteDiff->format( "%H" ) * 3600 ) + (int) ( $dteDiff->format( "%I" ) * 60 ) + (int) ( $dteDiff->format( "%S" ) );
+			if ( $durationinseconds > 3600 ) {
+				$duration = round( $durationinseconds / 3600, 2 ) . ' hours';
+			} else if ( $durationinseconds > 60 ) {
+				$duration = round( $durationinseconds / 60, 1 ) . ' minutes';
 			} else {
-				$duration = round($durationinseconds) . ' seconds';
+				$duration = round( $durationinseconds ) . ' seconds';
 			}
 
 			sb_email_log( '<b>Automated Backups Completed:</b> ' . $duration . '.</b><br/><br/><hr/>' );
