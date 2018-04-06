@@ -43,8 +43,6 @@
 
             *  /etc/init.d/ssh restart
             *  cd /root
-            *  wget https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/xen_migrate/xen_migrate.sh
-            *  chmod +e xen\_migrate.sh
             *  mkdir .ssh
             *  chmod 700 .ssh
             *  mkdir /mnt/migrate
