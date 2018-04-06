@@ -30,7 +30,7 @@
 
 ---
  
-![ ](screenshots/SS.0.6.14.01.png?raw=true)
+![ ](screenshots/SS.0.6.14.00.png?raw=true)
 
 [More Screenshots](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/screenshots)
 
