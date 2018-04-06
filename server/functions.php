@@ -323,6 +323,7 @@
 		$lastdev            = 'nodiskselected';
 		$disktype           = '';
 		$newbootdisk        = '';
+		$hassdavda = 0;
 		foreach ( $output as $item ) {
 			if ( strpos( $item, 'mapper' ) == false ) {
 				$item = str_replace( ':', '', $item );
@@ -337,9 +338,14 @@
 					$lastdev                 = $item;
 				} else {
 					$disktype = substr( $item, 0, 2 );
+					$hassdavda = 1;
 				}
 			}
 		}
+
+		if (empty($hassdavda)){
+		    die('Reboot your BackupEngineVM - Disks Out Of Order');
+        }
 
 		if ( $disktype == 'vd' ) {
 			$driveinterface = 'virtio';
@@ -1057,7 +1063,7 @@
 
 	function sb_not_ready() {
 
-		echo '<br/><br/>Simple Backup is Not Ready. <a href="?area=0">Click Here</a> to go to the Status page.';
+		echo '<br/><br/>Simple Backup is Not Ready. <ul><li><a href="?area=0">Click Here</a> to go to the Status page.<br/><br/></li><li><a href="?area=10">Click Here</a> to go to the Log page to watch current progress.<br/><br/></li></ul>';
 	}
 
 	function sb_disk_file_write( $disknumber, $diskname, $vmuuid, $uuid, $bootable, $interface, $size, $path, $vmname, $backupname ) {

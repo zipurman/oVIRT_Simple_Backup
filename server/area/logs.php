@@ -25,7 +25,7 @@
                 window.location.reload(true);
             }
 
-            setTimeout(reloadMe, 3 * 1000);
+            setTimeout(reloadMe, 10 * 1000);
 
         </script>
 		<?php

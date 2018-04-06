@@ -42,7 +42,7 @@
 		} else if ( $action == 'vmbackups' ) {
 
 			$vmname = varcheck( "vmname", '' );
-			$vmname = preg_replace( '/[^0-9a-zA-Z\-_]/i', '', $vmname );
+			$vmname = preg_replace( '/[^0-9a-zA-Z\-_\.]/i', '', $vmname );
 
 			sb_pagedescription( 'The following backups UUID folders are available in ' . $settings['mount_backups'] . '/' . $vmname . '.' );
 
@@ -79,7 +79,7 @@
 		} else if ( $action == 'uuidbackups' ) {
 
 			$vmname = varcheck( "vmname", '' );
-			$vmname = preg_replace( '/[^0-9a-zA-Z\-_]/i', '', $vmname );
+			$vmname = preg_replace( '/[^0-9a-zA-Z\-_\.]/i', '', $vmname );
 			$uuid   = varcheck( "uuid", '' );
 
 			sb_pagedescription( 'The following backup dates are available in ' . $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '.' );
@@ -128,9 +128,9 @@
 		} else if ( $action == 'selectedbackup' ) {
 
 			$vmname = varcheck( "vmname", '' );
-			$vmname = preg_replace( '/[^0-9a-zA-Z\-_]/i', '', $vmname );
+			$vmname = preg_replace( '/[^0-9a-zA-Z\-_\.]/i', '', $vmname );
 			$buname = varcheck( "buname", '' );
-			$buname = preg_replace( '/[^0-9a-zA-Z\-_]/i', '', $buname );
+			$buname = preg_replace( '/[^0-9a-zA-Z\-_\.]/i', '', $buname );
 			$uuid   = varcheck( "uuid", '' );
 
 			sb_pagedescription( 'The following is the selected backup to restore from ' . $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname . '.' );

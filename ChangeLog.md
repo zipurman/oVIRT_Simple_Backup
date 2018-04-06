@@ -3,6 +3,11 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.13 - 2018/04/06
+      - Fixed issues with Restores not showing in list if they contained a '.' in their VMName
+      - Minor fixes to automated backup logic
+      - Extra logic added to detect if BackupEngineVM has OS mounted as something other than expected /dev/*da
+  
   - 0.6.12 - 2018/04/05
       - [x] Allow option for thin provisioned (sparse) disks in restore/migrate
       - [x] When restoring or migrating, if choosing a storage domain that supports discard, then you can optionally pass_discard=true to the VM disk(s)

@@ -184,9 +184,7 @@
 				}
 				sb_email_log( $reason . '<br/>' );
 
-				if ( isset( $filestodelete ) ) {
-					unset( $filestodelete );
-				}
+				$filestodelete = null;
 				$backuppath = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
 				exec( 'ls ' . $backuppath, $filestodelete );
 				rsort( $filestodelete );

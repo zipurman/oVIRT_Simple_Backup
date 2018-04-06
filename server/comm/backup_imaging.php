@@ -50,7 +50,7 @@
 								$reason = 'Imaging in progress.';
 
 								if ( file_exists( $progressfilename ) ) {
-
+									$filedata = null;
 									exec( 'tail ' . $progressfilename . ' -n 1', $filedata );
 
 									$progress = (int) $filedata[0];
