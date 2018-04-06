@@ -645,8 +645,6 @@
 
 		$clusters = sb_clusterlist();
 		$domains  = sb_domainlist();
-		showme( $domains );
-
 		$rowdata = array(
 			array( "text" => 'Restore to Cluster:', ),
 			array(
