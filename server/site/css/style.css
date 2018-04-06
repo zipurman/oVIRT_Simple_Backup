@@ -140,6 +140,13 @@ span.statusdown {
     padding: 3px;
     text-align: center;
 }
+span.statusupdated {
+    background: orange;
+    color: white;
+    display: block;
+    padding: 3px;
+    text-align: center;
+}
 
 div.pagedescription {
     padding: 10px;

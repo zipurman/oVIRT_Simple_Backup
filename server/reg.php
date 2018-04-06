@@ -1,6 +1,6 @@
 <?php
 
-	$sb_version = '0.6.13';
+	$sb_version = '0.6.14';
 	$mediaverstion = '.100';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
@@ -45,6 +45,8 @@
 		$areafile = 'xen';
 	} else if ( $area == 10 ) {
 		$areafile = 'logs';
+	} else if ( $area == 98 ) {
+		$areafile = 'updates';
 	} else if ( $area == 99 ) {
 		$areafile = 'settings';
 	} else {

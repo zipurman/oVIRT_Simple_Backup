@@ -51,9 +51,15 @@
 			<?php
 		}
 	?>
+
     <div class="sm_menu_item sm_menu_item_right<?php if ( $area == 99 ) {
 		echo ' sm_menu_active';
 	} ?>"><a href="?area=99">Settings</a></div>
+    <div class="sm_menu_item sm_menu_item_right<?php if ( $area == 98 ) {
+		echo ' sm_menu_active';
+	} ?>"><a href="?area=98">Updates</a></div>
+
+
 	<?php
 		if ( ! empty( $menuspace ) ) {
 			?>

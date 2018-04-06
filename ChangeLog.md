@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.14 - 2018/04/06
+      - [x] Update/Upgrade area to fetch new files etc.
+
   - 0.6.13 - 2018/04/06
       - Fixed issues with Restores not showing in list if they contained a '.' in their VMName
       - Minor fixes to automated backup logic

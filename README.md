@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.13)
+# oVIRT_Simple_Backup - WebGUI (0.6.14)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
@@ -14,6 +14,7 @@
 
  - [x] oVirt Engine Web UI Plugin
  - [x] Settings Manager
+ - [x] Updates Manager for oVIRT_Simple_Backup
  - [x] Backup a single VM
  - [x] Restore a single VM
  - [x] Migrate a single VM from XEN SERVER (Citrix)

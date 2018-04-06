@@ -759,3 +759,16 @@ function sb_domain_check(){
 }
 
 
+function sbCheckSoftwareUpdates(){
+    if (confirm('Would you like to check all files for update now? Be patient as it can take a minute or so.')){
+        window.location='/?area=98&action=update';
+    }
+}
+
+
+function sbProcessSoftwareUpdates(){
+    if (confirm('Would you like to update all files that need an upgrade? Be patient as it can take a minute or so.')){
+        window.location='/?area=98&action=updatenow';
+    }
+}
+
