@@ -17,6 +17,7 @@ div {
     border: 1px solid #d1d1d1;
     background: #fff;
     padding: 1%;
+    position: relative;
 }
 
 #sb_head {

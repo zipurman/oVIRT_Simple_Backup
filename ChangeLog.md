@@ -3,6 +3,10 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.11 - 2018/04/05
+     - Additional bug fixes with automated backups and errors with fdisk not being found
+     - [x] Added extra logic to WebUI if Automated Backup is running
+   
   - 0.6.10 - 2018/04/05
      - [x] recover running tasks if browser is closed and re-opened.  Just visit status page and click the link to continue the running job.
   

@@ -1,8 +1,12 @@
 <?php
 
 	$configcheck = varcheck( "configcheck", 0, "FILTER_VALIDATE_INT", 0 );
+	$automatedinprocess = ( file_exists( $vmbackupinprocessfile ) ) ? 1 : 0;
 
-	if ( ! empty( $configcheck ) ) {
+
+	if ( ! empty( $automatedinprocess ) ) {
+		echo 'Automated Backup In Process<br/><br/>';
+	} else if ( ! empty( $configcheck ) ) {
 
 		echo 'Connecting to Ovirt Engine...<br/><br/>';
 

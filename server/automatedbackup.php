@@ -10,10 +10,12 @@
 	require( $projectpath . 'reg.php' );
 	require( $projectpath . 'tz.php' );
 
+
+
 	$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
 
-	if ($snapshotcheck != 1){
-		sb_email( 'oVirt SimpleBackup Error', 'Backup Engine Configuration Issue. Multiple Snapshots on BackupEngine.' );
+	if ( $snapshotcheck > 1 ) {
+		sb_email( 'oVirt SimpleBackup Error', 'Backup Engine Configuration Issue. Multiple Snapshots on BackupEngine (' . $snapshotcheck . ').' );
 	}
 
 	if ( file_exists( $projectpath . 'config.php' ) ) {
@@ -94,19 +96,26 @@
 			sb_log( 'Automated Backup Starting ....' );
 			sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
 
+			$overallstarttime = new DateTime();
+
 			sb_email( 'oVirt SimpleBackup Starting', 'Backup Starting ... A log will be emailed upon completion.' );
 
 			exec( 'rm ' . $vmbackupemaillog . ' -f' );
 
-			sb_email_log( '<b>Automated Backup Starting ....</b><br/>' );
+			sb_email_log( '<b>Automated Backup Starting ....</b><br/><br/>' );
 			$itemnum = 0;
 
 			foreach ( $backuplist as $item ) {
 
+				$vmstarttime = new DateTime();
+
 				sb_log( 'Backing up VM UUID: ' . $item );
-				sb_email_log( 'Backing up VM UUID: ' . $item . ' - ' . $backuplist2[ $itemnum ] . '<br/>' );
+
+				sb_email_log( '<b>Backing up VM:</b> ' . $backuplist2[ $itemnum ] . '<br/>' );
+				sb_email_log( '<b>UUID:</b> ' . $item . '<br/>' );
 
 				$status = 0;
+				$totaldisksizeofvm = 0;
 				$vmuuid = $item;
 				while ( $status < 1 ) {
 					sleep( 2 );
@@ -131,11 +140,18 @@
 				while ( $status < 1 ) {
 					sleep( 2 );
 					require( $projectpath . 'comm/backup_attach_image.php' );
+					if (!empty($totaldisksize)){
+						$totaldisksizeofvm += $totaldisksize;
+					}
 					if ( ! file_exists( $vmconfigfile ) ) {
 						die();
 					}
 				}
 				sb_email_log( $reason . '<br/>' );
+
+				sleep( 10 );
+
+				$vmstarttimeimage = new DateTime();
 
 				$status = 0;
 				while ( $status < 3 ) {
@@ -146,6 +162,10 @@
 					}
 				}
 				sb_email_log( $reason . '<br/>' );
+				sb_email_log( '<b>Backup Name:</b> ' . $sb_status['setting2'] . '<br/>' );
+
+				$vmendtimeimage = new DateTime();
+
 
 				$status = 0;
 				while ( $status < 1 ) {
@@ -183,6 +203,22 @@
 
 				}
 
+				$vmendtime = new DateTime();
+				$dteDiff   = $vmstarttime->diff( $vmendtime );
+				$dteDiffimage   = $vmstarttimeimage->diff( $vmendtimeimage );
+				$durationinseconds  = (int) ($dteDiff->format( "%H" ) * 3600) + (int)  ($dteDiff->format( "%I" ) * 60) + (int) ($dteDiff->format( "%S" ));
+				$durationinsecondsimage  = (int) ($dteDiffimage->format( "%H" ) * 3600) + (int)  ($dteDiffimage->format( "%I" ) * 60) + (int) ($dteDiffimage->format( "%S" ));
+				if ($durationinseconds > 3600){
+					$duration = round($durationinseconds / 3600, 2) . ' hours';
+				} else if ($durationinseconds > 60){
+					$duration = round($durationinseconds / 60, 1) . ' minutes';
+				} else {
+					$duration = round($durationinseconds) . ' seconds';
+				}
+
+				sb_email_log( '<b>VM Size:</b> ' . round($totaldisksizeofvm / 1024 / 1024 / 1024) . ' GB<br/>' );
+				sb_email_log( '<b>Transfer Speed:</b> ' . round(($totaldisksizeofvm / 1024 / 1024) / $durationinsecondsimage, 2) . ' MB/s<br/>' );
+				sb_email_log( '<b>Backup Time:</b> ' . $duration . '.<br/><br/><hr/><br/>' );
 				$itemnum ++;
 
 			}
@@ -191,7 +227,19 @@
 			sb_log( '---- Automated Backup Done' );
 			sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
 
-			sb_email_log( '<b>...Automated Backup Done</b><br/>' );
+			$overallendtime = new DateTime();
+			$dteDiff   = $overallstarttime->diff( $overallendtime );
+			$durationinseconds  = (int) ($dteDiff->format( "%H" ) * 3600) + (int)  ($dteDiff->format( "%I" ) * 60) + (int) ($dteDiff->format( "%S" ));
+			if ($durationinseconds > 3600){
+				$duration = round($durationinseconds / 3600, 2) . ' hours';
+			} else if ($durationinseconds > 60){
+				$duration = round($durationinseconds / 60, 1) . ' minutes';
+			} else {
+				$duration = round($durationinseconds) . ' seconds';
+			}
+
+			sb_email_log( '<b>Automated Backups Completed:</b> ' . $duration . '.</b><br/><br/><hr/>' );
+			sb_email_log( 'oVIRT_Simple_Backup (version ' . $sb_version . ')' );
 
 			$vmbackupemaillog = file_get_contents( $vmbackupemaillog );
 

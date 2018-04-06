@@ -3,6 +3,7 @@
 	$sb_status = sb_status_fetch();
 	$status    = 0;
 	$reason    = 'None';
+	$totaldisksize = 0;
 
 	if ( $sb_status['status'] == 'backup' && $sb_status['stage'] == 'snapshot_attach' ) {
 
@@ -33,7 +34,6 @@
 				}
 
 				sleep( 5 );
-				
 				if ( $sb_status['setting3'] != '-XEN-' ) {
 					//force boot disk to be adopted first regardless of how ovirt presents the list
 					foreach ( $disks->disk as $disk ) {
@@ -48,6 +48,7 @@
 							$diskletter = sb_next_drive_letter( $diskletter );
 							sb_disk_file_write( 1, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'true', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
 							$disknumber ++;
+							$totaldisksize += $disk->provisioned_size;
 							$setdisk1 = 1;
 						}
 					}
@@ -63,6 +64,7 @@
 							$diskletter = sb_next_drive_letter( $diskletter );
 							sb_disk_file_write( $disknumber, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'false', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
 							$disknumber ++;
+							$totaldisksize += $disk->provisioned_size;
 						}
 					}
 				}

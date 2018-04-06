@@ -304,7 +304,7 @@
 
 		GLOBAL $settings;
 
-		exec( 'fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+		exec( '/sbin/fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
 		$disks              = 0;
 		$avaliabledisks     = array();
 		$avaliablediskstext = '';
@@ -353,7 +353,7 @@
 
 		GLOBAL $settings, $area, $extrasshsettings;
 
-		exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+		exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' /sbin/fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
 		$disks              = 0;
 		$avaliabledisks     = array();
 		$avaliablediskstext = '';
@@ -976,7 +976,7 @@
 
 		if ( empty( $output ) ) {
 			//$settings['drive_type']
-			exec( 'fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
+			exec( '/sbin/fdisk -l | grep "Disk /dev" | awk \'{ print $2}\'', $output );
 		}
 		$diskok = 0;
 		foreach ( $output as $item ) {
