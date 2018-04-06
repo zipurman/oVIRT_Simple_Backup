@@ -295,9 +295,9 @@ function sb_restore_imaging() {
                 }
                 sb_restore_imaging();
             } else if (json.status == 3) {
-                if (json.numberofimages == json.thisdisk){
+                if (json.numberofimages == json.thisdisk) {
                     sb_update_statusbox('restorestatus', 'Imaging Complete - All Disks');
-                }else {
+                } else {
                     sb_update_statusbox('restorestatus', 'Imaging Complete - Disk ' + json.thisdisk);
                 }
                 sb_restore_run_options();
@@ -480,7 +480,7 @@ function sb_xen_start_migrate() {
 }
 
 
-function sb_xen_shutdown(xstatus) {
+function sb_xen_shutdown() {
 
     if (sb_xen_migrate_progress == 1) {
         var xenuuid = $("#xenuuid").val();
@@ -493,9 +493,53 @@ function sb_xen_shutdown(xstatus) {
 
     sb_update_statusbox('restorestatus', 'Shutting Down ' + vmname);
     $("#xenbar").css('display', 'block');
+
+
+    var newvmname = $("#restorenewname").val();
+    var vmuuid = $("#vmuuid").val();
+    var vmname = $("#vmname").val();
+    var buname = $("#buname").val();
+    var option_fixgrub = $("#option_fixgrub").val();
+    var option_fixswap = $("#option_fixswap").val();
+    var fixestext = '';
+    if (option_fixgrub == 1) fixestext = fixestext + 'fixgrub';
+    if (option_fixswap == 1) fixestext = fixestext + 'fixswap';
+    var os = $("#os").val();
+    var console = $("#console").val();
+    var memory = $("#memory").val();
+    var memory_max = $("#memory_max").val();
+    var nic1 = $("#nic1").val();
+    var cpu_sockets = $("#sockets").val();
+    var cpu_cores = $("#cores").val();
+    var cpu_threads = $("#threads").val();
+    var cluster = $("#cluster").val();
+    var domain = $("#domain").val();
+    var vmtype = $("#vmtype").val();
+    var option_restartxenyn = $("#option_restartxenyn").val();
+
     var queryx = {};
     queryx['comm'] = 'xen_shutdown';
     queryx['xenuuid'] = xenuuid;
+
+    queryx['newvmname'] = newvmname;
+    queryx['vmuuid'] = vmuuid;
+    queryx['vmname'] = vmname;
+    queryx['buname'] = buname;
+    queryx['fixestext'] = fixestext;
+    queryx['os'] = os;
+    queryx['console'] = console;
+    queryx['memory'] = memory;
+    queryx['memory_max'] = memory_max;
+    queryx['nic1'] = nic1;
+    queryx['cpu_sockets'] = cpu_sockets;
+    queryx['cpu_cores'] = cpu_cores;
+    queryx['cpu_threads'] = cpu_threads;
+    queryx['cluster'] = cluster;
+    queryx['domain'] = domain;
+    queryx['vmtype'] = vmtype;
+    queryx['option_restartxenyn'] = option_restartxenyn;
+    queryx['vmname'] = vmname;
+
     $.ajax({
         type: "GET",
         url: "index.php",
@@ -527,7 +571,7 @@ function sb_xen_shutdown(xstatus) {
     });
 }
 
-function sb_xen_removedisk(xstatus) {
+function sb_xen_removedisk() {
     if (sb_xen_migrate_progress < 3) {
         sb_xen_migrate_progress = 2;
     }
@@ -568,7 +612,7 @@ function sb_xen_removedisk(xstatus) {
     });
 }
 
-function sb_xen_attachdisk(xstatus) {
+function sb_xen_attachdisk() {
 
     $("#xenbar .progressbarinner").html('').css('width', '0%');
     if (sb_xen_migrate_progress < 3) {
@@ -613,7 +657,7 @@ function sb_xen_attachdisk(xstatus) {
     });
 }
 
-function sb_xen_startup(xstatus) {
+function sb_xen_startup() {
     if (sb_xen_migrate_progress == 2) {
         var xenuuid = '-migrate-';
         var vmname = 'Xen BackupVM';
@@ -626,8 +670,6 @@ function sb_xen_startup(xstatus) {
     $("#xenbar").css('display', 'block');
     var queryx = {};
     queryx['comm'] = 'xen_start';
-    queryx['xenuuid'] = xenuuid;
-    queryx['xstatus'] = xstatus;
     $.ajax({
         type: "GET",
         url: "index.php",

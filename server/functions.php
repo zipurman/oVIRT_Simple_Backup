@@ -899,7 +899,7 @@
 		if ( $status != 'ready' ) {
 			$oldsettings = sb_status_fetch();
 			for ( $i = 1; $i <= 20; $i ++ ) {
-				if ( empty( ${"setting$i"} ) && ! empty( $oldsettings[ 'setting' . $i ] ) ) {
+				if ( ${"setting$i"} == '' && $oldsettings[ 'setting' . $i ] != '' ) {
 					${"setting$i"} = $oldsettings[ 'setting' . $i ];
 				}
 			}

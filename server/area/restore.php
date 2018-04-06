@@ -7,10 +7,9 @@
 	$disktypeget    = sb_check_disks();
 	$numberofimages = count( $disktypeget['avaliabledisks'] );
 
-
 	if ( $numberofimages > 1 ) {
 		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a restore.' );
-	} else if ( $sb_status['status'] == 'ready' ) {
+	} else if ( $sb_status['status'] == 'ready' || ! empty( $recovery ) ) {
 
 
 		if ( empty( $action ) ) {
@@ -107,10 +106,10 @@
 
 				foreach ( $files as $file ) {
 
-					$fileshow = '';
-					$fileshowx = str_replace( $settings['label'], '', $file);
-					$fileshow .= substr( $fileshowx, 4, 2) . '/' . substr( $fileshowx, 6, 2) . '/' . substr( $fileshowx, 0, 4);
-					$fileshow .= ' ' . substr( $fileshowx, 9, 2) . ':' . substr( $fileshowx, 11, 2) . ':' . substr( $fileshowx, 13, 2);
+					$fileshow  = '';
+					$fileshowx = str_replace( $settings['label'], '', $file );
+					$fileshow  .= substr( $fileshowx, 4, 2 ) . '/' . substr( $fileshowx, 6, 2 ) . '/' . substr( $fileshowx, 0, 4 );
+					$fileshow  .= ' ' . substr( $fileshowx, 9, 2 ) . ':' . substr( $fileshowx, 11, 2 ) . ':' . substr( $fileshowx, 13, 2 );
 
 					$rowdata = array(
 						array(
@@ -150,16 +149,15 @@
 					for ( $i = 1; $disksleft == 1; $i ++ ) {
 						$imagefile = $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname . '/Disk' . $i . '.img';
 
-
 						if ( file_exists( $imagefile ) ) {
 
-							$diskdata = sb_disk_array_fetch($settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname, '/Disk' . $i . '.dat');
+							$diskdata = sb_disk_array_fetch( $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname, '/Disk' . $i . '.dat' );
 
 							$diskslisttext .= ( empty( $diskslisttext ) ) ? '' : ', ';
 							$diskslisttext .= 'Disk' . $i . ' (' . ( filesize( $imagefile ) / 1024 / 1024 / 1024 ) . 'GB)';
 
 							foreach ( $diskdata as $diskdatum ) {
-								if ($diskdatum['bootable'] == 'true'){
+								if ( $diskdatum['bootable'] == 'true' ) {
 									$diskslisttext .= ' (bootable) ';
 								}
 							}
@@ -222,7 +220,79 @@
 					echo sb_input( array( 'type' => 'hidden', 'name' => 'vmuuid', 'value' => $uuid, ) );
 					echo sb_input( array( 'type' => 'hidden', 'name' => 'sb_area', 'value' => 3, ) );
 
-					sb_gobutton( 'Restore This VM Now', '', 'checkRestoreNow(1);' );
+					if ( empty( $recovery ) ) {
+
+						sb_gobutton( 'Restore This VM Now', '', 'checkRestoreNow(1);' );
+
+					} else {
+
+						//set values
+
+						$jsstring = '';
+
+						if ( $sb_status['status'] == 'restore' ) {
+
+							$jsstring .= 'sb_update_statusbox(\'restorestatus\', \'Resuming Restore ...\');';
+
+							if ( $sb_status['stage'] == 'disk_create' ) {
+								$jsstring .= '    sb_restore_disk_create();';
+							} else if ( $sb_status['stage'] == 'restore_imaging' ) {
+								$jsstring .= 'sb_restore_imaging();';
+							} else if ( $sb_status['stage'] == 'fixes' ) {
+								$jsstring .= 'sb_restore_run_options();';
+							} else if ( $sb_status['stage'] == 'disk_detatch' ) {
+								$jsstring .= 'sb_disk_detatch();';
+							} else if ( $sb_status['stage'] == 'disk_attach' ) {
+								$jsstring .= 'sb_disk_attach();';
+							}
+						}
+
+						?>
+
+                        <script>
+                            $(function () {
+
+                                $("#restorenewname").val("<?php echo $sb_status['setting4']; ?>");
+                                $("#domain").val("<?php echo $sb_status['setting8']; ?>");
+                                $("#os").val("<?php echo $sb_status['setting10']; ?>");
+                                $("#nic1").val("<?php echo $sb_status['setting11']; ?>");
+                                $("#vmtype").val("<?php echo $sb_status['setting12']; ?>");
+                                $("#cluster").val("<?php echo $sb_status['setting13']; ?>");
+                                $("#console").val("<?php echo $sb_status['setting14']; ?>");
+                                $("#memory").val("<?php echo round( $sb_status['setting15'] / 1024 / 1024 / 1024 ); ?>");
+                                $("#memory_max").val("<?php echo round( $sb_status['setting16'] / 1024 / 1024 / 1024 ); ?>");
+                                $("#sockets").val("<?php echo $sb_status['setting17']; ?>");
+                                $("#cores").val("<?php echo $sb_status['setting18']; ?>");
+                                $("#threads").val("<?php echo $sb_status['setting19']; ?>");
+								<?php
+								if ( strpos( $sb_status['setting6'], 'fixgrub' ) !== false ) {
+								?>
+                                $("#option_fixgrub").val(1);
+								<?php
+								} else {
+								?>
+                                $("#option_fixgrub").val(0);
+								<?php
+								}
+
+								if ( strpos( $sb_status['setting6'], 'fixswap' ) !== false ) {
+								?>
+                                $("#option_fixswap").val(1);
+								<?php
+								} else {
+								?>
+                                $("#option_fixswap").val(0);
+								<?php
+								}
+
+								echo $jsstring;
+
+								?>
+
+                            });
+                        </script>
+						<?php
+					}
 
 					sb_progress_bar( 'creatediskstatus' );
 					sb_progress_bar( 'imagingbar' );

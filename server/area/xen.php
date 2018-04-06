@@ -9,7 +9,7 @@
 
 	if ( $numberofimages > 1 ) {
 		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a migration.' );
-	} else if ( $sb_status['status'] == 'ready' ) {
+	} else if ( $sb_status['status'] == 'ready' || ! empty( $recovery )) {
 
 		$checkdisk = sb_check_disks( 0 );
 
@@ -208,7 +208,7 @@
 			sb_new_vm_settings( 'Same Sizes in ', 2, 2 );
 
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'disksize', 'value' => '0', ) );
-			echo sb_input( array( 'type' => 'hidden', 'name' => 'vmname', 'value' => 'xen.img', ) );
+			echo sb_input( array( 'type' => 'hidden', 'name' => 'vmname', 'value' => trim($vmname), ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'xenuuid', 'value' => $xenuuid, ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'vbd_uuid', 'value' => $vbd_uuid, ) );
 			echo sb_input( array( 'type' => 'hidden', 'name' => 'vdi_uuid', 'value' => $vdi_uuid, ) );
@@ -240,7 +240,129 @@
 			if ( empty( $vbd_uuid ) || empty( $vdi_uuid ) ) {
 				echo 'No Attached Disks';
 			} else {
-				sb_gobutton( 'Migrate This Xen VM Now', '', 'sb_migrateXenStart();' );
+
+
+
+
+
+				if ( empty( $recovery ) ) {
+
+					sb_gobutton( 'Migrate This Xen VM Now', '', 'sb_migrateXenStart();' );
+
+				} else {
+
+					//set values
+
+					$jsstring = '';
+
+					if ( $sb_status['status'] == 'xen_migrate' ) {
+
+						$jsstring .= 'sb_update_statusbox(\'restorestatus\', \'Resuming Migration ...\');';
+
+						if ( $sb_status['stage'] == 'xen_shutdown' && $sb_status['step'] == '0' ) {
+							$jsstring .= 'sb_xen_shutdown();';
+						} else if ( $sb_status['stage'] == 'xen_remove_vbd' && $sb_status['step'] == '0' ) {
+							$jsstring .= 'sb_xen_migrate_progress = 1;';
+							$jsstring .= 'sb_xen_removedisk();';
+						} else if ( $sb_status['stage'] == 'xen_shutdown' && $sb_status['step'] == 2  ) {
+							$jsstring .= 'sb_xen_migrate_progress = 2;';
+							$jsstring .= 'sb_xen_shutdown();';
+						} else if ( $sb_status['stage'] == 'xen_add_vbd' && $sb_status['step'] == 0 ) {
+							$jsstring .= 'sb_xen_migrate_progress = 2;';
+							$jsstring .= 'sb_xen_attachdisk();';
+						} else if ( $sb_status['stage'] == 'xen_start'  && $sb_status['step'] < 2 ) {
+							$jsstring .= 'sb_xen_migrate_progress = 2;';
+							$jsstring .= 'sb_xen_startup();';
+						} else if ( $sb_status['stage'] == 'xen_imaging') {
+							$jsstring .= 'sb_xen_migrate_progress = 2;';
+							$jsstring .= 'sb_xen_imagedisk();';
+						} else if ( $sb_status['stage'] == 'xen_shutdown'  && $sb_status['step'] == 4) {
+							$jsstring .= 'sb_xen_migrate_progress = 3;';
+							$jsstring .= 'sb_xen_shutdown();';
+						} else if ( $sb_status['stage'] == 'xen_remove_vbd'  && $sb_status['step'] == 3 ) {
+							$jsstring .= 'sb_xen_migrate_progress = 3;';
+							$jsstring .= 'sb_xen_removedisk();';
+						} else if ( $sb_status['stage'] == 'xen_add_vbd'  && $sb_status['step'] == 3 ) {
+							$jsstring .= 'sb_xen_migrate_progress = 3;';
+							$jsstring .= 'sb_xen_attachdisk();';
+						} else if ( $sb_status['stage'] == 'xen_start'  && $sb_status['step'] == 2 && $sb_status['setting20'] == 1) {
+							$jsstring .= 'sb_xen_migrate_progress = 3;';
+							$jsstring .= 'sb_xen_startup();';
+						} else if ( $sb_status['status'] == 'xen_migrate' && $sb_status['stage'] == 'xen_start' && $sb_status['step'] == 2  ) {
+							$jsstring .= 'sb_xen_migrate_progress = 3;';
+							$jsstring .= 'checkRestoreNow(0);';
+						} else if ( $sb_status['status'] == 'xen_restore' && $sb_status['stage'] == 'start' ) {
+							$jsstring .= 'sb_xen_migrate_progress = 3;';
+							$jsstring .= 'checkRestoreNow(0);';
+						}
+					} else if ( $sb_status['status'] == 'restore' ) {
+
+						$sb_status['setting20'] = 0;
+						$jsstring .= 'sb_xen_migrate_progress = 3;';
+
+						$jsstring .= 'sb_update_statusbox(\'restorestatus\', \'Resuming Migration Restore ...\');';
+						if ( $sb_status['stage'] == 'disk_create' ) {
+							$jsstring .= '    sb_restore_disk_create();';
+						} else if ( $sb_status['stage'] == 'restore_imaging' ) {
+							$jsstring .= 'sb_restore_imaging();';
+						} else if ( $sb_status['stage'] == 'fixes' ) {
+							$jsstring .= 'sb_restore_run_options();';
+						} else if ( $sb_status['stage'] == 'disk_detatch' ) {
+							$jsstring .= 'sb_disk_detatch();';
+						} else if ( $sb_status['stage'] == 'disk_attach' ) {
+							$jsstring .= 'sb_disk_attach();';
+						}
+					}
+
+					?>
+
+					<script>
+                        $(function () {
+
+                            $("#restorenewname").val("<?php echo $sb_status['setting4']; ?>");
+                            $("#domain").val("<?php echo $sb_status['setting8']; ?>");
+                            $("#os").val("<?php echo $sb_status['setting10']; ?>");
+                            $("#nic1").val("<?php echo $sb_status['setting11']; ?>");
+                            $("#vmtype").val("<?php echo $sb_status['setting12']; ?>");
+                            $("#cluster").val("<?php echo $sb_status['setting13']; ?>");
+                            $("#console").val("<?php echo $sb_status['setting14']; ?>");
+                            $("#memory").val("<?php echo round( $sb_status['setting15'] / 1024 / 1024 / 1024 ); ?>");
+                            $("#memory_max").val("<?php echo round( $sb_status['setting16'] / 1024 / 1024 / 1024 ); ?>");
+                            $("#sockets").val("<?php echo $sb_status['setting17']; ?>");
+                            $("#cores").val("<?php echo $sb_status['setting18']; ?>");
+                            $("#threads").val("<?php echo $sb_status['setting19']; ?>");
+                            $("#option_restartxenyn").val("<?php echo $sb_status['setting20']; ?>");
+							<?php
+							if ( strpos( $sb_status['setting6'], 'fixgrub' ) !== false ) {
+							?>
+                            $("#option_fixgrub").val(1);
+							<?php
+							} else {
+							?>
+                            $("#option_fixgrub").val(0);
+							<?php
+							}
+
+							if ( strpos( $sb_status['setting6'], 'fixswap' ) !== false ) {
+							?>
+                            $("#option_fixswap").val(1);
+							<?php
+							} else {
+							?>
+                            $("#option_fixswap").val(0);
+							<?php
+							}
+
+							echo $jsstring;
+
+							?>
+
+                        });
+					</script>
+					<?php
+				}
+
+
 			}
 			sb_progress_bar( 'xenbar' );
 			sb_progress_bar( 'xenimagingbar' );

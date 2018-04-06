@@ -15,6 +15,8 @@
 			$clearitem = $clearimage;
 		}
 
+
+
 		if ( ! empty( $clearitem ) ) {
 			unlink( $projectpath . 'cache/statusfile.dat' );
 		}
@@ -30,6 +32,8 @@
 		if ( $sb_status['status'] != 'ready' ) {
 
 			sb_pagetitle( 'Status of Running Processes (Simple Backup)' );
+			sb_pagedescription( 'After 5 minutes of inactivity, you will be able to clear failed jobs.' );
+
 			echo '<br/>';
 
 			sb_table_start();
@@ -61,19 +65,33 @@
 			<?php
 		}
 
-		if ( $sb_status['status'] != 'ready' ) {
-			$sb_status['status'] .= ' (<a href="?area=0&clearitem=1">Clear</a>) ';
+		$lasttimechanged =  time() - filemtime($statusfile);
 
-			/*if (!empty($recoveryurl)){
-				$status .= ' (<a href="' . $recoveryurl . '">Recover</a>) ';
-			}*/
+		$statuslink = $sb_status['status'] . ' (' . $sb_status['stage'] . ') ';
+
+		if ( $sb_status['status'] != 'ready' ) {
+
+
+		    if ($lasttimechanged > 300 ){
+			    $statuslink .= ' (<a href="javascript: if (confirm(\'Clear/Cancel this process?\')){window.location=\'?area=0&clearitem=1\'}">Clear</a>) ';
+		    }
+
+		    //figure out where to go
+            if ($sb_status['status'] == 'backup' && $sb_status['setting1'] != '-XEN-'){
+	            $statuslink .= ' <a href="?area=2&recovery=1&action=select&vm=' . $sb_status['setting1'] . '">View Progress</a>';
+            } else if ($sb_status['status'] == 'restore' && $sb_status['setting1'] != '-XEN-'){
+	            $statuslink .= ' <a href="?area=3&recovery=1&action=selectedbackup&vmname=' . $sb_status['setting1']  . '&uuid=' . $sb_status['setting2'] . '&buname=' . $sb_status['setting3']  . '">View Progress</a>';
+            } else if ($sb_status['status'] == 'xen_migrate' || $sb_status['status'] == 'xen_restore' ||  $sb_status['status'] == 'restore'  && $sb_status['setting1'] == '-XEN-'){
+	            $statuslink .= ' <a href="?area=5&recovery=1&action=xenvmname&vmname=' . trim($sb_status['setting1'])  . '&xenuuid=' . $sb_status['setting2']  . '">View Progress</a>';
+            }
+
 
 			$rowdata = array(
 				array(
 					"text" => $sb_status['setting3'],
 				),
 				array(
-					"text" => $sb_status['status'],
+					"text" => $statuslink,
 				),
 				array(
 					"text" => $sb_status['setting1'],
@@ -93,7 +111,7 @@
             window.location.reload(true);
         }
 
-        setTimeout(reloadMe, 10 * 1000);
+        setTimeout(reloadMe, 30 * 1000);
 
     </script>
 	<?php

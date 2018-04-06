@@ -1,6 +1,7 @@
 <?php
 
-	$sb_version = '0.6.9';
+	$sb_version = '0.6.10';
+	$mediaverstion = '.100';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
 	$savestep        = varcheck( "savestep", 0, "FILTER_VALIDATE_INT", 0 );

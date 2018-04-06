@@ -1,10 +1,9 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.9)
+# oVIRT_Simple_Backup - WebGUI (0.6.10)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
 
  - Coming features
-    - [ ] recover running tasks if browser is closed and re-opened. Right now you have to manually re-attach disks etc if browser is closed prior to completing backup.restore.
     - [ ] multiple schedules with targeted vms and time on each managed in the UI
     - [ ] Allow thin provisioned disks
     - [ ] If using virtio_scsi driver to have the option to enable discard checkbox

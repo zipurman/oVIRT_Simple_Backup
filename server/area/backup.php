@@ -9,7 +9,7 @@
 
 	if ( $numberofimages > 1 ) {
 		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a backup.' );
-	} else if ( $sb_status['status'] == 'ready' ) {
+	} else if ( $sb_status['status'] == 'ready' || $recovery == 1) {
 
 		if ( empty( $action ) ) {
 
@@ -86,7 +86,6 @@
 		} else if ( $action == 'select' ) {
 
 			$vmuuid    = varcheck( "vm", '' );
-			$backupnow = varcheck( "backupnow", '' );
 
 			$vm = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid );
 
@@ -179,22 +178,52 @@
 
 			sb_table_end();
 
-			sb_gobutton( 'Backup This VM Now', '', 'checkBackupNow();' );
 
-			?>
-            <script>
-                function checkBackupNow() {
-                    if (confirm('Backup this VM Now?')) {
-                        sb_newsnapshot = 1;
-                        $(".gobutton").css('display', 'none');
-                        //start checking for status of snapshot
-                        sb_update_statusbox('backupstatus', 'Starting Backup ...');
-                        sb_check_snapshot_progress('<?php echo $vm['id']; ?>', 0);
+			if (empty($recovery)) {
+				sb_gobutton( 'Backup This VM Now', '', 'checkBackupNow();' );
+
+				?>
+                <script>
+                    function checkBackupNow() {
+                        if (confirm('Backup this VM Now?')) {
+                            sb_newsnapshot = 1;
+                            $(".gobutton").css('display', 'none');
+                            //start checking for status of snapshot
+                            sb_update_statusbox('backupstatus', 'Starting Backup ...');
+                            sb_check_snapshot_progress('<?php echo $vm['id']; ?>', 0);
+                        }
                     }
-                }
-            </script>
-			<?php
+                </script>
+				<?php
+			} else {
 
+			    $jsstring = '';
+
+			    if ($sb_status['status'] == 'backup'){
+
+				    $jsstring .= 'sb_update_statusbox(\'backupstatus\', \'Resuming Backup ...\');';
+
+				    if ($sb_status['stage'] == 'snapshot'){
+					    $jsstring .= 'sb_check_snapshot_progress(\'' . $vmuuid . '\');';
+				    } else if ($sb_status['stage'] == 'create_path'){
+					    $jsstring .= 'sb_create_backup_directories();';
+				    } else if ($sb_status['stage'] == 'snapshot_attach'){
+					    $jsstring .= 'sb_snapshot_attach();';
+				    } else if ($sb_status['stage'] == 'backup_imaging'){
+					    $jsstring .= 'sb_snapshot_imaging();';
+				    }else if ($sb_status['stage'] == 'backup_detatch_image'){
+					    $jsstring .= 'sb_snapshot_detatch();';
+				    }else if ($sb_status['stage'] == 'snapshot_delete'){
+					    $jsstring .= 'sb_snapshot_delete();';
+				    }
+                }
+
+				?>
+                <script>
+                    <?php echo $jsstring; ?>
+                </script>
+				<?php
+            }
 			sb_progress_bar( 'snapshotbar' );
 			sb_progress_bar( 'imagingbar' );
 			sb_status_box( 'backupstatus' );
