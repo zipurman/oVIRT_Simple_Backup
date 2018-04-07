@@ -49,7 +49,7 @@
 
 					$startbracket = dateDifference( $thedateonlyodbc . ' ' . $filedata['starttime'] . ':00', $thetimefull, 'minutes' );
 
-					if ( $startbracket < 6  && $startbracket > 0|| $startbracket > - 6 && $startbracket < 0 ) {
+					if ( $startbracket < 6 && $startbracket > 0 ) {
 						//scheduled within 5 minutes
 
 						$dow                = date( "w" );
@@ -75,7 +75,7 @@
 	}
 	$files = null;
 
-
+die();
 	if ( ! empty( $matchingschedule ) ) {
 		if ( file_exists( $projectpath . 'config.php' ) ) {
 

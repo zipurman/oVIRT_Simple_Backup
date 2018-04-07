@@ -160,7 +160,7 @@
 
 *  In the WebUI, open Settings and confirm the email address and retention
 *  In the WebUI, open Scheduled Backups and select the VMs you want to backup on the schedule and click SAVE
-*  Add a cronjob as follows (to run daily at 12:01 am):
+*  Add a cronjob as follows (to run every 5 minutes - will check backup scheduled times within 6 minute buffer time. So a backup scheduled in the UI for 8:30 will fire any where between 8:30 and 8:35):
 ```bash
-1 0 * * * www-data php /var/www/html/automatedbackup.php >/dev/null 2>&1
+*/5 * * * * www-data php /var/www/html/automatedbackup.php >/dev/null 2>&1
 ```
