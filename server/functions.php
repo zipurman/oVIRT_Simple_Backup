@@ -170,16 +170,25 @@
 				$inputdata['maxlength'] = $inputdata['size'];
 			}
 			$returndata .= '<input autocomplete="off" type="text" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
+
 		} else if ( $inputdata['type'] == 'password' ) {
+
 			$returndata .= '<input autocomplete="off" type="password" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" size="' . $inputdata['size'] . '" maxlength="' . $inputdata['maxlength'] . '" value="' . $inputdata['value'] . '" />';
+
 		} else if ( $inputdata['type'] == 'checkbox' ) {
+
 			$returndata .= '<input autocomplete="off" type="checkbox" id="' . $inputdata['id'] . '" name="' . $inputdata['name'] . '" value="' . $inputdata['value'] . '" ';
 			$returndata .= ( $inputdata['checked'] ) ? ' CHECKED' : '';
 			$returndata .= '/>';
+
 		} else if ( $inputdata['type'] == 'hidden' ) {
+
 			$returndata .= '<input autocomplete="off "type="hidden" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '" value="' . $inputdata['value'] . '" />';
+
 		} else if ( $inputdata['type'] == 'submit' ) {
+
 			$returndata .= '<input type="submit" value="' . $inputdata['value'] . '" />';
+
 		} else if ( $inputdata['type'] == 'select' ) {
 
 			$returndata .= '<select autocomplete="off" id="' . $inputdata['name'] . '" name="' . $inputdata['name'] . '"';
@@ -323,7 +332,7 @@
 		$lastdev            = 'nodiskselected';
 		$disktype           = '';
 		$newbootdisk        = '';
-		$hassdavda = 0;
+		$hassdavda          = 0;
 		foreach ( $output as $item ) {
 			if ( strpos( $item, 'mapper' ) == false ) {
 				$item = str_replace( ':', '', $item );
@@ -337,15 +346,15 @@
 					$avaliablediskstext      .= '(' . $item . ')';
 					$lastdev                 = $item;
 				} else {
-					$disktype = substr( $item, 0, 2 );
+					$disktype  = substr( $item, 0, 2 );
 					$hassdavda = 1;
 				}
 			}
 		}
 
-		if (empty($hassdavda)){
-		    die('Reboot your BackupEngineVM - Disks Out Of Order');
-        }
+		if ( empty( $hassdavda ) ) {
+			die( 'Reboot your BackupEngineVM - Disks Out Of Order' );
+		}
 
 		if ( $disktype == 'vd' ) {
 			$driveinterface = 'virtio';
@@ -651,7 +660,7 @@
 
 		$clusters = sb_clusterlist();
 		$domains  = sb_domainlist();
-		$rowdata = array(
+		$rowdata  = array(
 			array( "text" => 'Restore to Cluster:', ),
 			array(
 				"text" => sb_input( array(
@@ -735,7 +744,7 @@
 			),
 			'value' => 0,
 		) );
-		$rowdata = array(
+		$rowdata        = array(
 			array( "text" => 'Pass Discard:', ),
 			array(
 				"text" => $discardoptions . ' <span id="passdiscardtext"></span>',
@@ -1296,5 +1305,186 @@
 		fclose( $configfile );
 
 		sleep( .5 );
+
+	}
+
+	/**
+	 * @param        $odate
+	 * @param string $ifblank
+	 *
+	 * @param int    $dashesnotslashes
+	 *
+	 * @return bool|string
+	 */
+	function odbc_date_format( $odate, $ifblank = "", $dashesnotslashes = 0 ) {
+
+		if ( $dashesnotslashes == 0 ) {
+			$odate = date( 'm/d/Y', strtotime( $odate ) );
+		} else {
+			$odate = date( 'm-d-Y', strtotime( $odate ) );
+
+		}
+		if ( "$odate" == "12/31/1969" ) {
+			$odate = $ifblank;
+		} else if ( "$odate" == "01/01/1970" ) {
+			$odate = $ifblank;
+		}
+
+		return $odate;
+	}
+
+	/**
+	 * @param        $odate
+	 * @param string $ifblank
+	 *
+	 * @param int    $noseconds
+	 * @param int    $clock24
+	 *
+	 * @return bool|string
+	 */
+	function odbc_time_format( $odate, $ifblank = "", $noseconds = 0, $clock24 = 1 ) {
+
+		if ( "{$odate}" == '' ) {
+			$odate = $ifblank;
+		} else {
+			if ( $clock24 == 1 ) {
+				if ( $noseconds == 1 ) {
+					$odate = date( 'H:i', strtotime( $odate ) );
+				} else {
+					$odate = date( 'H:i:s', strtotime( $odate ) );
+				}
+			} else {
+				if ( $noseconds == 1 ) {
+					$odate = date( 'h:i A', strtotime( $odate ) );
+				} else {
+					$odate = date( 'h:i:s A', strtotime( $odate ) );
+				}
+			}
+		}
+
+		return $odate;
+	}
+
+	function ordinal_suffix( $num ) {
+
+		$num = $num % 100; // protect against large numbers
+		if ( $num < 11 || $num > 13 ) {
+			switch ( $num % 10 ) {
+				case 1:
+					return 'st';
+				case 2:
+					return 'nd';
+				case 3:
+					return 'rd';
+			}
+		}
+
+		return 'th';
+	}
+
+	function sb_schedule_write( $startdatetime, $enddatetime, $days, $numday, $dom, $schedulename, $vmstobackup, $starttime ) {
+
+		GLOBAL $projectpath;
+
+		$schedulename = preg_replace( '/[^0-9a-zA-Z\-_]/i', '_', $schedulename );
+
+		$filepath = $projectpath . '.automated_backups_schedule_' . $schedulename;
+
+		if ( $diskfile = fopen( $filepath, "w" ) ) {
+			fwrite( $diskfile, $startdatetime . "\n" );
+			fwrite( $diskfile, $enddatetime . "\n" );
+			fwrite( $diskfile, $days . "\n" );
+			fwrite( $diskfile, $numday . "\n" );
+			fwrite( $diskfile, $dom . "\n" );
+			fwrite( $diskfile, $schedulename . "\n" );
+			fwrite( $diskfile, $vmstobackup . "\n" );
+			fwrite( $diskfile, $starttime . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fwrite( $diskfile, ' ' . "\n" );
+			fclose( $diskfile );
+		}
+
+	}
+
+	function sb_schedule_fetch( $filename ) {
+
+		GLOBAL $projectpath;
+
+		if ( strpos( $filename, '..' ) !== false ) {
+			die();
+		}
+
+		if ( strpos( " {$filename}", $projectpath ) == false ) {
+			die();
+		}
+
+		$schedulex = array();
+
+		if ( file_exists( $filename ) ) {
+
+
+			$schedule = file_get_contents( $filename );
+
+			$schedule = explode( "\n", $schedule );
+
+			$schedulex = array(
+				'startdatetime' => $schedule[0],
+				'enddatetime'   => $schedule[1],
+				'days'          => $schedule[2],
+				'numday'        => $schedule[3],
+				'dom'           => $schedule[4],
+				'schedulename'  => $schedule[5],
+				'vmstobackup'   => $schedule[6],
+				'starttime'     => $schedule[7],
+			);
+
+		}
+
+		return $schedulex;
+
+	}
+
+
+
+
+
+	function dateDifference($startdate, $enddate, $returntype = 'days')
+	{
+
+		if ($returntype == 'days') {
+			$since_start = date_diff(date_create($startdate), date_create($enddate));
+			$days = $since_start->days;
+			$days += round($since_start->h / 24, 2);
+			if ($since_start->invert) $days = -$days;
+
+			return (float)$days;
+		} else if ($returntype == 'minutes') {
+			$since_start = date_diff(date_create($startdate), date_create($enddate));
+			$minutes = $since_start->days * 24 * 60;
+			$minutes += $since_start->h * 60;
+			$minutes += $since_start->i;
+			if ($since_start->invert) $minutes = -$minutes;
+
+			return (float)$minutes;
+		} else if ($returntype == 'seconds') {
+			$since_start = date_diff(date_create($startdate), date_create($enddate));
+			$seconds = $since_start->days * 24 * 60 * 60;
+			$seconds += $since_start->h * 60 * 60;
+			$seconds += $since_start->i * 60;
+			$seconds += $since_start->s;
+			if ($since_start->invert) $seconds = -$seconds;
+
+			return (int)$seconds;
+		} else if ($returntype == 'hours') {
+			$since_start = date_diff(date_create($startdate), date_create($enddate));
+			$hours = $since_start->days * 24;
+			$hours += $since_start->h;
+			$hours += round(($since_start->i / 60), 2);
+			if ($since_start->invert) $hours = -$hours;
+
+			return (float)$hours;
+		}
 
 	}

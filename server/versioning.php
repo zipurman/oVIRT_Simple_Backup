@@ -45,6 +45,11 @@
 
 
 
+				} else if ( $old_patch < 15 && $new_patch >= 15 ) {
+
+					//remove old backup file
+					unlink( $projectpath . '.automated_backups_vmlist' );
+
 				}
 			}
 		}

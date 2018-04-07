@@ -1,10 +1,7 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.14)
+# oVIRT_Simple_Backup - WebGUI (0.6.15)
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
-
- - Coming features
-    - [ ] multiple schedules with targeted vms and time on each managed in the UI
       
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
 
@@ -13,12 +10,13 @@
 #### Features
 
  - [x] oVirt Engine Web UI Plugin
+ - [x] Multiple Backup Schedules Manager
  - [x] Settings Manager
  - [x] Updates Manager for oVIRT_Simple_Backup
  - [x] Backup a single VM
  - [x] Restore a single VM
  - [x] Migrate a single VM from XEN SERVER (Citrix)
- - [x] Scheduled VMs backup now supported with retention and email alerts
+ - [x] Scheduled VMs Backup Retention and Email Alerts
  - [x] Multi-Disk VM now supported
  - [x] Log viewer
 

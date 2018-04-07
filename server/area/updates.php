@@ -13,7 +13,7 @@
 		return $newversion;
 	}
 
-	function sb_fetch_upgrade_versioning($updatenow = 0) {
+	function sb_fetch_upgrade_versioning( $updatenow = 0 ) {
 
 		GLOBAL $projectpath;
 
@@ -92,12 +92,11 @@
 
 			$localhash = hash_file( 'md5', substr( $projectpath, 0, - 1 ) . $folder . '/' . $item );
 
-			$filematch = ($remotehash == $localhash) ? '<span class="statusup">UP TO DATE</span>' : '<span class="statusdown">NEEDS UPDATE</span>';
+			$filematch = ( $remotehash == $localhash ) ? '<span class="statusup">UP TO DATE</span>' : '<span class="statusdown">NEEDS UPDATE</span>';
 
-
-			if ($updatenow == 1){
-				if ($remotehash != $localhash){
-					file_put_contents( substr( $projectpath, 0, - 1 ) . $folder . '/' . $item, $remotefile);
+			if ( $updatenow == 1 ) {
+				if ( $remotehash != $localhash ) {
+					file_put_contents( substr( $projectpath, 0, - 1 ) . $folder . '/' . $item, $remotefile );
 					$filematch = '<span class="statusupdated">!UPDATED!</span>';
 				}
 			}
@@ -123,9 +122,6 @@
 			sb_process_updated_files( $item, $folder . '/' . $key, $updatenow );
 
 		}
-
-
-
 
 	}
 
@@ -175,14 +171,14 @@
 			sb_table_row( $rowdata );
 
 			sb_table_end();
-			if (empty($action)) {
+			if ( empty( $action ) ) {
 				sb_gobutton( 'Check For Updated Files', '', 'sbCheckSoftwareUpdates();' );
-			} else if ($action == 'update'){
+			} else if ( $action == 'update' ) {
 				sb_gobutton( 'Update Files Now', '', 'sbProcessSoftwareUpdates();' );
 			}
 		}
 
-		if ($action == 'update'){
+		if ( $action == 'update' ) {
 			sb_table_start();
 
 			$rowdata = array(
@@ -206,7 +202,7 @@
 			sb_table_heading( $rowdata );
 			sb_fetch_upgrade_versioning();
 			sb_table_end();
-		} else if ($action == 'updatenow'){
+		} else if ( $action == 'updatenow' ) {
 			sb_table_start();
 
 			$rowdata = array(
@@ -228,10 +224,9 @@
 				),
 			);
 			sb_table_heading( $rowdata );
-			sb_fetch_upgrade_versioning(1);
+			sb_fetch_upgrade_versioning( 1 );
 			sb_table_end();
 		}
-
 
 	} else {
 		sb_not_ready();

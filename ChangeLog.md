@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.15 - 2018/04/06
+      - [x] Added Multi Schedule Manager for Scheduled Backups
+      
   - 0.6.14 - 2018/04/06
       - [x] Update/Upgrade area to fetch new files etc.
 

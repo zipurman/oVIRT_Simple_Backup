@@ -1,6 +1,6 @@
 <?php
 
-	$sb_version = '0.6.14';
+	$sb_version = '0.6.15';
 	$mediaverstion = '.101';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
@@ -54,6 +54,7 @@
 	}
 
 	$thedatetime = strftime( "%Y%m%d_%H%M%S" );
+	$thetimefull = strftime("%Y-%m-%d %H:%M:%S");
 
 	if ( ! isset( $_SERVER['REMOTE_ADDR'] ) ) {
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
