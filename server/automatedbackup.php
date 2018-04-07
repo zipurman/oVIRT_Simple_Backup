@@ -75,7 +75,6 @@
 	}
 	$files = null;
 
-die();
 	if ( ! empty( $matchingschedule ) ) {
 		if ( file_exists( $projectpath . 'config.php' ) ) {
 
