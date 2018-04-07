@@ -27,21 +27,13 @@
 
 			$filedata = sb_schedule_fetch( $file );
 
-			/*echo $filedata['startdatetime'] . "\n";
-			echo $filedata['starttime'] . "\n";
-			echo $filedata['enddatetime'] . "\n";
-			echo $filedata['days'] . "\n";
-			echo $filedata['numday'] . "\n";
-			echo $filedata['dom'] . "\n";
-			echo $filedata['vmstobackup'] . "\n";*/
-
 			//check to see if startdate is in the past
-			$started = dateDifference( $filedata['startdatetime'], $thetimefull, 'days' );
+			$started = dateDifference( $filedata['startdatetime'], $thetimefull, 'minutes' );
 
 			if ( $started > 0 ) {
-				//startdate is in the past
+				//startdate is in the past TODO fix early morning issue if small decimal
 
-				$ended = dateDifference( $filedata['enddatetime'], $thetimefull, 'days' );
+				$ended = dateDifference( $filedata['enddatetime'], $thetimefull, 'minutes' );
 
 				if ( $ended < 1 ) {
 					//enddate is in the future or today
