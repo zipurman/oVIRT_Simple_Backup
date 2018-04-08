@@ -190,7 +190,7 @@ then
         echo ""
 
         echo "Enter password for root on oVirtEngine"
-        ssh -o StrictHostKeyChecking=no root@$ovirtengine 'engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*'
+        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*'
 
         cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
@@ -205,7 +205,7 @@ then
         echo "Enter password for root on oVirtEngine"
         scp -r /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
         echo "Enter password for root on oVirtEngine"
-        ssh -o StrictHostKeyChecking=no root@$ovirtengine 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && service ovirt-engine restart'
+        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && service ovirt-engine restart'
 
         echo ""
         echo ""
