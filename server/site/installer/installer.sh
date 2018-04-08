@@ -179,5 +179,6 @@ then
 else
     echo "Script must be run as root"
 fi
+#TODO - backupengineip networking setup
 #TODO - Xen Server installs
 #TODO - Xen Server VM installs

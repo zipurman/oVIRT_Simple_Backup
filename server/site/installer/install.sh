@@ -5,6 +5,9 @@
 # Last Updated April 07, 2018
 # written for Debian Only
 
+#Run as root using:
+# curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/site/installer/install.sh | bash
+
 #Config Options
 SERVERROOT="/var/www/html/"
 
@@ -17,7 +20,7 @@ rm /opt/oVirtSimpleInstaller -Rf
 mkdir /opt/oVirtSimpleInstaller -p
 cd /opt/oVirtSimpleInstaller
 
-wget --no-check-certificate https://10.50.90.175/installer/installer.sh
+wget https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/site/installer/installer.sh
 
 chmod 700 /opt/oVirtSimpleInstaller/installer.sh
 
