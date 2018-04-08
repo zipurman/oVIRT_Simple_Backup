@@ -16,6 +16,7 @@ echo ""
 who=`whoami`
 
 #todo - ask all questions and then show a preview/confirm
+#todo - ask for root password for ovirt engine and then pass to ssh and scp?
 
 if [[ $who == 'root' ]]
 then
@@ -23,7 +24,7 @@ then
     read -e -p "What is the IP Address for your oVirt Engine? [x.x.x.x]: " ovirtengine
     read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
     read -e -p "What is the FQDN for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengine
-    read -e -p "What is the IP Address for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengineip
+    read -e -p "What is the IP Address for your oVirtSimpleBackupVM (${backupengine})? [x.x.x.x]: " backupengineip
     read -e -p "Are you wanting to migrate from Xen Server? [y/N]: " -i "N" xen
     if [[ $xen == 'Y' ]]
     then
@@ -113,6 +114,7 @@ then
 
         echo "Updating Apache"
         sed -i "s/\/var\/www\/html/\/var\/www\/html\/site\nServerName ${backupengine}:443/g" /etc/apache2/sites-available/default-ssl.conf
+        sed -i "s/\/var\/www\/html/\/var\/www\/html\/site\nServerName ${backupengine}:80/g" /etc/apache2/sites-available/000-default.conf
         sed -i "s/SSLEngine on/SSLEngine on\nSSLCertificateFile \/etc\/apache2\/ssl\/apache.crt\nSSLCertificateKeyFile \/etc\/apache2\/ssl\/apache.key/g" /etc/apache2/sites-available/default-ssl.conf
         a2ensite default-ssl.conf
         service apache2 reload
@@ -145,8 +147,9 @@ then
         wget https://github.com/zipurman/oVIRT_Simple_Backup/archive/master.zip
         unzip master.zip
         rm /var/www/html -R
-        mv /var/www/oVIRT_Simple_Backup-master /var/www/html
+        mv /var/www/oVIRT_Simple_Backup-master/server /var/www/html
         rm master.zip
+        rm /var/www/oVIRT_Simple_Backup-master/ -R
         chown www-data:root /var/www -R
 
         echo "\$allowed_ips = array();"
@@ -154,6 +157,9 @@ then
         echo "Updating Cron Jobs"
         echo "* * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1" >> /etc/crontab
         echo "* * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1" >> /etc/crontab
+
+        chmod 700 /var/www/html/crons/fixgrub.sh
+        chmod 700 /var/www/html/crons/fixswap.sh
 
         echo "Setting Default Configs"
         echo "<?php" > /var/www/html/config.php
@@ -189,9 +195,6 @@ then
         chown www-data:www-data /var/log/simplebackup.log
         echo ""
 
-        echo "Enter password for root on oVirtEngine"
-        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*'
-
         cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"name": "simpleBackup",' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
@@ -202,14 +205,25 @@ then
         echo '"resourcePath": "simpleBackup"' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '}' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
 
+       echo ""
+       echo ""
         echo "Enter password for root on oVirtEngine"
+        echo ""
         scp -r /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
-        echo "Enter password for root on oVirtEngine"
-        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && service ovirt-engine restart'
 
         echo ""
         echo ""
+        echo "Enter password AGAIN for root on oVirtEngine"
+        echo ""
+        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
+
+        clear
+        echo ""
+        echo ""
         echo "You should now be able to login to your oVirt WebbUI and see the Simple Backup tab in the menu."
+        echo ""
+        echo "      - Navigate to oVirtWebUI: https://${ovirtengine}"
+        echo "      - Navigate Directly to oVirtBackupEngineVM: https://${backupengine}"
         echo ""
 
     else
