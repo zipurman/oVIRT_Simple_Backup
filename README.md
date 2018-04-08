@@ -2,6 +2,13 @@
 
 ### A REST API backup from PHP for oVirt 4.2.x
 
+#### Working on new features:
+ - [ ] Installer
+ - [ ] Compression
+ - [ ] Show allowed_ips warnings
+ - [ ] Create VM Appliance?
+ - [ ] Add a FAQ page
+   
       
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
 

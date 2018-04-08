@@ -34,4 +34,10 @@
 	 *                                  comm/xen_add_vbd (Add Disks back to XEN VM being migrated)
 	 *                                  ?comm/xen_start (Optionally Start XEN VM being migrated)
 	 *                                  -> restore single vm (Call Restore with Xen switches for paths to images)
+	 *
+	 *
+	 *
+	 *
+	 * dd if=/dev/hda conv=sync,noerror bs=64K | gzip -c  > /mnt/sda1/hda.img.gz
+		http://www.linuxweblog.com/dd-image
 	 */
