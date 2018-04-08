@@ -14,15 +14,59 @@ echo "======================================"
 echo ""
 
 who=`whoami`
-echo $who
+
+#todo - ask all questions and then show a preview/confirm
 
 if [[ $who == 'root' ]]
 then
 
-    read -e -p "Do you wish to install oVirt Simple Backup and all of its required packages and settings? [Y/n]: " -i "Y" oktoinstall
+    read -e -p "What is the IP Address for your oVirt Engine? [x.x.x.x]: " ovirtengine
+    read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
+    read -e -p "What is the FQDN for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengine
+    read -e -p "What is the IP Address for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengineip
+    read -e -p "Are you wanting to migrate from Xen Server? [y/N]: " -i "N" xen
+    if [[ $xen == 'Y' ]]
+    then
+        read -e -p "Path of the NFS for /mnt/migrate [x.x.x.x:/path/to/share]: " migrateip
+        read -e -p "IP Address of Xen Server? [x.x.x.x]: " xenserver
+        read -e -p "IP Address of Xen Server Migrate VM? [x.x.x.x]: " xenservermigrate
+    fi
+
+    clear
+
+    echo ""
+    echo "======================================"
+    echo "oVirt Simple Backup (WebGUI) Installer"
+    echo "======================================"
+    echo ""
+    echo ""
+    echo "Path of the NFS for /mnt/backups: ${backupip}"
+    echo "oVirtSimpleBackupVM FQDN: ${backupengine}"
+    echo "oVirtSimpleBackupVM IP: ${backupengineip}"
+    echo "Xen Server Migration Tools: ${xen}"
+    if [[ $xen == 'Y' ]]
+    then
+        echo "Path of the NFS for /mnt/migrate: ${migrateip}"
+        echo "IP Address of Xen Server: ${xenserver}"
+        echo "IP Address of Xen Server Migrate VM: ${xenservermigrate}"
+        echo "IP Address for your oVirt Engine: ${ovirtengine}"
+    fi
+    echo ""
+    echo ""
+
+
+
+    read -e -p "Do these settings look correct? [Y/n]: " -i "Y" oktoinstall
+
 
     if [[ $oktoinstall == 'Y' ]]
     then
+        clear
+        echo ""
+        echo "======================================"
+        echo "oVirt Simple Backup (WebGUI) Installer"
+        echo "======================================"
+        echo ""
         echo "Installing...."
         apt-get install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml  -y
 
@@ -39,8 +83,6 @@ then
 
         echo ""
         echo "Now we have to add your NFS shares so they can mount."
-        read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
-        read -e -p "Path of the NFS for /mnt/migrate [x.x.x.x:/path/to/share]: " migrateip
         echo "Saving to /etc/fstab and mounting"
 
         if [ ! -z "$backupip" ]
@@ -63,8 +105,6 @@ then
         service apache2 restart
         mkdir /etc/apache2/ssl
 
-        read -e -p "What is the FQDN for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengine
-        read -e -p "What is the IP Address for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengineip
 
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt -subj "/C=CA/ST=Saskatchewan/L=SwiftCurrent/O=Global Security/OU=IT Department/CN=${backupengine}"
 
@@ -85,16 +125,11 @@ then
         mkdir /var/www/.ssh
         chown www-data:www-data /var/www/.ssh
         chmod 700 /var/www/.ssh
-        su www-data
-
-
-        read -e -p "Are you wanting to migrate from Xen Server? [y/N]: " -i "N" xen
 
         if [[ $xen == 'Y' ]]
         then
 
-            read -e -p "IP Address of Xen Server? [x.x.x.x]: " xenserver
-            read -e -p "IP Address of Xen Server Migrate VM? [x.x.x.x]: " xenservermigrate
+
             su - www-data -c 'ssh-keygen -t rsa'
             echo ""
             echo ""
@@ -153,7 +188,6 @@ then
         chown www-data:www-data /var/log/simplebackup.log
         echo ""
 
-        read -e -p "What is the IP Address for your oVirt Engine? [x.x.x.x]: " ovirtengine
         echo "Enter password for root on oVirtEngine"
         ssh "root@${ovirtengine} -c 'engine-config -s CORSSupport=true' && engine-config -s CORSAllowedOrigins=*"
 
