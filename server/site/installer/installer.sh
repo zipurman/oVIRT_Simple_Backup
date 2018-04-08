@@ -21,10 +21,14 @@ who=`whoami`
 if [[ $who == 'root' ]]
 then
 
-    read -e -p "What is the IP Address for your oVirt Engine? [x.x.x.x]: " ovirtengine
+    read -e -p "What is the IP Address for your oVirt ENGINE? [x.x.x.x]: " ovirtengine
+    echo ""
     read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
+    echo ""
     read -e -p "What is the FQDN for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengine
+    echo ""
     read -e -p "What is the IP Address for your oVirtSimpleBackupVM (${backupengine})? [x.x.x.x]: " backupengineip
+    echo ""
     read -e -p "Are you wanting to migrate from Xen Server? [y/N]: " -i "N" xen
     if [[ $xen == 'Y' ]]
     then
@@ -216,6 +220,12 @@ then
         echo "Enter password AGAIN for root on oVirtEngine"
         echo ""
         ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
+
+
+        echo "${backupengineip} ${backupengine}" >> /etc/hosts
+        echo "${backupengine}" > /etc/hostname
+        echo "${backupengine}" > /etc/mailname
+
 
         clear
         echo ""
