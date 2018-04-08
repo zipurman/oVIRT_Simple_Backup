@@ -5,6 +5,11 @@
 # Last Updated April 07, 2018
 # written for Debian Only
 
+#requires
+#   - curl to be installed
+#   - rem out any cdrom/dvd median in /etc/apt/sources.list
+#   - apt-get update
+
 #Run as root using:
 # curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/site/installer/install.sh | bash
 
@@ -28,8 +33,17 @@ clear
 
 echo "You can now run the following script to install oVirt Simple Backup"
 echo ""
+echo "              - rem out any cdrom/dvd median in /etc/apt/sources.list"
+echo "              - apt-get update"
+echo "              - make sure you have your NFS ready and have all user/pass info available"
+echo "              - on oVirt ENGINE - make sure root user has a ~/.ssh folder"
+echo "              - on oVirt ENGINE - make sure /etc/ssh/sshd.conf is set to allow root login (restart sshd)"
+echo ""
+echo "              Run installer:"
+echo ""
 echo "              /opt/oVirtSimpleInstaller/installer.sh"
 echo ""
+
 
 #( exec /opt/oVirtSimpleInstaller/installer.sh )
 

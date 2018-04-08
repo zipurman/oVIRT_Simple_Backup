@@ -24,12 +24,12 @@ then
     if [[ $oktoinstall == 'Y' ]]
     then
         echo "Installing...."
-        apt-get install pv curl zip exim4 uuid-runtime fsarchiver parted nfs-common php5 php5-curl libapache2-mod-php5 -y
+        apt-get install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml  -y
 
         echo "Updating SSH Settings"
         sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config
         echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-        echo "Use DNS no" >> /etc/ssh/sshd_config
+        echo "UseDNS no" >> /etc/ssh/sshd_config
         service ssh restart
 
         echo "Creating Mount Directories"
@@ -54,7 +54,7 @@ then
             mount /mnt/migrate
         fi
 
-        mkdir /root/.ssh -f
+        mkdir /root/.ssh
         chmod 700 /root/.ssh
         usermod -a -G disk www-data
         usermod -a -G cdrom www-data
@@ -68,18 +68,19 @@ then
 
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt -subj "/C=CA/ST=Saskatchewan/L=SwiftCurrent/O=Global Security/OU=IT Department/CN=${backupengine}"
 
+
         chmod 600 /etc/apache2/ssl/*
 
         echo "Updating Apache"
-        sed -i "s/ServerName 1.2.3.4:443/ServerName ${backupengine}:443/g" /etc/apache2/sites-available/default-ssl.conf
-        sed -i "s/\/var\/www\/html/\/var\/www\/html\/site/g" /etc/apache2/sites-available/default-ssl.conf
+        sed -i "s/\/var\/www\/html/\/var\/www\/html\/site\nServerName ${backupengine}:443/g" /etc/apache2/sites-available/default-ssl.conf
+        sed -i "s/SSLEngine on/SSLEngine on\nSSLCertificateFile \/etc\/apache2\/ssl\/apache.crt\nSSLCertificateKeyFile \/etc\/apache2\/ssl\/apache.key/g" /etc/apache2/sites-available/default-ssl.conf
         a2ensite default-ssl.conf
         service apache2 reload
 
         chsh -s /bin/bash www-data
         chmod 777 /mnt
         chmod 777 /mnt/migrate
-        chmod 777 /mnt/backup
+        chmod 777 /mnt/backups
         chmod 777 /mnt/linux
         mkdir /var/www/.ssh
         chown www-data:www-data /var/www/.ssh
@@ -105,9 +106,12 @@ then
             su - www-data -c 'ssh-copy-id root@${xenservermigrate}'
         fi
 
-        cd /var/www/html/
+        cd /var/www/
         wget https://github.com/zipurman/oVIRT_Simple_Backup/archive/master.zip
         unzip master.zip
+        rm /var/www/html -R
+        mv /var/www/oVIRT_Simple_Backup-master /var/www/html
+        rm master.zip
         chown www-data:root /var/www -R
 
         echo "\$allowed_ips = array();"
@@ -179,6 +183,6 @@ then
 else
     echo "Script must be run as root"
 fi
-#TODO - backupengineip networking setup
+#TODO - backupengineip networking setup and hostname hosts etc
 #TODO - Xen Server installs
 #TODO - Xen Server VM installs
