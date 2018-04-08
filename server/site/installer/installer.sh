@@ -68,7 +68,7 @@ then
         echo "======================================"
         echo ""
         echo "Installing...."
-        apt-get install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml  -y
+        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml  -y
 
         echo "Updating SSH Settings"
         sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config
@@ -185,11 +185,12 @@ then
         echo '"tz" => "America/Regina",' >> /var/www/html/config.php
         echo ');' >> /var/www/html/config.php
 
+        touch /var/log/simplebackup.log
         chown www-data:www-data /var/log/simplebackup.log
         echo ""
 
         echo "Enter password for root on oVirtEngine"
-        ssh "root@${ovirtengine} -c 'engine-config -s CORSSupport=true' && engine-config -s CORSAllowedOrigins=*"
+        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'engine-config -s CORSSupport=true' && engine-config -s CORSAllowedOrigins=*'
 
         cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
@@ -204,7 +205,7 @@ then
         echo "Enter password for root on oVirtEngine"
         scp -r /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
         echo "Enter password for root on oVirtEngine"
-        ssh "root@${ovirtengine} -c 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && service ovirt-engine restart"
+        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && service ovirt-engine restart'
 
         echo ""
         echo ""
