@@ -147,6 +147,16 @@ then
 
         if [[ $xen == 'Y' ]]
         then
+            echo ""
+            echo ""
+            echo "****** XEN AREA OF INSTALLER IS NOT COMPLETED YET - JUST BACKUP/RESTORE FOR NOW ********"
+            echo ""
+            echo ""
+            $xen="N"
+        fi
+
+        if [[ $xen == 'Y' ]]
+        then
 
 
             su - www-data -c 'ssh-keygen -t rsa'
