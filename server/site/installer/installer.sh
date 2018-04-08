@@ -190,7 +190,7 @@ then
         echo ""
 
         echo "Enter password for root on oVirtEngine"
-        ssh -o StrictHostKeyChecking=no root@$ovirtengine 'engine-config -s CORSSupport=true' && engine-config -s CORSAllowedOrigins=*'
+        ssh -o StrictHostKeyChecking=no root@$ovirtengine 'engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*'
 
         cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
