@@ -46,16 +46,27 @@ then
     echo "oVirt Simple Backup (WebGUI) Installer"
     echo "======================================"
     echo ""
+    echo "FQDN for your oVirt ENGINE: ${ovirtenginefqdn}"
     echo ""
-    echo "Path of the NFS for /mnt/backups: ${backupip}"
+    echo "IP Address for your oVirt ENGINE: ${ovirtengine}"
+    echo ""
+    echo "Path of the NFS for /mnt/backups:"
+    echo "  ${backupip}"
+    echo ""
     echo "oVirtSimpleBackupVM FQDN: ${backupengine}"
+    echo ""
     echo "oVirtSimpleBackupVM IP: ${backupengineip}"
+    echo ""
     echo "Xen Server Migration Tools: ${xen}"
+    echo ""
     if [[ $xen == 'Y' ]]
     then
         echo "Path of the NFS for /mnt/migrate: ${migrateip}"
+        echo ""
         echo "IP Address of Xen Server: ${xenserver}"
+        echo ""
         echo "IP Address of Xen Server Migrate VM: ${xenservermigrate}"
+        echo ""
         echo "IP Address for your oVirt Engine: ${ovirtengine}"
     fi
     echo ""
@@ -196,7 +207,7 @@ then
         echo '"restore_cpu_threads" => "1",' >> /var/www/html/config.php
         echo '"tz" => "America/Regina",' >> /var/www/html/config.php
         echo ');' >> /var/www/html/config.php
-
+        chown www-data:www-data /var/www/html/config.php
         touch /var/log/simplebackup.log
         chown www-data:www-data /var/log/simplebackup.log
         echo ""
@@ -215,7 +226,7 @@ then
        echo ""
         echo "Enter password for root on oVirtEngine"
         echo ""
-        scp -r /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
+        scp -r -o StrictHostKeyChecking=no /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
 
         echo ""
         echo ""
@@ -245,6 +256,5 @@ then
 else
     echo "Script must be run as root"
 fi
-#TODO - backupengineip networking setup and hostname hosts etc
 #TODO - Xen Server installs
 #TODO - Xen Server VM installs

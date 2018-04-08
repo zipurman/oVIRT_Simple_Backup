@@ -6,7 +6,7 @@
  - [ ] Installer
  - [ ] Compression
  - [ ] Show allowed_ips warnings
- - [ ] Create VM Appliance?
+ - [ ] Create VM Appliance
  - [ ] Add a FAQ page
    
       

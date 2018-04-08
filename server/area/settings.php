@@ -172,42 +172,48 @@
 		);
 		sb_table_heading( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Timezone:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'tz',
-					'value' => $settings['tz'],
-					'list'  => $tzlist,
-				) ),
-			),
-			array(
-				"text" => "This text will be prepended to all backup files.",
-			),
-		);
-		sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Pre Label Backup Files:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'label',
-					'size'      => '10',
-					'maxlength' => '10',
-					'value'     => $settings['label'],
-				) ),
-			),
-			array(
-				"text" => "This text will be prepended to all backup files.",
-			),
-		);
-		sb_table_row( $rowdata );
+
+		if ( !empty( $settings['uuid_backup_engine'] ) ) {
+
+			$rowdata = array(
+				array(
+					"text" => "Timezone:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'tz',
+						'value' => $settings['tz'],
+						'list'  => $tzlist,
+					) ),
+				),
+				array(
+					"text" => "This text will be prepended to all backup files.",
+				),
+			);
+			sb_table_row( $rowdata );
+
+			$rowdata = array(
+				array(
+					"text" => "Pre Label Backup Files:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'label',
+						'size'      => '10',
+						'maxlength' => '10',
+						'value'     => $settings['label'],
+					) ),
+				),
+				array(
+					"text" => "This text will be prepended to all backup files.",
+				),
+			);
+			sb_table_row( $rowdata );
+
+		}
 
 		$rowdata = array(
 			array(
@@ -285,385 +291,394 @@
 		);
 		sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Path To Backups:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'mount_backups',
-					'size'      => '40',
-					'maxlength' => '40',
-					'value'     => $settings['mount_backups'],
-				) ),
-			),
-			array(
-				"text" => "Usually a NFS share mapped to a mount point.",
-			),
-		);
-		sb_table_row( $rowdata );
+		if ( !empty( $settings['uuid_backup_engine'] ) ) {
+			$rowdata = array(
+				array(
+					"text" => "Path To Backups:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'mount_backups',
+						'size'      => '40',
+						'maxlength' => '40',
+						'value'     => $settings['mount_backups'],
+					) ),
+				),
+				array(
+					"text" => "Usually a NFS share mapped to a mount point.",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$diskx   = sb_check_disks();
-		$rowdata = array(
-			array(
-				"text" => "Drive Type:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'hidden',
-					'name'      => 'drive_type',
-					'value'     => $diskx['disktype'],
-					'dataafter' => 'Auto detected as: ' . $diskx['disktype'],
-				) ),
-			),
-			array(
-				"text" => "Used to mount disks for imaging.",
-			),
-		);
-		sb_table_row( $rowdata );
+			$diskx   = sb_check_disks();
+			$rowdata = array(
+				array(
+					"text" => "Drive Type:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'hidden',
+						'name'      => 'drive_type',
+						'value'     => $diskx['disktype'],
+						'dataafter' => 'Auto detected as: ' . $diskx['disktype'],
+					) ),
+				),
+				array(
+					"text" => "Used to mount disks for imaging.",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Drive Interface:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'hidden',
-					'name'      => 'drive_interface',
-					'value'     => $diskx['driveinterface'],
-					'dataafter' => 'Auto detected as: ' . $diskx['driveinterface'],
-				) ),
-			),
-			array(
-				"text" => "Used to mount disks for imaging.",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Drive Interface:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'hidden',
+						'name'      => 'drive_interface',
+						'value'     => $diskx['driveinterface'],
+						'dataafter' => 'Auto detected as: ' . $diskx['driveinterface'],
+					) ),
+				),
+				array(
+					"text" => "Used to mount disks for imaging.",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Path To Backup Log:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'backup_log',
-					'size'      => '40',
-					'value'     => $settings['backup_log'],
-					'dataafter' => '',
-				) ),
-			),
-			array(
-				"text" => "Path to backup log.",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Path To Backup Log:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'backup_log',
+						'size'      => '40',
+						'value'     => $settings['backup_log'],
+						'dataafter' => '',
+					) ),
+				),
+				array(
+					"text" => "Path to backup log.",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Email:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'email',
-					'size'      => '40',
-					'value'     => $settings['email'],
-					'dataafter' => '',
-				) ),
-			),
-			array(
-				"text" => "Email for alerts.",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Email:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'email',
+						'size'      => '40',
+						'value'     => $settings['email'],
+						'dataafter' => '',
+					) ),
+				),
+				array(
+					"text" => "Email for alerts.",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Retention:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'retention',
-					'size'      => '3',
-					'maxlength' => '3',
-					'value'     => $settings['retention'],
-					'dataafter' => '',
-				) ),
-			),
-			array(
-				"text" => "Number of backups to keep for each VM. (Scheduled Backups Only)",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Retention:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'retention',
+						'size'      => '3',
+						'maxlength' => '3',
+						'value'     => $settings['retention'],
+						'dataafter' => '',
+					) ),
+				),
+				array(
+					"text" => "Number of backups to keep for each VM. (Scheduled Backups Only)",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		sb_table_end();
+			sb_table_end();
 
-		echo '<br/><h3>Xen Migration Settings</h3>';
-		sb_table_start();
+			echo '<br/><h3>Xen Migration Settings</h3>';
+			sb_table_start();
 
-		$rowdata = array(
-			array(
-				"text"  => "",
-				"width" => "20%",
-			),
-			array(
-				"text"  => "",
-				"width" => "30%",
-			),
-			array(
-				"text"  => "",
-				"width" => "50%",
-			),
-		);
-		sb_table_heading( $rowdata );
+			$rowdata = array(
+				array(
+					"text"  => "",
+					"width" => "20%",
+				),
+				array(
+					"text"  => "",
+					"width" => "30%",
+				),
+				array(
+					"text"  => "",
+					"width" => "50%",
+				),
+			);
+			sb_table_heading( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Path To Migrate Images:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'text',
-					'name'  => 'mount_migrate',
-					'size'  => '40',
-					'value' => $settings['mount_migrate'],
-				) ),
-			),
-			array(
-				"text" => "Usually a NFS share mapped to a mount point for RAW migration images from Xen etc.",
-			),
-		);
-		sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Xen Server IP:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'text',
-					'name'  => 'xen_ip',
-					'size'  => '40',
-					'value' => $settings['xen_ip'],
-				) ),
-			),
-			array(
-				"text" => "If this is set, you will have xen server migration options available.",
-			),
-		);
-		sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Xen Migration VM IP:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'text',
-					'name'  => 'xen_migrate_ip',
-					'size'  => '40',
-					'value' => $settings['xen_migrate_ip'],
-				) ),
-			),
-			array(
-				"text" => "The IP of the migration VM running in xen environment.",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Xen Server IP:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'text',
+						'name'  => 'xen_ip',
+						'size'  => '40',
+						'value' => $settings['xen_ip'],
+					) ),
+				),
+				array(
+					"text" => "If this is set, you will have xen server migration options available.",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Xen Migration VM UUID:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'text',
-					'name'  => 'xen_migrate_uuid',
-					'size'  => '40',
-					'value' => $settings['xen_migrate_uuid'],
-				) ),
-			),
-			array(
-				"text" => "The UUID of the migration VM running in xen environment.",
-			),
-		);
-		sb_table_row( $rowdata );
+			if ( !empty( $settings['xen_ip'] ) ) {
 
-		sb_table_end();
+				$rowdata = array(
+					array(
+						"text" => "Path To Migrate Images:",
+					),
+					array(
+						"text" => sb_input( array(
+							'type'  => 'text',
+							'name'  => 'mount_migrate',
+							'size'  => '40',
+							'value' => $settings['mount_migrate'],
+						) ),
+					),
+					array(
+						"text" => "Usually a NFS share mapped to a mount point for RAW migration images from Xen etc.",
+					),
+				);
+				sb_table_row( $rowdata );
 
-		echo '<br/><h3>Default Restore Options</h3>';
-		sb_table_start();
-		$rowdata = array(
-			array(
-				"text"  => "",
-				"width" => "20%",
-			),
-			array(
-				"text"  => "",
-				"width" => "30%",
-			),
-			array(
-				"text"  => "",
-				"width" => "50%",
-			),
-		);
-		sb_table_heading( $rowdata );
 
-		$oslist   = sb_oslist();
-		$consoles = sb_consolelist();
+				$rowdata = array(
+					array(
+						"text" => "Xen Migration VM IP:",
+					),
+					array(
+						"text" => sb_input( array(
+							'type'  => 'text',
+							'name'  => 'xen_migrate_ip',
+							'size'  => '40',
+							'value' => $settings['xen_migrate_ip'],
+						) ),
+					),
+					array(
+						"text" => "The IP of the migration VM running in xen environment.",
+					),
+				);
+				sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Console:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'restore_console',
-					'list'  => $consoles,
-					'value' => $settings['restore_console'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+				$rowdata = array(
+					array(
+						"text" => "Xen Migration VM UUID:",
+					),
+					array(
+						"text" => sb_input( array(
+							'type'  => 'text',
+							'name'  => 'xen_migrate_uuid',
+							'size'  => '40',
+							'value' => $settings['xen_migrate_uuid'],
+						) ),
+					),
+					array(
+						"text" => "The UUID of the migration VM running in xen environment.",
+					),
+				);
+				sb_table_row( $rowdata );
+			}
 
-		$rowdata = array(
-			array(
-				"text" => "OS:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'restore_os',
-					'list'  => $oslist,
-					'value' => $settings['restore_os'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			sb_table_end();
 
-		$clusters = sb_clusterlist();
-		$domains  = sb_domainlist();
-		$rowdata  = array(
-			array(
-				"text" => "Domain:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'storage_domain',
-					'list'  => $domains,
-					'value' => $settings['storage_domain'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			echo '<br/><h3>Default Restore Options</h3>';
+			sb_table_start();
+			$rowdata = array(
+				array(
+					"text"  => "",
+					"width" => "20%",
+				),
+				array(
+					"text"  => "",
+					"width" => "30%",
+				),
+				array(
+					"text"  => "",
+					"width" => "50%",
+				),
+			);
+			sb_table_heading( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "Cluster:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'cluster',
-					'list'  => $clusters,
-					'value' => $settings['cluster'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			$oslist   = sb_oslist();
+			$consoles = sb_consolelist();
 
-		$vmtypes = sb_vmtypelist();
-		$rowdata = array(
-			array(
-				"text" => "VM Type:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'  => 'select',
-					'name'  => 'restore_vm_type',
-					'list'  => $vmtypes,
-					'value' => $settings['restore_vm_type'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Console:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'restore_console',
+						'list'  => $consoles,
+						'value' => $settings['restore_console'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "CPU Sockets:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'restore_cpu_sockets',
-					'size'      => '3',
-					'maxlength' => '3',
-					'value'     => $settings['restore_cpu_sockets'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "OS:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'restore_os',
+						'list'  => $oslist,
+						'value' => $settings['restore_os'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "CPU Cores:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'restore_cpu_cores',
-					'size'      => '3',
-					'maxlength' => '3',
-					'value'     => $settings['restore_cpu_cores'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			$clusters = sb_clusterlist();
+			$domains  = sb_domainlist();
+			$rowdata  = array(
+				array(
+					"text" => "Domain:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'storage_domain',
+						'list'  => $domains,
+						'value' => $settings['storage_domain'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
 
-		$rowdata = array(
-			array(
-				"text" => "CPU Threads:",
-			),
-			array(
-				"text" => sb_input( array(
-					'type'      => 'text',
-					'name'      => 'restore_cpu_threads',
-					'size'      => '3',
-					'maxlength' => '3',
-					'value'     => $settings['restore_cpu_threads'],
-				) ),
-			),
-			array(
-				"text" => "",
-			),
-		);
-		sb_table_row( $rowdata );
+			$rowdata = array(
+				array(
+					"text" => "Cluster:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'cluster',
+						'list'  => $clusters,
+						'value' => $settings['cluster'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+
+			$vmtypes = sb_vmtypelist();
+			$rowdata = array(
+				array(
+					"text" => "VM Type:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'restore_vm_type',
+						'list'  => $vmtypes,
+						'value' => $settings['restore_vm_type'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+
+			$rowdata = array(
+				array(
+					"text" => "CPU Sockets:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'restore_cpu_sockets',
+						'size'      => '3',
+						'maxlength' => '3',
+						'value'     => $settings['restore_cpu_sockets'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+
+			$rowdata = array(
+				array(
+					"text" => "CPU Cores:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'restore_cpu_cores',
+						'size'      => '3',
+						'maxlength' => '3',
+						'value'     => $settings['restore_cpu_cores'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+
+			$rowdata = array(
+				array(
+					"text" => "CPU Threads:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'restore_cpu_threads',
+						'size'      => '3',
+						'maxlength' => '3',
+						'value'     => $settings['restore_cpu_threads'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+
+		}
 
 		sb_table_end();
 
