@@ -21,6 +21,8 @@ who=`whoami`
 if [[ $who == 'root' ]]
 then
 
+    read -e -p "What is the FQDN for your oVirt ENGINE? [engine.mydomain.com]: " ovirtenginefqdn
+    echo ""
     read -e -p "What is the IP Address for your oVirt ENGINE? [x.x.x.x]: " ovirtengine
     echo ""
     read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
@@ -222,6 +224,7 @@ then
         ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
 
 
+        echo "${ovirtengine} ${ovirtenginefqdn}" >> /etc/hosts
         echo "${backupengineip} ${backupengine}" >> /etc/hosts
         echo "${backupengine}" > /etc/hostname
         echo "${backupengine}" > /etc/mailname
