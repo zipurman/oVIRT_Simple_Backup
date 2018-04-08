@@ -11,7 +11,7 @@
 #   - apt-get update
 
 #Run as root using:
-# curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/site/installer/install.sh | bash
+# curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/installer/install.sh | bash
 
 #Config Options
 SERVERROOT="/var/www/html/"
@@ -25,7 +25,7 @@ rm /opt/oVirtSimpleInstaller -Rf
 mkdir /opt/oVirtSimpleInstaller -p
 cd /opt/oVirtSimpleInstaller
 
-wget https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/site/installer/installer.sh
+wget https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/installer/installer.sh
 
 chmod 700 /opt/oVirtSimpleInstaller/installer.sh
 

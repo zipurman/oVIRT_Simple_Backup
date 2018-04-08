@@ -10,7 +10,7 @@
  
  - [x] as root run the following command
  ```bash
-curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/site/installer/install.sh | bash
+curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/installer/install.sh | bash
 ```
 
  - [x] Follow the onscreen instructions
@@ -22,5 +22,7 @@ curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/serve
  - [x] Then set the DOMAIN and CLUSTER and save again
  
  - [x] Then enter any additional info and save one more time
+ 
+ - [x] You will also need to delete any snapshots you created on youur BackupEngineVM during install
  
  - [x] You should now be able to test your new install and do a backup

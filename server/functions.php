@@ -226,46 +226,50 @@
 
 		GLOBAL $settings, $salt, $pepper, $mykey;
 
-		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, "https://{$settings['ovirt_url']}/ovirt-engine/api/{$path}" );
-		if ( $type == 'POST' ) {
-			curl_setopt( $ch, CURLOPT_POST, 1 );
-		} else if ( $type == 'DELETE' ) {
-			curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "DELETE" );
-		} else if ( $type == 'PUT' ) {
-			curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
-		}
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0 );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
-		$ovirt_pass = sb_decrypt3( $settings['ovirt_pass'], $salt, $pepper, $mykey );
-		curl_setopt( $ch, CURLOPT_USERPWD, "{$settings['ovirt_user']}:{$ovirt_pass}" );
-		if ( ! empty( $data ) ) {
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
-		}
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		if ( $allcontent ) {
-			$headers = [
-				'All-Content: true',
-				'Accept: application/xml',
-				'Content-Type: application/xml',
-			];
+		if ( ! empty( $settings['uuid_backup_engine'] ) ) {
+			$ch = curl_init();
+			curl_setopt( $ch, CURLOPT_URL, "https://{$settings['ovirt_url']}/ovirt-engine/api/{$path}" );
+			if ( $type == 'POST' ) {
+				curl_setopt( $ch, CURLOPT_POST, 1 );
+			} else if ( $type == 'DELETE' ) {
+				curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "DELETE" );
+			} else if ( $type == 'PUT' ) {
+				curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
+			}
+			curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0 );
+			curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+			$ovirt_pass = sb_decrypt3( $settings['ovirt_pass'], $salt, $pepper, $mykey );
+			curl_setopt( $ch, CURLOPT_USERPWD, "{$settings['ovirt_user']}:{$ovirt_pass}" );
+			if ( ! empty( $data ) ) {
+				curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+			}
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+			if ( $allcontent ) {
+				$headers = [
+					'All-Content: true',
+					'Accept: application/xml',
+					'Content-Type: application/xml',
+				];
+			} else {
+				$headers = [
+					'Accept: application/xml',
+					'Content-Type: application/xml',
+				];
+			}
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+			$server_output = curl_exec( $ch );
+			curl_close( $ch );
+
+			try {
+				$server_output = new SimpleXMLElement( $server_output );
+			} catch ( Exception $e ) {
+				$server_output = array();
+			}
+
+			return $server_output;
 		} else {
-			$headers = [
-				'Accept: application/xml',
-				'Content-Type: application/xml',
-			];
-		}
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-		$server_output = curl_exec( $ch );
-		curl_close( $ch );
-
-		try {
-			$server_output = new SimpleXMLElement( $server_output );
-		} catch ( Exception $e ) {
-			$server_output = array();
-		}
-
-		return $server_output;
+			return array();
+        }
 	}
 
 	function sb_pagetitle( $title ) {

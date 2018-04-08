@@ -179,7 +179,7 @@ then
         rm /var/www/oVIRT_Simple_Backup-master/ -R
         chown www-data:root /var/www -R
 
-        echo "\$allowed_ips = array();"
+        echo "\$allowed_ips = array(); //REMOVE THIS LINE IF USING ARRAY ABOVE!!"  >> /var/www/html/allowed_ips.php
 
         echo "Updating Cron Jobs"
         echo "* * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1" >> /etc/crontab
@@ -254,7 +254,7 @@ then
         clear
         echo ""
         echo ""
-        echo "You should now be able to login to your oVirt WebbUI and see the Simple Backup tab in the menu."
+        echo "You should now be able to login to your oVirt WebUI and see the Simple Backup tab in the menu."
         echo ""
         echo "      - Navigate to oVirtWebUI: https://${ovirtengine}"
         echo "      - Navigate Directly to oVirtBackupEngineVM: https://${backupengine}"
