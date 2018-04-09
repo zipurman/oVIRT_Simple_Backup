@@ -1,14 +1,6 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.15)
+# oVIRT_Simple_Backup - WebGUI (0.6.16)
 
 ### A REST API backup from PHP for oVirt 4.2.x
-
-#### Working on new features:
- - [ ] Installer
- - [ ] Compression
- - [ ] Show allowed_ips warnings
- - [ ] Create VM Appliance
- - [ ] Add a FAQ page
-   
       
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
 
@@ -29,9 +21,20 @@
 
 ---
 
-#### Install
+#### Install Script
+
+[Debian Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
+
+
+#### Manual Install
 
 [Debian Install Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/install_debian.md)
+
+
+#### Frequently Asked Questions
+
+[FAQ](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/FAQ.md)
+
 
 ---
  

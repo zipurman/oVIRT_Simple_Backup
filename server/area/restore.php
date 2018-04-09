@@ -140,6 +140,15 @@
 				$xmlfile   = $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname . '/data.xml';
 				$imagefile = $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname . '/Disk1.img';
 
+				$compressionname = '';
+				$compressiontext = '';
+
+				if (file_exists( $imagefile . '.gz')){
+					$imagefile .= '.gz';
+					$compressionname .= '.gz';
+					$compressiontext = ' (compressed)';
+                }
+
 				if ( file_exists( $xmlfile ) && file_exists( $imagefile ) ) {
 					$xmldata = file_get_contents( $xmlfile );
 					$xml     = simplexml_load_string( $xmldata );
@@ -147,14 +156,14 @@
 					$diskslisttext = '';
 					$disksleft     = 1;
 					for ( $i = 1; $disksleft == 1; $i ++ ) {
-						$imagefile = $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname . '/Disk' . $i . '.img';
+						$imagefile = $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname . '/Disk' . $i . '.img' . $compressionname;
 
 						if ( file_exists( $imagefile ) ) {
 
 							$diskdata = sb_disk_array_fetch( $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname, '/Disk' . $i . '.dat' );
 
 							$diskslisttext .= ( empty( $diskslisttext ) ) ? '' : ', ';
-							$diskslisttext .= 'Disk' . $i . ' (' . ( filesize( $imagefile ) / 1024 / 1024 / 1024 ) . 'GB)';
+							$diskslisttext .= 'Disk' . $i . ' (' . round(( filesize( $imagefile ) / 1024 / 1024 / 1024 ),2) . 'GB)' . $compressiontext;
 
 							foreach ( $diskdata as $diskdatum ) {
 								if ( $diskdatum['bootable'] == 'true' ) {

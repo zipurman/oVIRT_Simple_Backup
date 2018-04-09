@@ -1,6 +1,6 @@
 <?php
 
-	$sb_version = '0.6.15';
+	$sb_version = '0.6.16';
 	$mediaverstion = '.101';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
@@ -82,7 +82,7 @@
 
 	}
 	if ( empty( $allowsite ) ) {
-		die( 'Access Denied ' . $_SERVER['REMOTE_ADDR'] );
+		die( 'Access Denied ' . $_SERVER['REMOTE_ADDR'] .  ' Check your allowed_ips for oVirt Simple Backup.' );
 	}
 
 	if ( $disconnectdisks == 1 ) {

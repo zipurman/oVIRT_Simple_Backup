@@ -87,7 +87,16 @@
 								$disknumberfile = 'xen' . str_replace( 'Disk', '', $disknumberfile);
 							}
 
-							$command = '(pv -n ' . $filepath . $disknumberfile . '.img | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $filepath . 'progress.dat' . ' 2>&1 &';//trailing & sends to background
+							if ( file_exists( $filepath . $disknumberfile . '.img.gz') ) {
+
+								$command = '(pv -n ' . $filepath . $disknumberfile . '.img.gz | gunzip -c | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $filepath . 'progress.dat' . ' 2>&1 &';//trailing & sends to background
+
+
+							} else {
+
+								$command = '(pv -n ' . $filepath . $disknumberfile . '.img | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $filepath . 'progress.dat' . ' 2>&1 &';//trailing & sends to background
+
+							}
 							exec( $command, $output );
 
 							sb_log('Restore - Imaging - /dev/' . $dev);

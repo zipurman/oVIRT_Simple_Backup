@@ -15,28 +15,46 @@ echo ""
 
 who=`whoami`
 
-#todo - ask all questions and then show a preview/confirm
-#todo - ask for root password for ovirt engine and then pass to ssh and scp?
-
 if [[ $who == 'root' ]]
 then
 
+    echo "OVIRT ENGINE INFORMATION"
+    echo ""
     read -e -p "What is the FQDN for your oVirt ENGINE? [engine.mydomain.com]: " ovirtenginefqdn
     echo ""
     read -e -p "What is the IP Address for your oVirt ENGINE? [x.x.x.x]: " ovirtengine
     echo ""
+    read -e -p "What is the ROOT password for your oVirt ENGINE?: " ovirtenginepass
+    echo ""
+    echo ""
+    echo "NFS INFORMATION FOR BACKUPS"
+    echo ""
     read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
+    echo ""
+    echo ""
+    echo "THIS BACKUP VM INFORMATION"
     echo ""
     read -e -p "What is the FQDN for your oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengine
     echo ""
     read -e -p "What is the IP Address for your oVirtSimpleBackupVM (${backupengine})? [x.x.x.x]: " backupengineip
     echo ""
-    read -e -p "Are you wanting to migrate from Xen Server? [y/N]: " -i "N" xen
+    echo ""
+    echo "XEN SERVER INFORMATION"
+    echo ""
+    read -e -p "Are you wanting this script to setup migrate from Xen Server? You will need to have your ROOT password for a Xen Server Host as well as the ROOT password for a Xen VM running a FRESH Install of Debian with SSH enabled for root that will act as your VMMIGRATE [y/N]: " -i "N" xen
     if [[ $xen == 'Y' ]]
     then
+        echo ""
         read -e -p "Path of the NFS for /mnt/migrate [x.x.x.x:/path/to/share]: " migrateip
+        echo ""
         read -e -p "IP Address of Xen Server? [x.x.x.x]: " xenserver
+        echo ""
+        read -e -p "ROOT password for your XEN Server Host?: " xenserverpass
+        echo ""
         read -e -p "IP Address of Xen Server Migrate VM? [x.x.x.x]: " xenservermigrate
+        echo ""
+        read -e -p "ROOT password for your Xen Server Migrate VM?: " xenservermigratepass
+
     fi
 
     clear
@@ -86,7 +104,7 @@ then
         echo "======================================"
         echo ""
         echo "Installing...."
-        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml  -y
+        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass  -y
 
         echo "Updating SSH Settings"
         sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config
@@ -184,6 +202,7 @@ then
         echo "Updating Cron Jobs"
         echo "* * * * * root /var/www/html/crons/fixgrub.sh >>/var/log/fixgrub.log 2>&1" >> /etc/crontab
         echo "* * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1" >> /etc/crontab
+        echo "*/5 * * * * www-data php /var/www/html/automatedbackup.php >/dev/null 2>&1" >> /etc/crontab
 
         chmod 700 /var/www/html/crons/fixgrub.sh
         chmod 700 /var/www/html/crons/fixswap.sh
@@ -224,25 +243,23 @@ then
 
         cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"name": "simpleBackup",' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"url": "/ovirt-engine/webadmin/plugin/simpleBackup/start.html",' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"config": {' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"mainBackupPage": "//${backupengineip}/index.php"' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '},' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"resourcePath": "simpleBackup"' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '}' > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-
-       echo ""
-       echo ""
-        echo "Enter password for root on oVirtEngine"
-        echo ""
-        scp -r -o StrictHostKeyChecking=no /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
+        echo '"name": "simpleBackup",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"url": "/ovirt-engine/webadmin/plugin/simpleBackup/start.html",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"config": {' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"mainBackupPage": "//${backupengineip}/index.php"' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '},' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"resourcePath": "simpleBackup"' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '}' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
 
         echo ""
+        echo "*** Setting Up Plugin for oVirt Web UI ***"
         echo ""
-        echo "Enter password AGAIN for root on oVirtEngine"
+
+        echo "Updating oVirtEngine"
         echo ""
-        ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
+        sshpass -p $ovirtenginepass scp -r -o StrictHostKeyChecking=no /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
+
+        sshpass -p $ovirtenginepass ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
 
 
         echo "${ovirtengine} ${ovirtenginefqdn}" >> /etc/hosts
@@ -250,6 +267,20 @@ then
         echo "${backupengine}" > /etc/hostname
         echo "${backupengine}" > /etc/mailname
 
+
+        if [[ $xen == 'Y' ]]
+        then
+
+            echo "Updating Xen Server Host"
+            echo ""
+            sshpass -p xenserverpass ssh -o StrictHostKeyChecking=no root@${xenserver} 'mkdir /root/.ssh && chmod 700 /root/.ssh && echo "UseDNS no" >>  /etc/ssh/sshd_config && service sshd restart'
+
+            echo ""
+            echo "Updating Xen VMMIGRATE"
+            echo ""
+            sshpass -p xenservermigratepass ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget fsarchiver chroot -y && mkdir /root/.ssh && chmod 700 /root/.ssh && mkdir /mnt/migrate && echo "${migrateip} /mnt/migrate nfs rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
+
+        fi
 
         clear
         echo ""
@@ -259,6 +290,8 @@ then
         echo "      - Navigate to oVirtWebUI: https://${ovirtengine}"
         echo "      - Navigate Directly to oVirtBackupEngineVM: https://${backupengine}"
         echo ""
+        echo "      - You may also want to edit /var/www/html/allowed_ips.php to suit your needs."
+        echo ""
 
     else
         echo "Cancelled."
@@ -266,5 +299,3 @@ then
 else
     echo "Script must be run as root"
 fi
-#TODO - Xen Server installs
-#TODO - Xen Server VM installs

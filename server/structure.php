@@ -38,6 +38,4 @@
 	 *
 	 *
 	 *
-	 * dd if=/dev/hda conv=sync,noerror bs=64K | gzip -c  > /mnt/sda1/hda.img.gz
-		http://www.linuxweblog.com/dd-image
 	 */

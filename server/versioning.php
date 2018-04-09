@@ -50,6 +50,11 @@
 					//remove old backup file
 					unlink( $projectpath . '.automated_backups_vmlist' );
 
+				} else if ( $old_patch < 16 && $new_patch >= 16 ) {
+
+					echo '<br/>Patching compression options added';
+					sb_setting_update('compress', 0);
+
 				}
 			}
 		}

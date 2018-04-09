@@ -1,8 +1,7 @@
 <?php
 
-	$configcheck = varcheck( "configcheck", 0, "FILTER_VALIDATE_INT", 0 );
+	$configcheck        = varcheck( "configcheck", 0, "FILTER_VALIDATE_INT", 0 );
 	$automatedinprocess = ( file_exists( $vmbackupinprocessfile ) ) ? 1 : 0;
-
 
 	if ( ! empty( $automatedinprocess ) ) {
 		echo 'Automated Backup In Process<br/><br/>';
@@ -66,6 +65,7 @@
 			$restore_cpu_sockets = varcheck( "restore_cpu_sockets", 0, "FILTER_VALIDATE_INT", 0 );
 			$restore_cpu_cores   = varcheck( "restore_cpu_cores", 0, "FILTER_VALIDATE_INT", 0 );
 			$restore_cpu_threads = varcheck( "restore_cpu_threads", 0, "FILTER_VALIDATE_INT", 0 );
+			$compress            = varcheck( "compress", 0, "FILTER_VALIDATE_INT", 0 );
 
 			$drive_interface = ( $drive_interface == 0 ) ? 'virtio' : 'virtio_scsi';
 			$drive_type      = ( $drive_type == 0 ) ? 'vd' : 'sd';
@@ -87,7 +87,7 @@
 			fwrite( $configfile, '"vms_to_backup" => array(' );
 
 			foreach ( $settings['vms_to_backup'] as $vmz ) {
-				fwrite( $configfile, '"' . $vmz  . '", ' );
+				fwrite( $configfile, '"' . $vmz . '", ' );
 			}
 			fwrite( $configfile, '),' . "\n" );
 			fwrite( $configfile, '"label" => "' . $label . '",' . "\n" );
@@ -120,6 +120,7 @@
 			fwrite( $configfile, '"restore_cpu_cores" => "' . $restore_cpu_cores . '",' . "\n" );
 			fwrite( $configfile, '"restore_cpu_threads" => "' . $restore_cpu_threads . '",' . "\n" );
 			fwrite( $configfile, '"tz" => "' . $tz . '",' . "\n" );
+			fwrite( $configfile, '"compress" => "' . $compress . '",' . "\n" );
 			fwrite( $configfile, ');' . "\n" );
 			fclose( $configfile );
 
@@ -149,6 +150,7 @@
 				"restore_cpu_cores"   => $restore_cpu_cores,
 				"restore_cpu_threads" => $restore_cpu_threads,
 				"tz"                  => $tz,
+				"compress"     => $compress,
 			);
 
 		}
@@ -172,9 +174,22 @@
 		);
 		sb_table_heading( $rowdata );
 
+		if ( empty( $allowed_ips ) ) {
+			$rowdata = array(
+				array(
+					"text" => "Warning(s):",
+				),
+				array(
+					"text" => '<span style="font-weight: bold; color: red;">/var/www/html/allowed_ips.php is set to allow any connection to this script. It is recommended that you edit that file and adjust accordingly.</span>',
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+		}
 
-
-		if ( !empty( $settings['uuid_backup_engine'] ) ) {
+		if ( ! empty( $settings['uuid_backup_engine'] ) ) {
 
 			$rowdata = array(
 				array(
@@ -291,7 +306,7 @@
 		);
 		sb_table_row( $rowdata );
 
-		if ( !empty( $settings['uuid_backup_engine'] ) ) {
+		if ( ! empty( $settings['uuid_backup_engine'] ) ) {
 			$rowdata = array(
 				array(
 					"text" => "Path To Backups:",
@@ -406,6 +421,28 @@
 			);
 			sb_table_row( $rowdata );
 
+			$rowdata = array(
+				array(
+					"text" => "Backup Compression:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'  => 'select',
+						'name'  => 'compress',
+						'list'  => array(
+							array('id'=>'0', 'name'=>'None',),
+							array('id'=>'1', 'name'=>'gzip',),
+						),
+						'value' => $settings['compress'],
+					) ),
+				),
+				array(
+					"text" => "",
+				),
+			);
+			sb_table_row( $rowdata );
+
+
 			sb_table_end();
 
 			echo '<br/><h3>Xen Migration Settings</h3>';
@@ -427,8 +464,6 @@
 			);
 			sb_table_heading( $rowdata );
 
-
-
 			$rowdata = array(
 				array(
 					"text" => "Xen Server IP:",
@@ -447,7 +482,7 @@
 			);
 			sb_table_row( $rowdata );
 
-			if ( !empty( $settings['xen_ip'] ) ) {
+			if ( ! empty( $settings['xen_ip'] ) ) {
 
 				$rowdata = array(
 					array(
@@ -466,7 +501,6 @@
 					),
 				);
 				sb_table_row( $rowdata );
-
 
 				$rowdata = array(
 					array(
