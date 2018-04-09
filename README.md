@@ -11,6 +11,7 @@
  - [x] oVirt Engine Web UI Plugin
  - [x] Multiple Backup Schedules Manager
  - [x] Settings Manager
+ - [x] Disk Image Compression
  - [x] Updates Manager for oVIRT_Simple_Backup
  - [x] Backup a single VM
  - [x] Restore a single VM
