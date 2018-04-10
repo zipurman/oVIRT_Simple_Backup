@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.17 - 2018/04/10
+      - [x] Minor tweaks
+  
   - 0.6.16 - 2018/04/06
       - [x] Add a scripted installer for Debian 9
       - [x] Compression on backup images added as an option
