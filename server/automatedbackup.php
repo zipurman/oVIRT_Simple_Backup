@@ -30,7 +30,7 @@
 			//check to see if startdate is in the past
 			$started = dateDifference( $filedata['startdatetime'], $thetimefull, 'minutes' );
 
-			if ( $started > 0 ) {
+			if ( $started >= 0 ) {
 				//startdate is in the past TODO fix early morning issue if small decimal
 
 				$ended = dateDifference( $filedata['enddatetime'], $thetimefull, 'minutes' );
