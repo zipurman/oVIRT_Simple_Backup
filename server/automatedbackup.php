@@ -21,41 +21,44 @@
 	$files = null;
 	exec( 'ls ' . $projectpath . '.automated_backups_schedule_*', $files );
 	$matchingschedule = 0;
-	foreach ( $files as $file ) {
 
-		if ( strpos( $file, '.swp' ) == false ) {
+	if ( ! file_exists( $vmbackupinprocessfile ) ) {
+		foreach ( $files as $file ) {
 
-			$filedata = sb_schedule_fetch( $file );
+			if ( strpos( $file, '.swp' ) == false ) {
 
-			//check to see if startdate is in the past
-			$started = dateDifference( $filedata['startdatetime'], $thetimefull, 'minutes' );
+				$filedata = sb_schedule_fetch( $file );
 
-			if ( $started >= 0 ) {
+				//check to see if startdate is in the past
+				$started = dateDifference( $filedata['startdatetime'], $thetimefull, 'minutes' );
 
-				$ended = dateDifference( $filedata['enddatetime'], $thetimefull, 'minutes' );
+				if ( $started >= 0 ) {
 
-				if ( $ended < 1 ) {
-					//enddate is in the future or today
-					$thedateonlyodbc = strftime( "%Y-%m-%d" );
+					$ended = dateDifference( $filedata['enddatetime'], $thetimefull, 'minutes' );
 
-					$startbracket = dateDifference( $thedateonlyodbc . ' ' . $filedata['starttime'] . ':00', $thetimefull, 'minutes' );
+					if ( $ended < 1 ) {
+						//enddate is in the future or today
+						$thedateonlyodbc = strftime( "%Y-%m-%d" );
 
-					if ( $startbracket < 6 && $startbracket > -1 ) {
-						//scheduled within 5 minutes
+						$startbracket = dateDifference( $thedateonlyodbc . ' ' . $filedata['starttime'] . ':00', $thetimefull, 'minutes' );
 
-						$dow                = date( "w" );
-						$dom                = date( "j" );
-						$lastdayofthismonth = date( "t" );
+						if ( $startbracket < 6 && $startbracket > - 1 ) {
+							//scheduled within 5 minutes
 
-						if ( empty( $filedata['days'] ) || strpos( " {$filedata['days']}", $dow ) !== false ) {
-							//day matches
-							if ( empty( $filedata['dom'] ) || $dom == $filedata['dom'] || $filedata['dom'] == 32 && $dom == $lastdayofthismonth ) {
+							$dow                = date( "w" );
+							$dom                = date( "j" );
+							$lastdayofthismonth = date( "t" );
 
-								//match the nth day
-								if ( empty( $filedata['numday'] ) || ceil( $dom / 7 ) >= $filedata['numday'] ) {
-									$matchingschedule = 1;
-									$configdata = $filedata['vmstobackup'];
+							if ( empty( $filedata['days'] ) || strpos( " {$filedata['days']}", $dow ) !== false ) {
+								//day matches
+								if ( empty( $filedata['dom'] ) || $dom == $filedata['dom'] || $filedata['dom'] == 32 && $dom == $lastdayofthismonth ) {
 
+									//match the nth day
+									if ( empty( $filedata['numday'] ) || ceil( $dom / 7 ) >= $filedata['numday'] ) {
+										$matchingschedule = 1;
+										$configdata       = $filedata['vmstobackup'];
+
+									}
 								}
 							}
 						}
