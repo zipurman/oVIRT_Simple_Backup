@@ -31,7 +31,6 @@
 			$started = dateDifference( $filedata['startdatetime'], $thetimefull, 'minutes' );
 
 			if ( $started >= 0 ) {
-				//startdate is in the past TODO fix early morning issue if small decimal
 
 				$ended = dateDifference( $filedata['enddatetime'], $thetimefull, 'minutes' );
 
@@ -41,7 +40,7 @@
 
 					$startbracket = dateDifference( $thedateonlyodbc . ' ' . $filedata['starttime'] . ':00', $thetimefull, 'minutes' );
 
-					if ( $startbracket < 6 && $startbracket > 0 ) {
+					if ( $startbracket < 6 && $startbracket > -1 ) {
 						//scheduled within 5 minutes
 
 						$dow                = date( "w" );
