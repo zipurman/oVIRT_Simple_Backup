@@ -79,12 +79,12 @@
 				exec( 'touch ' . $vmbackupinprocessfile );
 			}
 
-			$backuplist    = file_get_contents( $vmbackupinprocessfile );
+			$backuplistx    = file_get_contents( $vmbackupinprocessfile );
 			$backuplisttmp = explode( "\n", $backuplist );
 			$backuplist    = array();
 			$backuplist2   = array();
 
-			if ( empty( $backuplist[0] ) ) {
+			if ( empty( $backuplistx[0] ) ) {
 				//Create Backup UUIDs File for Backup Routines
 
 				if ( empty( $configdata ) ) {
