@@ -272,7 +272,7 @@
 					sb_email_log( '<b>VM Size:</b> ' . round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) . ' GB<br/>' );
 
 					$compressedfiles = null;
-					exec( 'ls ' . $backuppath . '/*.img.gz', $compressedfiles );
+					exec( 'ls ' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/*.img.gz', $compressedfiles );
 					$compressedsize = 0;
 					foreach ( $compressedfiles as $compressedfile ) {
 						$compressedsize += round(filesize( $compressedfile ) / 1024 / 1024 / 1024, 2) ;
