@@ -162,8 +162,18 @@
 
 							$diskdata = sb_disk_array_fetch( $settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $buname, '/Disk' . $i . '.dat' );
 
+							foreach ( $diskdata as $diskdatum ) {
+								$vmsize = round( ( $diskdatum['size'] / 1024 / 1024 / 1024 ), 2 );
+							}
+
+							if (!empty($compressiontext)){
+							    $compressedsize = round(filesize( $imagefile ) / 1024 / 1024 / 1024, 2) ;
+								$comprate = 100 - round( (($compressedsize / $vmsize) * 100),2);
+								$compressiontext = '(' . $comprate . '% compressed = ' . $compressedsize . 'GB)';
+                            }
+
 							$diskslisttext .= ( empty( $diskslisttext ) ) ? '' : ', ';
-							$diskslisttext .= 'Disk' . $i . ' (' . round(( filesize( $imagefile ) / 1024 / 1024 / 1024 ),2) . 'GB)' . $compressiontext;
+							$diskslisttext .= 'Disk' . $i . ' (' . $vmsize . 'GB)' . $compressiontext;
 
 							foreach ( $diskdata as $diskdatum ) {
 								if ( $diskdatum['bootable'] == 'true' ) {

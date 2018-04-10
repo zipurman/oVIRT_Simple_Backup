@@ -1177,8 +1177,8 @@
 		GLOBAL $vmbackupemaillog;
 
 		$logtext = str_replace( '"', '', $logtext );
-		$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
-		exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $vmbackupemaillog );
+//		$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
+		exec( 'echo "' . $logtext . '" >> ' . $vmbackupemaillog );
 	}
 
 	// This encryption is simply to make password non-clear text.

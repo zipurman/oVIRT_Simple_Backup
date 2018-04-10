@@ -147,7 +147,9 @@
 
 				exec( 'rm ' . $vmbackupemaillog . ' -f' );
 
-				sb_email_log( '<b>Automated Backup Starting ....</b><br/><br/>' );
+				$nowdatetime = strftime("%m/%d/%Y %H:%M:%S");
+
+				sb_email_log( '<b>Automated Backup Starting' . '</b><br/><br/>' );
 				$itemnum = 0;
 
 				foreach ( $backuplist as $item ) {
@@ -155,7 +157,9 @@
 					$vmstarttime = new DateTime();
 
 					sb_log( 'Backing up VM UUID: ' . $item );
+					$nowdatetime = strftime("%m/%d/%Y %H:%M:%S");
 
+					sb_email_log( '<b>Date/Time:</b> ' . $nowdatetime . '<br/>' );
 					sb_email_log( '<b>Backing up VM:</b> ' . $backuplist2[ $itemnum ] . '<br/>' );
 					sb_email_log( '<b>UUID:</b> ' . $item . '<br/>' );
 
@@ -263,6 +267,19 @@
 					}
 
 					sb_email_log( '<b>VM Size:</b> ' . round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) . ' GB<br/>' );
+
+					$compressedfiles = null;
+					exec( 'ls ' . $backuppath . '/*.img.gz', $compressedfiles );
+					$compressedsize = 0;
+					foreach ( $filestodelete as $filetodelete ) {
+						$compressedsize += round(filesize( $filetodelete ) / 1024 / 1024 / 1024, 2) ;
+					}
+
+					if (!empty($compressedsize)) {
+						$comprate        = 100 - round( ( ( $compressedsize / round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) ) * 100 ), 2 );
+						sb_email_log( '<b>Compressed Size:</b> ' . '(' . $comprate . '% @ ' . $compressedsize . 'GB)' . '<br/>' );
+					}
+
 					sb_email_log( '<b>Transfer Speed:</b> ' . round( ( $totaldisksizeofvm / 1024 / 1024 ) / $durationinsecondsimage, 2 ) . ' MB/s<br/>' );
 					sb_email_log( '<b>Backup Time:</b> ' . $duration . '.<br/><br/><hr/><br/>' );
 					$itemnum ++;
