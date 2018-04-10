@@ -165,6 +165,10 @@
 
 		$returndata = '';
 
+		if (empty($inputdata['id'])){
+			$inputdata['id'] = $inputdata['name'];
+		}
+
 		if ( $inputdata['type'] == 'text' ) {
 			if ( empty( $inputdata['maxlength'] ) ) {
 				$inputdata['maxlength'] = $inputdata['size'];
@@ -1168,7 +1172,7 @@
 			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
 
 			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $settings['backup_log'] );
-			sleep( 0.1 );
+			sleep( 0.2 );
 		}
 	}
 

@@ -21,6 +21,7 @@
 	$files = null;
 	exec( 'ls ' . $projectpath . '.automated_backups_schedule_*', $files );
 	$matchingschedule = 0;
+	$schedulename = '';
 
 	if ( ! file_exists( $vmbackupinprocessfile ) ) {
 		foreach ( $files as $file ) {
@@ -57,6 +58,8 @@
 									if ( empty( $filedata['numday'] ) || ceil( $dom / 7 ) >= $filedata['numday'] ) {
 										$matchingschedule = 1;
 										$configdata       = $filedata['vmstobackup'];
+
+										$schedulename = $filedata['schedulename'];
 
 									}
 								}
@@ -97,7 +100,6 @@
 					$vms = ovirt_rest_api_call( 'GET', 'vms' );
 
 					if ( ! empty( $vms ) ) {
-						echo '<ul>';
 						//prep VMs To Backup
 						foreach ( $vms AS $vm ) {
 
@@ -105,7 +107,7 @@
 
 								if ( strpos( $configdata, '[' . $vm->name . ']' ) !== false ) {
 
-									echo '<li>' . $vm->name . ' (UUID=' . $vm['id'] . ')</li>';
+									echo $vm->name . ' (UUID=' . $vm['id'] . ')';
 
 									exec( 'echo ' . $vm['id'] . ' >> ' . $vmbackupinprocessfile );
 
@@ -115,7 +117,6 @@
 								}
 							}
 						}
-						echo '</ul>';
 
 						$backupoktorun = 1;
 					} else {
@@ -140,18 +141,18 @@
 			} else {
 
 				sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
-				sb_log( 'Automated Backup Starting ....' );
+				sb_log( 'Automated Backup - ' . $schedulename . ' -  Starting ....' );
 				sb_log( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );
 
 				$overallstarttime = new DateTime();
 
-				sb_email( 'oVirt SimpleBackup Starting', 'Backup Starting ... A log will be emailed upon completion.' );
+				sb_email( 'oVirt SimpleBackup - ' . $schedulename . ' - Starting', 'Backup Starting ... A log will be emailed upon completion.' );
 
 				exec( 'rm ' . $vmbackupemaillog . ' -f' );
 
 				$nowdatetime = strftime("%m/%d/%Y %H:%M:%S");
 
-				sb_email_log( '<b>Automated Backup Starting' . '</b><br/><br/>' );
+				sb_email_log( '<b>Automated Backup - ' . $schedulename . ' - Starting' . '</b><br/><br/>' );
 				$itemnum = 0;
 
 				foreach ( $backuplist as $item ) {
@@ -273,8 +274,8 @@
 					$compressedfiles = null;
 					exec( 'ls ' . $backuppath . '/*.img.gz', $compressedfiles );
 					$compressedsize = 0;
-					foreach ( $filestodelete as $filetodelete ) {
-						$compressedsize += round(filesize( $filetodelete ) / 1024 / 1024 / 1024, 2) ;
+					foreach ( $compressedfiles as $compressedfile ) {
+						$compressedsize += round(filesize( $compressedfile ) / 1024 / 1024 / 1024, 2) ;
 					}
 
 					if (!empty($compressedsize)) {
