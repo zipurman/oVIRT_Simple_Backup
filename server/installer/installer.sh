@@ -257,9 +257,12 @@ then
 
         echo "Updating oVirtEngine"
         echo ""
-        sshpass -p $ovirtenginepass scp -r -o StrictHostKeyChecking=no /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
 
-        sshpass -p $ovirtenginepass ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
+
+
+        SSHPASS="${ovirtenginepass}" sshpass -e scp -r -o StrictHostKeyChecking=no /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
+
+        SSHPASS="${ovirtenginepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
 
 
         echo "${ovirtengine} ${ovirtenginefqdn}" >> /etc/hosts
@@ -273,12 +276,12 @@ then
 
             echo "Updating Xen Server Host"
             echo ""
-            sshpass -p xenserverpass ssh -o StrictHostKeyChecking=no root@${xenserver} 'mkdir /root/.ssh && chmod 700 /root/.ssh && echo "UseDNS no" >>  /etc/ssh/sshd_config && service sshd restart'
+            SSHPASS="${xenserverpass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenserver} 'mkdir /root/.ssh && chmod 700 /root/.ssh && echo "UseDNS no" >>  /etc/ssh/sshd_config && service sshd restart'
 
             echo ""
             echo "Updating Xen VMMIGRATE"
             echo ""
-            sshpass -p xenservermigratepass ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget fsarchiver chroot -y && mkdir /root/.ssh && chmod 700 /root/.ssh && mkdir /mnt/migrate && echo "${migrateip} /mnt/migrate nfs rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
+            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget fsarchiver chroot -y && mkdir /root/.ssh && chmod 700 /root/.ssh && mkdir /mnt/migrate && echo "${migrateip} /mnt/migrate nfs rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
 
         fi
 
