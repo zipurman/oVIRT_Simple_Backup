@@ -189,7 +189,7 @@ then
         fi
 
         cd /var/www/
-        wget https://github.com/zipurman/oVIRT_Simple_Backup/archive/master.zip
+        wget -N --retry-connrefused https://github.com/zipurman/oVIRT_Simple_Backup/archive/master.zip
         unzip master.zip
         rm /var/www/html -R
         mv /var/www/oVIRT_Simple_Backup-master/server /var/www/html
