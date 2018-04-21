@@ -39,6 +39,6 @@
 	 *
 	 *
 	 *
-	 * TODO - add compression rate to backup logs
+	 *
 	 *
 	 */

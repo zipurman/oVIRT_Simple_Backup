@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Written by Preston Lord
-# oVirt Simple Backup (WebGUI) Installer Version 0.1.1
+# oVirt Simple Backup (WebGUI) Installer Version 0.1.2
 # Last Updated April 20, 2018
 # written for Debian Only
 
@@ -20,16 +20,76 @@ then
 
     echo "OVIRT ENGINE INFORMATION"
     echo ""
-    read -e -p "What is the FQDN for your oVirt ENGINE? [engine.mydomain.com]: " ovirtenginefqdn
-    echo ""
-    read -e -p "What is the IP Address for your oVirt ENGINE? [x.x.x.x]: " ovirtengine
-    echo ""
-    read -e -p "What is the ROOT password for your oVirt ENGINE?: " ovirtenginepass
-    echo ""
+
+    ok=0
+    while [ $ok -eq 0 ]
+    do
+
+        read -e -p "What is the FQDN for your oVirt ENGINE? [engine.mydomain.com]: " ovirtenginefqdn
+        echo ""
+        read -e -p "What is the IP Address for your oVirt ENGINE? [x.x.x.x]: " ovirtengine
+        echo ""
+        read -s -e -p "What is the ROOT password for your oVirt ENGINE?: " ovirtenginepass
+        echo ""
+        echo ""
+
+        SSHPASS="${ovirtenginepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${ovirtengine} exit
+        if [ $? -eq 0 ]
+        then
+            echo "Confirmed ssh connection to ${ovirtengine}"
+            ok=1
+        else
+            echo "SSH Connection Failed to ${ovirtengine}. Please try again."
+        fi
+
+    done
+
     echo ""
     echo "NFS INFORMATION FOR BACKUPS"
     echo ""
-    read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
+
+    ok=0
+    while [ $ok -eq 0 ]
+    do
+
+        read -e -p "Path of the NFS for /mnt/backups [x.x.x.x:/path/to/share]: " backupip
+        echo ""
+
+        read -e -p "NFS Version [3 or 4]: " -i "4" backupnfsversion
+        echo ""
+
+        if [[ "${backupnfsversion}" == "3" ]]
+        then
+            backupnfsversion="nfs"
+            ok=1
+        elif [[ "${backupnfsversion}" == "4" ]]
+        then
+             backupnfsversion="nfs4"
+             ok=1
+        else
+            ok=0
+        fi
+
+        if [ $ok -eq 1 ]
+        then
+
+            mkdir /mnt/backups -p
+            mount -t $backupnfsversion -o soft,retry=0 ${backupip} /mnt/backups > /dev/null
+            testnfs=`df -P -T /mnt/backups/ | tail -n +2 | awk '{print $2}'`
+
+            if [[ "${testnfs}" == "nfs3" ]] || [[ "${testnfs}" == "nfs4" ]]  || [[ "${testnfs}" == "nfs" ]]
+            then
+                echo "NFS Connection Passed"
+                umount /mnt/backups
+            else
+                ok=0
+                echo "NFS Connection Failed"
+
+            fi
+
+        fi
+    done
+
     echo ""
     echo ""
     echo "THIS BACKUP VM INFORMATION"
@@ -44,16 +104,95 @@ then
     read -e -p "Are you wanting this script to setup migrate from Xen Server? You will need to have your ROOT password for a Xen Server Host as well as the ROOT password for a Xen VM running a FRESH Install of Debian with SSH enabled for root that will act as your VMMIGRATE [y/N]: " -i "N" xen
     if [[ $xen == 'Y' ]]
     then
-        echo ""
-        read -e -p "Path of the NFS for /mnt/migrate [x.x.x.x:/path/to/share]: " migrateip
-        echo ""
-        read -e -p "IP Address of Xen Server? [x.x.x.x]: " xenserver
-        echo ""
-        read -e -p "ROOT password for your XEN Server Host?: " xenserverpass
-        echo ""
-        read -e -p "IP Address of Xen Server Migrate VM? [x.x.x.x]: " xenservermigrate
-        echo ""
-        read -e -p "ROOT password for your Xen Server Migrate VM?: " xenservermigratepass
+
+        ok=0
+        while [ $ok -eq 0 ]
+        do
+
+            read -e -p "Path of the NFS for /mnt/migrate [x.x.x.x:/path/to/share]: " migrateip
+            echo ""
+
+            read -e -p "NFS Version [3 or 4]: " -i "4" migratenfsversion
+            echo ""
+
+            if [[ "${migratenfsversion}" == "3" ]]
+            then
+                migratenfsversion="nfs"
+                ok=1
+            elif [[ "${migratenfsversion}" == "4" ]]
+            then
+                 migratenfsversion="nfs4"
+                 ok=1
+            else
+                ok=0
+            fi
+
+            if [ $ok -eq 1 ]
+            then
+
+                mkdir /mnt/migrate -p
+                mount -t $backupnfsversion -o soft,retry=0 ${migrateip} /mnt/migrate > /dev/null
+                testnfs=`df -P -T /mnt/migrate/ | tail -n +2 | awk '{print $2}'`
+
+                if [[ "${testnfs}" == "nfs3" ]] || [[ "${testnfs}" == "nfs4" ]]  || [[ "${testnfs}" == "nfs" ]]
+                then
+                    echo "NFS Migrate Connection Passed"
+                    umount /mnt/migrate
+                else
+                    ok=0
+                    echo "NFS Migrate Connection Failed"
+
+                fi
+
+            fi
+        done
+
+
+        ok=0
+        while [ $ok -eq 0 ]
+        do
+
+            echo ""
+            read -e -p "IP Address of Xen Server? [x.x.x.x]: " xenserver
+            echo ""
+            read -s -e -p "ROOT password for your XEN Server Host?: " xenserverpass
+            echo ""
+            echo ""
+
+            SSHPASS="${xenserverpass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenserver} exit
+            if [ $? -eq 0 ]
+            then
+                echo "Confirmed ssh connection to ${xenserver}"
+                ok=1
+            else
+                echo "SSH Connection Failed to ${xenserver}. Please try again."
+            fi
+
+        done
+
+
+
+        ok=0
+        while [ $ok -eq 0 ]
+        do
+
+            echo ""
+            read -e -p "IP Address of Xen Server Migrate VM? [x.x.x.x]: " xenservermigrate
+            echo ""
+            read -s -e -p "ROOT password for your Xen Server Migrate VM?: " xenservermigratepass
+            echo ""
+
+            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} exit
+            if [ $? -eq 0 ]
+            then
+                echo "Confirmed ssh connection to ${xenservermigrate}"
+                ok=1
+            else
+                echo "SSH Connection Failed to ${xenservermigrate}. Please try again."
+            fi
+
+        done
+
 
     fi
 
@@ -70,6 +209,7 @@ then
     echo ""
     echo "Path of the NFS for /mnt/backups:"
     echo "  ${backupip}"
+    echo "  ${backupnfsversion}"
     echo ""
     echo "oVirtSimpleBackupVM FQDN: ${backupengine}"
     echo ""
@@ -79,7 +219,9 @@ then
     echo ""
     if [[ $xen == 'Y' ]]
     then
-        echo "Path of the NFS for /mnt/migrate: ${migrateip}"
+        echo "Path of the NFS for /mnt/migrate:"
+        echo "  ${migrateip}"
+        echo "  ${migratenfsversion}"
         echo ""
         echo "IP Address of Xen Server: ${xenserver}"
         echo ""
@@ -113,9 +255,7 @@ then
         service ssh restart
 
         echo "Creating Mount Directories"
-        mkdir /mnt/backups
-        mkdir /mnt/migrate
-        mkdir /mnt/linux
+        mkdir /mnt/linux -p
 
         echo ""
         echo "Now we have to add your NFS shares so they can mount."
@@ -123,23 +263,29 @@ then
 
         if [ ! -z "$backupip" ]
         then
-            echo "${backupip} /mnt/backups nfs rw,async,hard,intr,noexec 0 0" >> /etc/fstab
+            echo "${backupip} /mnt/backups ${backupnfsversion} rw,async,hard,intr,noexec 0 0" >> /etc/fstab
             mount /mnt/backups
         fi
-        if [ ! -z "migrateip" ]
+
+        if [[ $xen == 'Y' ]]
         then
-            echo "${migrateip} /mnt/migrate nfs rw,async,hard,intr,noexec 0 0" >> /etc/fstab
-            mount /mnt/migrate
+            if [ ! -z "$migrateip" ]
+            then
+                mkdir /mnt/migrate -p
+                echo "${migrateip} /mnt/migrate ${migratenfsversion} rw,async,hard,intr,noexec 0 0" >> /etc/fstab
+                mount /mnt/migrate
+                chmod 777 /mnt/migrate
+            fi
         fi
 
-        mkdir /root/.ssh
+        mkdir /root/.ssh -p
         chmod 700 /root/.ssh
         usermod -a -G disk www-data
         usermod -a -G cdrom www-data
         chown root:disk /bin/dd
         a2enmod ssl
         service apache2 restart
-        mkdir /etc/apache2/ssl
+        mkdir /etc/apache2/ssl -p
 
 
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt -subj "/C=CA/ST=Saskatchewan/L=SwiftCurrent/O=Global Security/OU=IT Department/CN=${backupengine}"
@@ -156,10 +302,9 @@ then
 
         chsh -s /bin/bash www-data
         chmod 777 /mnt
-        chmod 777 /mnt/migrate
         chmod 777 /mnt/backups
         chmod 777 /mnt/linux
-        mkdir /var/www/.ssh
+        mkdir /var/www/.ssh -p
         chown www-data:www-data /var/www/.ssh
         chmod 700 /var/www/.ssh
 
@@ -175,7 +320,6 @@ then
 
         if [[ $xen == 'Y' ]]
         then
-
 
             su - www-data -c 'ssh-keygen -t rsa'
             echo ""
@@ -276,12 +420,12 @@ then
 
             echo "Updating Xen Server Host"
             echo ""
-            SSHPASS="${xenserverpass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenserver} 'mkdir /root/.ssh && chmod 700 /root/.ssh && echo "UseDNS no" >>  /etc/ssh/sshd_config && service sshd restart'
+            SSHPASS="${xenserverpass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenserver} 'mkdir /root/.ssh -p && chmod 700 /root/.ssh && echo "UseDNS no" >>  /etc/ssh/sshd_config && service sshd restart'
 
             echo ""
             echo "Updating Xen VMMIGRATE"
             echo ""
-            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget fsarchiver chroot -y && mkdir /root/.ssh && chmod 700 /root/.ssh && mkdir /mnt/migrate && echo "${migrateip} /mnt/migrate nfs rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
+            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo "${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
 
         fi
 
