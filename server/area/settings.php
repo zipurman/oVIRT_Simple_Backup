@@ -67,8 +67,10 @@
 			$restore_cpu_threads = varcheck( "restore_cpu_threads", 0, "FILTER_VALIDATE_INT", 0 );
 			$compress            = varcheck( "compress", 0, "FILTER_VALIDATE_INT", 0 );
 
-			$drive_interface = ( $drive_interface == 0 ) ? 'virtio' : 'virtio_scsi';
-			$drive_type      = ( $drive_type == 0 ) ? 'vd' : 'sd';
+
+			$diskx   = sb_check_disks();
+			$drive_type = $diskx['disktype'];
+			$drive_interface = $diskx['driveinterface'];
 
 			//make sure log file is valid if defined
 			if ( ! empty( $backup_log ) ) {
