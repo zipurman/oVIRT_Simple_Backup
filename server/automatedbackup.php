@@ -269,6 +269,7 @@
 						$duration = round( $durationinseconds ) . ' seconds';
 					}
 
+					sb_email_log( '<b>VM Disks:</b> ' . $numberofimages . '<br/>' );
 					sb_email_log( '<b>VM Size:</b> ' . round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) . ' GB<br/>' );
 
 					$compressedfiles = null;

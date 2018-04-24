@@ -171,11 +171,14 @@
 			sb_table_row( $rowdata );
 
 			sb_table_end();
-			if ( empty( $action ) ) {
-				sb_gobutton( 'Check For Updated Files', '', 'sbCheckSoftwareUpdates();' );
-			} else if ( $action == 'update' ) {
-				sb_gobutton( 'Update Files Now', '', 'sbProcessSoftwareUpdates();' );
-			}
+
+
+		}
+
+		if ( empty( $action ) ) {
+			sb_gobutton( 'Check For Updated Files', '', 'sbCheckSoftwareUpdates();' );
+		} else if ( $action == 'update' ) {
+			sb_gobutton( 'Update Files Now', '', 'sbProcessSoftwareUpdates();' );
 		}
 
 		if ( $action == 'update' ) {
