@@ -1167,14 +1167,14 @@
 	function sb_log( $logtext ) {
 
 		GLOBAL $settings;
-
 		if ( ! empty( $settings['backup_log'] ) ) {
 			$logtext = str_replace( '"', '', $logtext );
 
 			$logtime = strftime( "[%Y-%m-%d:%H:%M:%S]" );
 
+			sleep( 0.5 );
 			exec( 'echo "' . $logtime . ' ' . $logtext . '" >> ' . $settings['backup_log'] );
-			sleep( 0.2 );
+			sleep( 0.5 );
 		}
 	}
 

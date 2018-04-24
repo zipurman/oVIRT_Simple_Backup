@@ -146,8 +146,13 @@
 				if (file_exists( $imagefile . '.gz')){
 					$imagefile .= '.gz';
 					$compressionname .= '.gz';
-					$compressiontext = ' (compressed)';
-                }
+					$compressiontext = ' (gz compressed)';
+                } else if (file_exists( $imagefile . '.lzo')){
+					$imagefile .= '.lzo';
+					$compressionname .= '.lzo';
+					$compressiontext = ' (lzo compressed)';
+				}
+
 
 				if ( file_exists( $xmlfile ) && file_exists( $imagefile ) ) {
 					$xmldata = file_get_contents( $xmlfile );
@@ -169,10 +174,10 @@
 							if (!empty($compressiontext)){
 							    $compressedsize = round(filesize( $imagefile ) / 1024 / 1024 / 1024, 2) ;
 								$comprate = 100 - round( (($compressedsize / $vmsize) * 100),2);
-								$compressiontext = '(' . $comprate . '% compressed = ' . $compressedsize . 'GB)';
+								$compressiontext = '(' . $comprate . '% ' . $compressiontext . ' = ' . $compressedsize . 'GB)';
                             }
 
-							$diskslisttext .= ( empty( $diskslisttext ) ) ? '' : ', ';
+							$diskslisttext .= ( empty( $diskslisttext ) ) ? '' : '<br/>';
 							$diskslisttext .= 'Disk' . $i . ' (' . $vmsize . 'GB)' . $compressiontext;
 
 							foreach ( $diskdata as $diskdatum ) {
