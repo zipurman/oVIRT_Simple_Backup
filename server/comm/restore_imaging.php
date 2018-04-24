@@ -12,7 +12,7 @@
 
 	if ( $sb_status['status'] == 'restore' && $sb_status['stage'] == 'restore_imaging' ) {
 
-		sleep( 2 );
+		sleep( 1 );
 		$disktypeget    = sb_check_disks();
 		$numberofimages = count( $disktypeget['avaliabledisks'] );
 
@@ -39,7 +39,7 @@
 						$progress = (int) $filedata[0];
 
 						sb_cache_set( $settings['uuid_backup_engine'], '', 'Restore Imaging ' . $progress . '%', 'Disk' . $sb_status['setting5'], 'write' );
-						sleep( 2 );
+						sleep( 1 );
 
 						if ( $progress >= 100 ) {
 							sb_status_set( 'restore', 'restore_imaging', 1 );

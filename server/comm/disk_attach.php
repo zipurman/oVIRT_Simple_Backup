@@ -23,6 +23,7 @@
 			if ( (string) $processdisk['bootable'] == (string) 'true' ) {
 				$disknumber = str_replace( 'Disk', '', $processdisk['disknumber'] );
 				sb_log( 'BOOTABLE - ' . $disknumber );
+				$bootabledisk = $disknumber;
 			}
 		}
 
@@ -35,9 +36,9 @@
 				$attachmentdata = explode( " ", $attachment );
 
 				if ( $sb_status['setting3'] == '-XEN-' ) {
-					$bootable = ( strpos( $attachmentdata[0], 'RDISK_' . ($disknumber - 1) ) !== false ) ? 'true' : 'false';
+					$bootable = ( $bootabledisk == $disknumbercheck) ? 'true' : 'false';
 				} else {
-					$bootable = ( strpos( $attachmentdata[0], 'Disk' . ($disknumber - 1) ) !== false ) ? 'true' : 'false';
+					$bootable = ( $bootabledisk == $disknumbercheck) ? 'true' : 'false';
 				}
 
 				sb_log( '-- DISK ATTACH -- ' . $disknumbercheck . ' bootable: ' . $bootable );
