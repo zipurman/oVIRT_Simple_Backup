@@ -246,7 +246,7 @@ then
         echo "======================================"
         echo ""
         echo "Installing...."
-        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass  -y
+        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass lzop gzip -y
 
         echo "Updating SSH Settings"
         sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config
@@ -425,7 +425,7 @@ then
             echo ""
             echo "Updating Xen VMMIGRATE"
             echo ""
-            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo "${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
+            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget lzop gzip fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo "${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
 
         fi
 

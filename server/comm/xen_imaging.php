@@ -30,8 +30,7 @@
 			if ( $sb_status['step'] == 2 ) {
 				$status = 2;
 
-
-				$lastvalue  = empty( $lastvalue ) ? 0 : (integer) $lastvalue[0];
+				$lastvalue = empty( $lastvalue ) ? 0 : (integer) $lastvalue[0];
 
 				$reason = 'Imaging in progress.';
 
@@ -74,7 +73,7 @@
 
 				} else {
 
-					if ($disknumber == 1){
+					if ( $disknumber == 1 ) {
 						//remove previous images
 						exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' rm ' . $settings['mount_migrate'] . '/xen*.img -f', $statusoffile );
 						exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' rm ' . $settings['mount_migrate'] . '/Disk*.dat -f', $statusoffile );
@@ -86,19 +85,21 @@
 
 					exec( 'partprobe' );
 
-
-					if (empty($settings['compress'])) {
+					if ( empty( $settings['compress'] ) ) {
 
 						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
 
-					} else {
+					} else if ( $settings['compress'] == '1' ) {
 
 						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | gzip -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.gz" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . '.gz 2>&1 &' . '\'';//trailing & sends to background
 
+					} else if ( $settings['compress'] == '2' ) {
+
+						$command = 'ssd root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | lzop -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.lzo" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . '.lzo 2>&1 &' . '\'';//trailing & sends to background
+
 					}
 
-					sb_log('Xen - Imaging - /dev/' . $dev);
-
+					sb_log( 'Xen - Imaging - /dev/' . $dev );
 
 					exec( $command, $statusoffile );
 					sb_cache_set( $vmuuid, $snapshotname, 'Imaging Xen VM', 'write' );
@@ -132,6 +133,6 @@
 		"thisdisk"       => $sb_status['setting5'],
 	);
 
-	sb_log('Xen - Imaging - ' . $sb_status['setting5'] . '/' .$numberofimages. ' - ' . $progress . '% ' . $reason);
+	sb_log( 'Xen - Imaging - ' . $sb_status['setting5'] . '/' . $numberofimages . ' - ' . $progress . '% ' . $reason );
 
 	echo json_encode( $jsonarray );

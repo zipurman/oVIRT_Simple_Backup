@@ -370,6 +370,8 @@
 			$driveinterface = 'virtio_scsi';
 		}
 
+		ksort( $avaliabledisks );
+
 		$return = array(
 			"disks"              => $disks,
 			"avaliabledisks"     => $avaliabledisks,

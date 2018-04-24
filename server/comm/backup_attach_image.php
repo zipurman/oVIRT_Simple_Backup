@@ -1,8 +1,8 @@
 <?php
 
-	$sb_status = sb_status_fetch();
-	$status    = 0;
-	$reason    = 'None';
+	$sb_status     = sb_status_fetch();
+	$status        = 0;
+	$reason        = 'None';
 	$totaldisksize = 0;
 
 	if ( $sb_status['status'] == 'backup' && $sb_status['stage'] == 'snapshot_attach' ) {
@@ -23,52 +23,70 @@
 				$disktypeget  = sb_check_disks();
 				$disktype     = $disktypeget['disktype'];
 				$disknumber   = 1;
-				$setdisk1     = 0;
+				$diskarray    = array();
 
-
-
+				//parse disk data
+				//DISK 1 - boot disk
 				foreach ( $disks->disk as $disk ) {
+					foreach ( $morediskdata as $morediskdatum ) {
+						if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
+							$morediskdatathis = $morediskdatum;
 
+							if ( (string) $morediskdatathis->bootable == 'true' ) {
+								$diskarray[ $disknumber ]                     = array();
+								$diskarray[ $disknumber ]['bootable']         = $morediskdatathis->bootable;
+								$diskarray[ $disknumber ]['interface']        = $morediskdatathis->interface;
+								$diskarray[ $disknumber ]['provisioned_size'] = $disk->provisioned_size;
+								$diskarray[ $disknumber ]['name']             = $disk->name;
+								$diskarray[ $disknumber ]['id']               = $disk['id'];
+								$diskarray[ $disknumber ]['disknumber']       = $disknumber;
+								$disknumber ++;
+
+							}
+
+						}
+					}
+
+				}
+
+				//REMAINING DISKS
+				foreach ( $disks->disk as $disk ) {
+					foreach ( $morediskdata as $morediskdatum ) {
+						if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
+							$morediskdatathis = $morediskdatum;
+
+							if ( (string) $morediskdatathis->bootable != 'true' ) {
+								$diskarray[ $disknumber ]                     = array();
+								$diskarray[ $disknumber ]['bootable']         = $morediskdatathis->bootable;
+								$diskarray[ $disknumber ]['interface']        = $morediskdatathis->interface;
+								$diskarray[ $disknumber ]['provisioned_size'] = $disk->provisioned_size;
+								$diskarray[ $disknumber ]['name']             = $disk->name;
+								$diskarray[ $disknumber ]['id']               = $disk['id'];
+								$diskarray[ $disknumber ]['disknumber']       = $disknumber;
+								$disknumber ++;
+							}
+
+						}
+					}
+
+				}
+
+				foreach ( $diskarray as $disk ) {
 					sb_attach_disk( $disk['id'], $sb_status['setting3'], '' );
-
+					sb_log( 'Attach Disk ' . $disk['id'] );
 				}
 
 				sleep( 5 );
+
 				if ( $sb_status['setting3'] != '-XEN-' ) {
-					//force boot disk to be adopted first regardless of how ovirt presents the list
-					foreach ( $disks->disk as $disk ) {
-						$morediskdatathis = array();
-						foreach ( $morediskdata as $morediskdatum ) {
-							if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
-								$morediskdatathis = $morediskdatum;
-							}
-						}
-						if ( ! empty( $morediskdatathis ) && $setdisk1 == 0 && (string) $morediskdatathis->bootable == 'true' ) {
-//							error_log( "Disk - " . $diskletter, 0 );
-							$diskletter = sb_next_drive_letter( $diskletter );
-							sb_disk_file_write( 1, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'true', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
-							$disknumber ++;
-							$totaldisksize += $disk->provisioned_size;
-							$setdisk1 = 1;
-						}
-					}
-					//non-boot disks
-					foreach ( $disks->disk as $disk ) {
-						$morediskdatathis = array();
-						foreach ( $morediskdata as $morediskdatum ) {
-							if ( (string) $morediskdatum['id'] == (string) $disk['id'] ) {
-								$morediskdatathis = $morediskdatum;
-							}
-						}
-						if ( ! empty( $morediskdatathis ) && (string) $morediskdatathis->bootable == 'false' ) {
-							$diskletter = sb_next_drive_letter( $diskletter );
-							sb_disk_file_write( $disknumber, (string) $disk->name, $sb_status['setting1'], (string) $disk['id'], (string) 'false', (string) $morediskdatathis->interface, (integer) $disk->provisioned_size, $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
-							$disknumber ++;
-							$totaldisksize += $disk->provisioned_size;
-						}
+					foreach ( $diskarray as $disk ) {
+
+						$diskletter = sb_next_drive_letter( $diskletter );
+						sb_disk_file_write( $disk['disknumber'], $disk['name'], $sb_status['setting1'], $disk['id'], $disk['bootable'], $disk['interface'], $disk['provisioned_size'], $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
+						sb_log( 'Disk Dat Write ' . $disk['name'] . ' - ' . $disk['id'] . ' - ' . $disk['bootable'] . ' - ' . $disk['interface'] . ' - ' . $disk['provisioned_size'] . ' - ' . $disktype . $diskletter );
+						$totaldisksize += $disk['provisioned_size'];
 					}
 				}
-
 
 				$status = 1;
 				$reason = 'Disk(s) Attached';
@@ -94,6 +112,6 @@
 		"status" => $status,
 		"reason" => $reason,
 	);
-	sb_log('Attaching Image - ' . $reason);
+	sb_log( 'Attaching Image - ' . $reason );
 
 	echo json_encode( $jsonarray );

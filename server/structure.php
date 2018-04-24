@@ -39,6 +39,7 @@
 	 *
 	 *
 	 *
-	 *
-	 *
+	 * TODO: docs update IPv6 support for $allowed_ips?
+	 * TODO: multi-disk re-test with both virt virt_scsi
+	 * TODO: check to make sure snapshot is ready on snapshot stage in case it fails
 	 */

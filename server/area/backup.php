@@ -7,7 +7,7 @@
 	$disktypeget    = sb_check_disks();
 	$numberofimages = count( $disktypeget['avaliabledisks'] );
 
-	if ( $numberofimages > 1 ) {
+	if ( $numberofimages > 1  &&  empty($recovery)) {
 		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a backup.' );
 	} else if ( $sb_status['status'] == 'ready' || $recovery == 1) {
 

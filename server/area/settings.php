@@ -434,6 +434,7 @@
 						'list'  => array(
 							array('id'=>'0', 'name'=>'None',),
 							array('id'=>'1', 'name'=>'gzip',),
+							array('id'=>'2', 'name'=>'lzo',),
 						),
 						'value' => $settings['compress'],
 					) ),

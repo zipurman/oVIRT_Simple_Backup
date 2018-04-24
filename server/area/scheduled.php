@@ -96,6 +96,10 @@
 					if ( $filedata['dom'] == 32 ) {
 						$domtext = 'Last';
 					}
+
+					if ( empty( $filedata['schedulename'] ) ) {
+						$filedata['schedulename'] = 'No Name';
+					}
 					$rowdata = array(
 						array( "text" => '<a href="?area=1&action=editschedule&schedname=' . $file . '">' . str_replace( '_', ' ', $filedata['schedulename'] ) . '</a>', ),
 						array( "text" => $filedata['startdatetime'], ),

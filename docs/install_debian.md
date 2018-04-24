@@ -55,6 +55,8 @@
     *  Install the following packages:
         *  pv
         *  curl
+        *  lzop
+        *  gzip
         *  xmlstarlet
         *  lsscsi
         *  dialog

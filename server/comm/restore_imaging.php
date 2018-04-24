@@ -91,6 +91,9 @@
 
 								$command = '(pv -n ' . $filepath . $disknumberfile . '.img.gz | gunzip -c | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' . $filepath . 'progress.dat' . ' 2>&1 &';//trailing & sends to background
 
+							}else  if ( file_exists( $filepath . $disknumberfile . '.img.lzo') ) {
+
+								$command = '(pv -n ' . $filepath . $disknumberfile . '.img.lzo | lzop -d | dd of="' . '/dev/' . $dev . '" bs=1M conv=notrunc,noerror status=none)   > ' .$filepath . 'profress.dat' . ' 2>&1 &';//trailing & send to background
 
 							} else {
 

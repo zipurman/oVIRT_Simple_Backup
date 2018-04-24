@@ -2,15 +2,13 @@
 
 	$sb_status = sb_status_fetch();
 
-	$status   = 0;
-	$progress = 0;
+	$status         = 0;
+	$progress       = 0;
 	$numberofimages = 0;
-	$dev      = '';
-	$reason   = 'Disk Not Attached';
+	$dev            = '';
+	$reason         = 'Disk Not Attached';
 
 	if ( $sb_status['status'] == 'backup' && $sb_status['stage'] == 'backup_imaging' ) {
-
-//		exec( 'partprobe' );
 
 		$disktypeget    = sb_check_disks();
 		$numberofimages = count( $disktypeget['avaliabledisks'] );
@@ -58,17 +56,17 @@
 									sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Imaging ' . $progress . '%', $sb_status['setting4'], 'write', '?area=2&action=select&backupnow=1&vm=' . $sb_status['setting1'] . '&recovery=1', 'sb_snapshot_imaging(\'' . $sb_status['setting1'] . '\', \'' . $sb_status['setting2'] . '\');' );
 									sleep( 1 );
 
-									if ($progress >= 100){
+									if ( $progress >= 100 ) {
 										sb_status_set( 'backup', 'backup_imaging', 1 );
 									}
 								} else {
-									$reason .= ' - MISSING - ' .$progressfilename;
+									$reason .= ' - MISSING - ' . $progressfilename;
 								}
 							}
 
 						} else {
 
-							$disknumber     = 0;
+							$disknumber = 0;
 
 							//setting5 = disknumber
 							if ( empty( $sb_status['setting5'] ) ) {
@@ -88,36 +86,41 @@
 								exec( 'echo "0" > ' . $progressfilename );
 								$reason = 'Imaging Disk ' . $progressfilename;
 
-								if ($sb_status['setting3'] == '-XEN-') {
+								if ( $sb_status['setting3'] == '-XEN-' ) {
 									$processdisks = sb_disk_array_fetch( $settings['mount_migrate'] );
 								} else {
 									$processdisks = sb_disk_array_fetch( $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] );
 								}
 
-								foreach ( $disktypeget['avaliabledisks'] as $avaliabledisk ) {
-									foreach ( $processdisks as $processdisk ) {
-										if ( empty($dev) && $processdisk['disknumber'] == 'Disk' . $disknumber){
-											$disknumberfile = $processdisk['disknumber'];
-											$dev = $avaliabledisk;
-										}
+								$dev = '';
+								foreach ( $processdisks as $processdisk ) {
+
+									if ( empty( $dev ) && $processdisk['disknumber'] == 'Disk' . $disknumber) {
+										$disknumberfile = $processdisk['disknumber'];
+										$dev            = $processdisk['path'];
 									}
 								}
 
+
 								if ( ! empty( $dev ) ) {
 
-									if (empty($settings['compress'])) {
+									if ( empty( $settings['compress'] ) ) {
 
 										$command = '(pv -n /dev/' . $dev . ' | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
 
-									} else {
+									} else if ( $settings['compress'] == '1' ) {
 
 										$command = '(pv -n /dev/' . $dev . ' | gzip -c | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img.gz" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
+
+									} else if ( $settings['compress'] == '2' ) {
+
+										$command = '(pv -n /dev/' . $dev . ' | lzop -c | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img.lzo" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
 
 									}
 									$output = null;
 									exec( $command, $output );
 
-									sb_log('Backup - Imaging - /dev/' . $dev);
+									sb_log( 'Backup - Imaging - /dev/' . $dev );
 
 									sb_cache_set( $sb_status['setting1'], $sb_status['setting2'], 'Imaging', $sb_status['setting4'], 'write' );
 									sb_status_set( 'backup', 'backup_imaging', 2, '', '', '', '', $disknumber );
@@ -147,14 +150,14 @@
 	}
 
 	$jsonarray = array(
-		"status"   => $status,
-		"reason"   => $reason,
-		"progress" => $progress,
-		"numberofdisks"   => $numberofimages,
-		"thisdisk"   => $sb_status['setting5'],
+		"status"        => $status,
+		"reason"        => $reason,
+		"progress"      => $progress,
+		"numberofdisks" => $numberofimages,
+		"thisdisk"      => $sb_status['setting5'],
 	);
 
-	sb_log('Backup Imaging - ' . $sb_status['setting5'] . '/' .$numberofimages. ' - ' . $progress . '% ' . $reason);
+	sb_log( 'Backup Imaging - ' . $sb_status['setting5'] . '/' . $numberofimages . ' - ' . $progress . '% ' . $reason );
 
 	echo json_encode( $jsonarray );
 

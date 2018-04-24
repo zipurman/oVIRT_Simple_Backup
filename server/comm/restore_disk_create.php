@@ -36,7 +36,6 @@
 		foreach ( $diskarray as $item ) {
 
 			$diskletter = sb_next_drive_letter( $diskletter );
-
 			$bootablex = ( $item['vbd-userdevice'] == 0 ) ? 'true' : 'false';
 			sb_disk_file_write( $disknumber, $item['vdi-label'], $item['vmuuid'], $item['vdi-uuid'], $bootablex, $settings['drive_interface'], $item['vdi-virtual-size'], $settings['drive_type'] . $diskletter, $item['vbd-label'], '-XEN-' );
 			sb_log('Disk ' . $disknumber . ' - ' . $settings['drive_type'] . $diskletter . ' Bootable: ' . $bootablex . ' Size: ' . $item['vdi-virtual-size'] . ' Label: ' . $item['vdi-label'] . '(;(' . $item['vbd-label'] . ')');

@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.17)
+# oVIRT_Simple_Backup - WebGUI (0.6.18)
 
 ### A REST API backup from PHP for oVirt 4.2.x
    
@@ -15,7 +15,7 @@
  - [x] oVirt Engine Web UI Plugin
  - [x] Multiple Backup Schedules Manager
  - [x] Settings Manager
- - [x] Disk Image Compression
+ - [x] Disk Image Compression (gzip/lzo)
  - [x] Updates Manager for oVIRT_Simple_Backup
  - [x] Backup a single VM
  - [x] Restore a single VM
