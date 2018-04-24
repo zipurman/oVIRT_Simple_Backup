@@ -3,7 +3,7 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
-  - 0.6.18 - 2018/04/10
+  - 0.6.18 - 2018/04/23
       - [x] Added lzo encryption (Thanks to Squeekz)
       - Bug fixes on multi-disk backup
       - Misc bug fixes
