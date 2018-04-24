@@ -84,57 +84,62 @@
 
 		GLOBAL $projectpath;
 
-		foreach ( $filearray['files'] as $item ) {
+		if (!empty($filearray['files'])) {
+			foreach ( $filearray['files'] as $item ) {
 
-			$remotefile = file_get_contents( 'https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server' . $folder . '/' . $item );
+				$remotefile = file_get_contents( 'https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server' . $folder . '/' . $item );
 
-			$remotehash = hash( 'md5', $remotefile );
+				$remotehash = hash( 'md5', $remotefile );
 
-			$localhash = hash_file( 'md5', substr( $projectpath, 0, - 1 ) . $folder . '/' . $item );
+				$localhash = hash_file( 'md5', substr( $projectpath, 0, - 1 ) . $folder . '/' . $item );
 
-			$filematch = ( $remotehash == $localhash ) ? '<span class="statusup">UP TO DATE</span>' : '<span class="statusdown">NEEDS UPDATE</span>';
+				$filematch = ( $remotehash == $localhash ) ? '<span class="statusup">UP TO DATE</span>' : '<span class="statusdown">NEEDS UPDATE</span>';
 
-			if ( $updatenow == 1 ) {
-				if ( $remotehash != $localhash ) {
-					file_put_contents( substr( $projectpath, 0, - 1 ) . $folder . '/' . $item, $remotefile );
-					$filematch = '<span class="statusupdated">!UPDATED!</span>';
+				if ( $updatenow == 1 ) {
+					if ( $remotehash != $localhash ) {
+						file_put_contents( substr( $projectpath, 0, - 1 ) . $folder . '/' . $item, $remotefile );
+						$filematch = '<span class="statusupdated">!UPDATED!</span>';
+					}
+				}
+
+				$rowdata = array(
+					array(
+						"text" => $filematch,
+					),
+					array(
+						"text" => substr( $projectpath, 0, - 1 ) . $folder . '/' . $item,
+					),
+					array(
+						"text" => $localhash,
+					),
+					array(
+						"text" => $remotehash,
+					),
+				);
+				sb_table_row( $rowdata );
+
+			}
+			if (!empty($filearray['folders'])) {
+				foreach ( $filearray['folders'] as $key => $item ) {
+					sb_process_updated_files( $item, $folder . '/' . $key, $updatenow );
+
 				}
 			}
-
-			$rowdata = array(
-				array(
-					"text" => $filematch,
-				),
-				array(
-					"text" => substr( $projectpath, 0, - 1 ) . $folder . '/' . $item,
-				),
-				array(
-					"text" => $localhash,
-				),
-				array(
-					"text" => $remotehash,
-				),
-			);
-			sb_table_row( $rowdata );
-
 		}
-		foreach ( $filearray['folders'] as $key => $item ) {
-			sb_process_updated_files( $item, $folder . '/' . $key, $updatenow );
-
-		}
-
 	}
 
 	sb_pagetitle( 'oVirt Simple Backup Updater' );
 
 	$sb_status = sb_status_fetch();
 
+	sb_table_start();
+
+
 	if ( $sb_status['status'] == 'ready' ) {
 		sb_pagedescription( 'This area will allow you to update to the latest version.' );
 
 		$newversion = sb_check_upgrade_version();
 
-		sb_table_start();
 
 		$rowdata = array(
 			array(
@@ -170,10 +175,13 @@
 			);
 			sb_table_row( $rowdata );
 
-			sb_table_end();
 
 
 		}
+
+		sb_table_end();
+
+
 
 		if ( empty( $action ) ) {
 			sb_gobutton( 'Check For Updated Files', '', 'sbCheckSoftwareUpdates();' );
