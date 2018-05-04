@@ -59,6 +59,10 @@
 				$newfiletext .= '[' . $vm_item . ']';
 			}
 
+			if ($schedulename == ''){
+				$schedulename = 'No Name';
+            }
+
 			sb_schedule_write( $startdate, $enddate, $daytext, $numday, $monthday, $schedulename, $newfiletext, $starttime );
 
 			$action = 0;

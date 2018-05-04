@@ -10,20 +10,33 @@
 	require( $projectpath . 'reg.php' );
 	require( $projectpath . 'tz.php' );
 
-	$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
-
-	if ( $snapshotcheck > 1 ) {
-		sb_email( 'oVirt SimpleBackup Error', 'Backup Engine Configuration Issue. Multiple Snapshots on BackupEngine (' . $snapshotcheck . ').' );
-	}
-
 	//get schedule(s)
 	$configdata = null;
-	$files = null;
+	$files      = null;
 	exec( 'ls ' . $projectpath . '.automated_backups_schedule_*', $files );
 	$matchingschedule = 0;
-	$schedulename = '';
+	$schedulename     = '';
 
-	if ( ! file_exists( $vmbackupinprocessfile ) ) {
+	//check to see when last backup was run and do not allow a "double run"
+	if ( file_exists( $vmbackupinprocessfile . '_lastrun' ) ) {
+		if ( time() - filemtime( $vmbackupinprocessfile . '_lastrun' ) > 900 ) {
+			$lastrunokay = 1;//15 minutes old
+			exec( 'rm ' . $vmbackupinprocessfile . '_lastrun' );
+		} else {
+			$lastrunokay = 0;
+		}
+	} else {
+		$lastrunokay = 1;
+	}
+
+	if ( ! file_exists( $vmbackupinprocessfile ) && $lastrunokay == 1 ) {
+
+		$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
+
+		if ( $snapshotcheck > 1 ) {
+			sb_email( 'oVirt SimpleBackup Error', 'Backup Engine Configuration Issue. Multiple Snapshots on BackupEngine (' . $snapshotcheck . ').' );
+		}
+
 		foreach ( $files as $file ) {
 
 			if ( strpos( $file, '.swp' ) == false ) {
@@ -82,9 +95,12 @@
 
 			if ( ! file_exists( $vmbackupinprocessfile ) ) {
 				exec( 'touch ' . $vmbackupinprocessfile );
+
+				exec( 'touch ' . $vmbackupinprocessfile . '_lastrun' );
+
 			}
 
-			$backuplistx    = file_get_contents( $vmbackupinprocessfile );
+			$backuplistx   = file_get_contents( $vmbackupinprocessfile );
 			$backuplisttmp = explode( "\n", $backuplist );
 			$backuplist    = array();
 			$backuplist2   = array();
@@ -150,7 +166,7 @@
 
 				exec( 'rm ' . $vmbackupemaillog . ' -f' );
 
-				$nowdatetime = strftime("%m/%d/%Y %H:%M:%S");
+				$nowdatetime = strftime( "%m/%d/%Y %H:%M:%S" );
 
 				sb_email_log( '<b>Automated Backup - ' . $schedulename . ' - Starting' . '</b><br/><br/>' );
 				$itemnum = 0;
@@ -160,7 +176,7 @@
 					$vmstarttime = new DateTime();
 
 					sb_log( 'Backing up VM UUID: ' . $item );
-					$nowdatetime = strftime("%m/%d/%Y %H:%M:%S");
+					$nowdatetime = strftime( "%m/%d/%Y %H:%M:%S" );
 
 					sb_email_log( '<b>Date/Time:</b> ' . $nowdatetime . '<br/>' );
 					sb_email_log( '<b>Backing up VM:</b> ' . $backuplist2[ $itemnum ] . '<br/>' );
@@ -276,11 +292,11 @@
 					exec( 'ls ' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/*.img.gz', $compressedfiles );
 					$compressedsize = 0;
 					foreach ( $compressedfiles as $compressedfile ) {
-						$compressedsize += round(filesize( $compressedfile ) / 1024 / 1024 / 1024, 2) ;
+						$compressedsize += round( filesize( $compressedfile ) / 1024 / 1024 / 1024, 2 );
 					}
 
-					if (!empty($compressedsize)) {
-						$comprate        = 100 - round( ( ( $compressedsize / round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) ) * 100 ), 2 );
+					if ( ! empty( $compressedsize ) ) {
+						$comprate = 100 - round( ( ( $compressedsize / round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) ) * 100 ), 2 );
 						sb_email_log( '<b>Compressed Size:</b> ' . '(' . $comprate . '% @ ' . $compressedsize . 'GB)' . '<br/>' );
 					}
 
