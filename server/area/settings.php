@@ -53,6 +53,7 @@
 			$ovirt_url          = varcheck( "ovirt_url", '' );
 			$ovirt_user         = varcheck( "ovirt_user", '' );
 			$email              = varcheck( "email", '' );
+			$emailfrom          = varcheck( "emailfrom", '' );
 			$storage_domain     = varcheck( "storage_domain", '' );
 			$uuid_backup_engine = varcheck( "uuid_backup_engine", '' );
 			$xen_migrate_uuid   = varcheck( "xen_migrate_uuid", '' );
@@ -67,9 +68,8 @@
 			$restore_cpu_threads = varcheck( "restore_cpu_threads", 0, "FILTER_VALIDATE_INT", 0 );
 			$compress            = varcheck( "compress", 0, "FILTER_VALIDATE_INT", 0 );
 
-
-			$diskx   = sb_check_disks();
-			$drive_type = $diskx['disktype'];
+			$diskx           = sb_check_disks();
+			$drive_type      = $diskx['disktype'];
 			$drive_interface = $diskx['driveinterface'];
 
 			//make sure log file is valid if defined
@@ -108,6 +108,7 @@
 			fwrite( $configfile, '"drive_interface" => "' . $drive_interface . '",' . "\n" );
 			fwrite( $configfile, '"backup_log" => "' . $backup_log . '",' . "\n" );
 			fwrite( $configfile, '"email" => "' . $email . '",' . "\n" );
+			fwrite( $configfile, '"emailfrom" => "' . $emailfrom . '",' . "\n" );
 			fwrite( $configfile, '"retention" => ' . $retention . ',' . "\n" );
 			fwrite( $configfile, '"storage_domain" => "' . $storage_domain . '",' . "\n" );
 			fwrite( $configfile, '"cluster" => "' . $cluster . '",' . "\n" );
@@ -138,6 +139,7 @@
 				"drive_interface"     => $drive_interface,
 				"backup_log"          => $backup_log,
 				"email"               => $email,
+				"emailfrom"           => $emailfrom,
 				"retention"           => $retention,
 				"storage_domain"      => $storage_domain,
 				"cluster"             => $cluster,
@@ -152,7 +154,7 @@
 				"restore_cpu_cores"   => $restore_cpu_cores,
 				"restore_cpu_threads" => $restore_cpu_threads,
 				"tz"                  => $tz,
-				"compress"     => $compress,
+				"compress"            => $compress,
 			);
 
 		}
@@ -386,7 +388,7 @@
 
 			$rowdata = array(
 				array(
-					"text" => "Email:",
+					"text" => "Email To:",
 				),
 				array(
 					"text" => sb_input( array(
@@ -398,7 +400,26 @@
 					) ),
 				),
 				array(
-					"text" => "Email for alerts.",
+					"text" => "Email Address to send email alerts to.",
+				),
+			);
+			sb_table_row( $rowdata );
+
+			$rowdata = array(
+				array(
+					"text" => "Email From:",
+				),
+				array(
+					"text" => sb_input( array(
+						'type'      => 'text',
+						'name'      => 'emailfrom',
+						'size'      => '40',
+						'value'     => $settings['emailfrom'],
+						'dataafter' => '',
+					) ),
+				),
+				array(
+					"text" => "Email Address to send email alerts from.",
 				),
 			);
 			sb_table_row( $rowdata );
@@ -432,9 +453,9 @@
 						'type'  => 'select',
 						'name'  => 'compress',
 						'list'  => array(
-							array('id'=>'0', 'name'=>'None',),
-							array('id'=>'1', 'name'=>'gzip',),
-							array('id'=>'2', 'name'=>'lzo',),
+							array( 'id' => '0', 'name' => 'None', ),
+							array( 'id' => '1', 'name' => 'gzip', ),
+							array( 'id' => '2', 'name' => 'lzo', ),
 						),
 						'value' => $settings['compress'],
 					) ),
@@ -444,7 +465,6 @@
 				),
 			);
 			sb_table_row( $rowdata );
-
 
 			sb_table_end();
 

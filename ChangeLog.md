@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.20 - 2018/05/11
+      - [x] Added "from" email address option to settings and email alerts
+  
   - 0.6.19 - 2018/05/04
       - Misc bug fixes
       

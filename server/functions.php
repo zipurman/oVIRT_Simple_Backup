@@ -1249,7 +1249,14 @@
 		GLOBAL $settings;
 
 		if ( ! empty( $settings['email'] ) ) {
+
+			if ( empty( $settings['emailfrom'] ) ) {
+				$settings['emailfrom'] = $settings['email'];
+			}
+
 			$to = $settings['email'];
+
+			$from = $settings['emailfrom'];
 
 			$message = '
 <html>
@@ -1264,7 +1271,7 @@
 
 			$headers = "MIME-Version: 1.0" . "\r\n";
 			$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-			$headers .= 'From: oVirt Simple Backup <' . $to . '>' . "\r\n";
+			$headers .= 'From: oVirt Simple Backup <' . $from . '>' . "\r\n";
 			//		$headers .= 'Cc: myboss@example.com' . "\r\n";
 
 			mail( $to, $subject, $message, $headers );
@@ -1297,6 +1304,7 @@
 		fwrite( $configfile, '"drive_interface" => "' . $settings['drive_interface'] . '",' . "\n" );
 		fwrite( $configfile, '"backup_log" => "' . $settings['backup_log'] . '",' . "\n" );
 		fwrite( $configfile, '"email" => "' . $settings['email'] . '",' . "\n" );
+		fwrite( $configfile, '"emailfrom" => "' . $settings['emailfrom'] . '",' . "\n" );
 		fwrite( $configfile, '"retention" => ' . $settings['retention'] . ',' . "\n" );
 		fwrite( $configfile, '"storage_domain" => "' . $settings['storage_domain'] . '",' . "\n" );
 		fwrite( $configfile, '"cluster" => "' . $settings['cluster'] . '",' . "\n" );
