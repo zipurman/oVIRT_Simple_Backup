@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.21 - 2018/05/15
+      - Fix bug with random emails coming from automatedbackup routine
+      
   - 0.6.20 - 2018/05/11
       - [x] Added "from" email address option to settings and email alerts
   

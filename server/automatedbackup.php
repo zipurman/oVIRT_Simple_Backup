@@ -31,12 +31,6 @@
 
 	if ( ! file_exists( $vmbackupinprocessfile ) && $lastrunokay == 1 ) {
 
-		$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
-
-		if ( $snapshotcheck > 1 ) {
-			sb_email( 'oVirt SimpleBackup Error', 'Backup Engine Configuration Issue. Multiple Snapshots on BackupEngine (' . $snapshotcheck . ').' );
-		}
-
 		foreach ( $files as $file ) {
 
 			if ( strpos( $file, '.swp' ) == false ) {
@@ -86,6 +80,13 @@
 	$files = null;
 
 	if ( ! empty( $matchingschedule ) ) {
+
+		$snapshotcheck = ovirt_rest_api_call( 'GET', 'vms/' . $settings['uuid_backup_engine'] . '/snapshots' );
+
+		if ( $snapshotcheck > 1 ) {
+			sb_email( 'oVirt SimpleBackup Error', 'Backup Engine Configuration Issue. Multiple Snapshots on BackupEngine (' . $snapshotcheck . ').' );
+		}
+
 		if ( file_exists( $projectpath . 'config.php' ) ) {
 
 
