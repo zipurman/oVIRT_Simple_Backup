@@ -26,6 +26,8 @@
     *  Create a Debian Linux VM named VMMIGRATE
         *  Install the following packages:
             *  pv
+            *  lzop
+            *  gzip
             *  dialog (only if using bash script)
             *  fsarchiver
             *  chroot

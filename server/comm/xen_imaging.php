@@ -36,6 +36,7 @@
 
 				exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ls ' . $settings['mount_migrate'] . '/xen_progress.dat', $progressoffile );
 
+
 				if ( ! empty( $progressoffile ) ) {
 
 					exec( 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' cat ' . $settings['mount_migrate'] . '/xen_progress.dat  | tail -n-1', $lastvalue2 );
@@ -83,7 +84,7 @@
 
 					$dev = $avaliabledisks[ $disknumber ];
 
-					exec( 'partprobe' );
+//					exec( 'partprobe' );
 
 					if ( empty( $settings['compress'] ) ) {
 
@@ -91,11 +92,11 @@
 
 					} else if ( $settings['compress'] == '1' ) {
 
-						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | gzip -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.gz" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . '.gz 2>&1 &' . '\'';//trailing & sends to background
+						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | gzip -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.gz" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
 
 					} else if ( $settings['compress'] == '2' ) {
 
-						$command = 'ssd root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | lzop -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.lzo" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . '.lzo 2>&1 &' . '\'';//trailing & sends to background
+						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | lzop -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.lzo" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
 
 					}
 

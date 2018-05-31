@@ -5,7 +5,7 @@
 	$status = 0;
 	$reason = 'None';
 
-	if ( $sb_status['status'] == 'xen_migrate'  && $sb_status['stage'] == 'xen_remove_vbd' ) {
+	if ( $sb_status['status'] == 'xen_migrate' && $sb_status['stage'] == 'xen_remove_vbd' ) {
 
 		if ( $sb_status['step'] == '3' ) {
 
@@ -37,19 +37,20 @@
 			$diskarray = sb_vm_disk_array_fetch( $diskfile );
 
 			//cleanup
-			if ( $sb_status['step'] == 0) {
-				exec( 'rm ' . $settings['mount_migrate'] . '/xen_*.dat -f', $statusoffile );
+			if ( $sb_status['step'] == 0 ) {
+				//				exec( 'rm ' . $settings['mount_migrate'] . '/xen_*.dat -f', $statusoffile );
 			}
 			$vmuuid = $diskarray[0]['vmuuid'];
 
 			//get disks from  vm
 			$output = sb_vm_disk_array_create( $diskfile, 0, $vmuuid );
 
-			if ( count( $output ) / 13 > 2 || $settings['xen_migrate_uuid'] == $vmuuid ) {
+			if ( count( $output ) / 13 >= 1 || $settings['xen_migrate_uuid'] == $vmuuid ) {
 				if ( $sb_status['step'] == 0 ) {
 					foreach ( $diskarray as $item ) {
 						//ask for detatch disk
 						exec( 'ssh root@' . $settings['xen_ip'] . $extrasshsettings . ' xe vbd-destroy uuid=' . $item['vbd-uuid'], $output );
+						sleep( 5 );
 					}
 
 					$status = 1;
@@ -67,7 +68,6 @@
 						$status = 2;
 						$reason = 'Waiting';
 
-
 					}
 
 				}
@@ -77,7 +77,6 @@
 				$status = 3;
 				$reason = 'Removed';
 				sb_status_set( 'xen_migrate', 'xen_shutdown', 2 );
-
 
 			}
 
@@ -90,6 +89,6 @@
 		"reason" => $reason,
 	);
 
-	sb_log('Xen - Remove VBD - ' . $reason);
+	sb_log( 'Xen - Remove VBD - ' . $reason );
 
 	echo json_encode( $jsonarray );

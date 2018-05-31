@@ -1,6 +1,6 @@
 <?php
 
-	$sb_version = '0.6.21';
+	$sb_version = '0.6.22';
 	$mediaverstion = '.101';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
@@ -16,6 +16,7 @@
 	$statusfile            = $projectpath . 'cache/statusfile.dat';
 	$vmconfigfile          = $projectpath . '.automated_backups_vmlist';
 	$vmbackupinprocessfile = $projectpath . '.automated_backups_inprocess';
+	$lastversioncheckfile = $projectpath . '.versioncheck';
 	$vmbackupemaillog = $projectpath . '.automated_backups_emaillog';
 
 	//change the follow if you like. Used for password obscurity.

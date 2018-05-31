@@ -51,6 +51,7 @@ div {
     border: 1px solid #d1d1d1;
     color: #4d5258;
     background-image: linear-gradient(to bottom,#fafafa 0,#ededed 100%);
+    position: relative;
 }
 .sm_menu_item_right{
     float: right;
@@ -205,4 +206,17 @@ h1.pagetitle {
     position: absolute;
     left: 10px;
     top: 4px;
+}
+.sm_upgrade_off{
+    display: none;
+}
+.sm_upgrade_on{
+    display: inline-block;
+    color: #fff;
+    background: #ff765f;
+    padding: 8px;
+    position: absolute;
+    top: -1px;
+    left: -24px;
+    border: 1px solid #aaa;
 }

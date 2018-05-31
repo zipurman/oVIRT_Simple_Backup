@@ -22,21 +22,49 @@ if [ -f "/var/www/html/crons/fixgrub.dat" ]; then
         then
 
             mkdir /mnt/linux -p
-            mount /dev/${fixgrubtarget}1 /mnt/linux
-            mount -o bind /proc /mnt/linux/proc
-            mount -o bind /dev /mnt/linux/dev
-            mount -o bind /sys /mnt/linux/sys
-        cat << EOF | chroot /mnt/linux /bin/bash
+
+            if [ -f "/mnt/linux/etc/centos-release" ]; then
+            ######CENTOS --- TODO List doesnt work as Debian to CENTOS creates issues
+                lvscan
+                vgchange -ay
+                mount /dev/centos/root /mnt/linux
+                mount /dev/${fixgrubtarget}1 /mnt/linux/boot
+                mount -o bind /proc /mnt/linux/proc
+                mount -o bind /dev /mnt/linux/dev
+                mount -o bind /sys /mnt/linux/sys
+
+                cat << EOF | chroot /mnt/linux /bin/bash
+cd /boot
+dracut -f
+grub2-mkconfig -o /boot/grub2/grub.cfg
+exit
+EOF
+
+                umount /mnt/linux/boot
+
+            else
+            ######DEBIAN
+
+                mount /dev/${fixgrubtarget}1 /mnt/linux
+                mount -o bind /proc /mnt/linux/proc
+                mount -o bind /dev /mnt/linux/dev
+                mount -o bind /sys /mnt/linux/sys
+                cat << EOF | chroot /mnt/linux /bin/bash
 sed -i 's/console=hvc0//g' /etc/default/grub
 update-grub
 update-initramfs -u
 grub-install ${fixgrubtarget}
 exit
 EOF
+
+            fi
+
             umount /mnt/linux/dev/
             umount /mnt/linux/proc/
             umount /mnt/linux/sys/
             umount /mnt/linux/
+
+
             echo "2" > /var/www/html/crons/fixgrub.dat
             rm /var/www/html/crons/fixgrubtarget.dat
         fi

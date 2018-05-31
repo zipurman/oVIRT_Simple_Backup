@@ -1,9 +1,10 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.21)
+# oVIRT_Simple_Backup - WebGUI (0.6.22)
 
 ### A REST API backup from PHP for oVirt 4.2.x
    
 #### To Do
  - [ ] Detect VMs that have issues and disallow backing up with warnings/alerts
+
 
    
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)

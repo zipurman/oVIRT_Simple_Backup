@@ -7,7 +7,7 @@
 	$newvmuuid = '';
 	sleep( 2 );
 
-	if ( $sb_status['status'] == 'restore' && $sb_status['stage'] == 'fixes' ) {
+	if ( $sb_status['status'] == 'restore' && ($sb_status['stage'] == 'fixes'  || $sb_status['stage'] == 'restore_imaging' )) {
 
 
 		$os          = $sb_status['setting10'];

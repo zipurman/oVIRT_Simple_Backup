@@ -114,7 +114,9 @@
 							$reason = 'Started Imaging ' . $disknumberfile . ' to ' . '/dev/' . $dev;
 
 						} else {
-							$reason .= ' (BROKEN)';
+//							$reason .= ' (BROKEN)';
+							$status = 3;
+							$reason = 'Imaging Disk(s) Completed';
 						}
 					}
 

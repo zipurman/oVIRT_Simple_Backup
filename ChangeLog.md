@@ -3,6 +3,11 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.22 - 2018/05/31
+      - Fix some issues with Xen migration logic
+      - [x] Allow for grub fix on CentOS7 VMs (requires installing package "lvm2") 
+      - [x] Alert "!" will now show in top right menu if version update available
+  
   - 0.6.21 - 2018/05/15
       - Fix bug with random emails coming from automatedbackup routine
       

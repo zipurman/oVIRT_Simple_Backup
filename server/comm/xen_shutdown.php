@@ -65,8 +65,8 @@
 				$thinprovision,
 				$passdiscard
 			);
-
 			$sb_status['setting2'] = $xenuuid;
+			$alreadyshutdown = 1;
 		}
 
 		if ( $sb_status['step'] == 2 || $sb_status['step'] == 4 ) {
@@ -86,9 +86,12 @@
 			}
 
 			if ( $status == 'halted' ) {
+				if (!empty($alreadyshutdown)){
+					$sb_status['step'] = 1;
+				}
 				$status = 3;
 				$reason = 'Halted';
-				if ( $sb_status['step'] == 0 ) {
+				if ( $sb_status['step'] == 1 ) {
 					if ( $xenuuid != $settings['uuid_backup_engine'] && $xenuuid != $settings['xen_migrate_uuid'] ) {
 						//create xen disks file
 						$output = sb_vm_disk_array_create( $diskfile, 1, $xenuuid );
@@ -119,8 +122,8 @@
 					if ( $sb_status['step'] == 0 ) {
 						sb_status_set( 'xen_migrate', 'xen_shutdown', 1 );
 						//remove images to make room for new images
-						exec( 'rm ' . $settings['mount_migrate'] . '/xen*.img -f', $statusoffile );
-						exec( 'rm ' . $settings['mount_migrate'] . '/Disk*.dat -f', $statusoffile );
+						exec( 'rm ' . $settings['mount_migrate'] . '/xen*.* -f', $statusoffile );
+						exec( 'rm ' . $settings['mount_migrate'] . '/*.dat -f', $statusoffile );
 					} else if ( $sb_status['step'] == 2 ) {
 						sb_status_set( 'xen_migrate', 'xen_add_vbd', 0 );
 					} else {
@@ -140,7 +143,7 @@
 						} else if ( $sb_status['step'] == 2 ) {
 							sb_status_set( 'xen_migrate', 'xen_add_vbd', 0 );
 						} else {
-							sb_status_set( 'xen_migrate', 'xen_remove_vbd', 3 );
+							sb_status_set( 'xen_migrate', 'xen_remove_vbd', 1 );
 						}
 					} else {
 						$status = 2;

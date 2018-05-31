@@ -2,6 +2,33 @@
 
 	<?php
 
+		//check version
+		if ( file_exists( $lastversioncheckfile ) ) {
+			if ( time() - filemtime( $lastversioncheckfile ) > 3600 ) {
+				$checkmyversion = 1;//60 minutes old
+				exec( 'rm ' . $lastversioncheckfile );
+			} else {
+				$checkmyversion = 0;
+			}
+		} else {
+			$checkmyversion = 1;
+		}
+		if ( ! empty( $checkmyversion ) ) {
+			$newversion = sb_check_upgrade_version();
+
+			if ( $newversion != $sb_version ) {
+				exec( 'echo 1 > ' . $lastversioncheckfile );
+
+			} else {
+				exec( 'echo 0 > ' . $lastversioncheckfile );
+
+			}
+		}
+
+		exec( 'cat ' . $lastversioncheckfile, $versionoutput );
+
+		$upgradeclass = ! empty( $versionoutput[0] ) ? 'sm_upgrade_on' : 'sm_upgrade_off';
+
 		$menuspace = 0;
 		if ( empty( $settings['uuid_backup_engine'] ) ) {
 			$snapshotcheck = array();
@@ -57,7 +84,9 @@
 	} ?>"><a href="?area=99">Settings</a></div>
     <div class="sm_menu_item sm_menu_item_right<?php if ( $area == 98 ) {
 		echo ' sm_menu_active';
-	} ?>"><a href="?area=98">Updates</a></div>
+	} ?>"><a href="?area=98">
+            <div class="<?php echo $upgradeclass; ?>" title="Updates Available">!</div>
+            Updates</a></div>
 
 
 	<?php
