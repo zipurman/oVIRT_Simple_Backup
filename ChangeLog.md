@@ -5,7 +5,7 @@
  
   - 0.6.22 - 2018/05/31
       - Fix some issues with Xen migration logic
-      - [x] Allow for grub fix on CentOS7 VMs (requires installing package "lvm2") 
+      - [x] Allow for grub fix on CentOS7 VMs (requires installing package "lvm2") ** Still buggy
       - [x] Alert "!" will now show in top right menu if version update available
   
   - 0.6.21 - 2018/05/15

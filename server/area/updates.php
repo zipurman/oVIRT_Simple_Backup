@@ -15,6 +15,9 @@
 
 		$newversion = sb_check_upgrade_version();
 
+		if ($sb_version == $newversion){
+			exec( 'rm ' . $lastversioncheckfile );
+		}
 
 		$rowdata = array(
 			array(
