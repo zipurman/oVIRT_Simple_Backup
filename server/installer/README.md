@@ -8,7 +8,7 @@
  
     - [x] Setup the VM IP address/gateway to what you will use on your BackupEngineVM
     
-    - [x] apt-get install curl
+    - [x] apt-get install curl sshpass
     
     - [x] as root run the following command
  ```bash
