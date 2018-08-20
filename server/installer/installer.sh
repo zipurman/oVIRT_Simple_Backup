@@ -48,6 +48,9 @@ then
     echo "NFS INFORMATION FOR BACKUPS"
     echo ""
 
+    mkdir /mnt/backups -p
+    mkdir /mnt/migrate -p
+
     ok=0
     while [ $ok -eq 0 ]
     do
@@ -73,7 +76,7 @@ then
         if [ $ok -eq 1 ]
         then
 
-            mkdir /mnt/backups -p
+
             mount -t $backupnfsversion -o soft,retry=0 ${backupip} /mnt/backups > /dev/null
             testnfs=`df -P -T /mnt/backups/ | tail -n +2 | awk '{print $2}'`
 
@@ -130,7 +133,7 @@ then
             if [ $ok -eq 1 ]
             then
 
-                mkdir /mnt/migrate -p
+
                 mount -t $backupnfsversion -o soft,retry=0 ${migrateip} /mnt/migrate > /dev/null
                 testnfs=`df -P -T /mnt/migrate/ | tail -n +2 | awk '{print $2}'`
 
