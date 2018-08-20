@@ -341,6 +341,7 @@ then
         rm /var/www/oVIRT_Simple_Backup-master/ -R
         chown www-data:root /var/www -R
 
+        echo ""  >> /var/www/html/allowed_ips.php
         echo "\$allowed_ips = array(); //REMOVE THIS LINE IF USING ARRAY ABOVE!!"  >> /var/www/html/allowed_ips.php
 
         echo "Updating Cron Jobs"
@@ -385,6 +386,7 @@ then
         chown www-data:www-data /var/log/simplebackup.log
         echo ""
 
+        mkdir /var/www/html/plugin -p
         cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"name": "simpleBackup",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
