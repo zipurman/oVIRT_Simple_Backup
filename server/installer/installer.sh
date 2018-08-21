@@ -249,7 +249,7 @@ then
         echo "======================================"
         echo ""
         echo "Installing...."
-        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass lzop gzip -y
+        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass lzop gzip apache2 -y
 
         echo "Updating SSH Settings"
         sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config
