@@ -7,6 +7,8 @@
 
 clear
 
+apt-get install sshpass -y
+
 echo ""
 echo "======================================"
 echo "oVirt Simple Backup (WebGUI) Installer"
@@ -328,11 +330,11 @@ then
             echo ""
             echo ""
             echo "Password is for root user of Xen Server"
-            su - www-data -c 'ssh-copy-id root@${xenserver}'
+            su - www-data -c "ssh-copy-id root@${xenserver}"
             echo ""
             echo ""
             echo "Password is for root user of Xen Server Migrate VM"
-            su - www-data -c 'ssh-copy-id root@${xenservermigrate}'
+            su - www-data -c "ssh-copy-id root@${xenservermigrate}"
         fi
 
         cd /var/www/
@@ -395,7 +397,7 @@ then
         echo '"name": "simpleBackup",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"url": "/ovirt-engine/webadmin/plugin/simpleBackup/start.html",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"config": {' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"mainBackupPage": "//${backupengineip}/index.php"' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"mainBackupPage": '"//${backupengineip}/index.php" >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '},' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"resourcePath": "simpleBackup"' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '}' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
@@ -430,7 +432,7 @@ then
             echo ""
             echo "Updating Xen VMMIGRATE"
             echo ""
-            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget lzop gzip fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo "${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0" >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
+            SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget lzop gzip fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo '"${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0"' >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
 
         fi
 
@@ -439,7 +441,7 @@ then
         echo ""
         echo "You should now be able to login to your oVirt WebUI and see the Simple Backup tab in the menu."
         echo ""
-        echo "      - Navigate to oVirtWebUI: https://${ovirtengine}"
+        echo "      - Navigate to oVirtWebUI: https://${ovirtenginefqdn}"
         echo "      - Navigate Directly to oVirtBackupEngineVM: https://${backupengine}"
         echo ""
         echo "      - You may also want to edit /var/www/html/allowed_ips.php to suit your needs."
