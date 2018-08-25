@@ -162,7 +162,7 @@ do
                     then
                         echo -n  "${yellow}"
                     fi
-                    if [ $memcounter -eq 19 ]
+                    if [ $memcounter -eq 21 ]
                     then
                         echo -n  "${red}"
                     fi
@@ -181,7 +181,7 @@ do
                 (( disksize = ( disksize / 1024 / 1024) ))
 
                 echo -n -e "\e[22m" #un dim text
-                echo -n -e "] ${diskpercent}% \t ${diskuse}/${disksize}\n" #un dim text
+                echo -n -e "] ${diskpercent}% \t ${diskuse}/${disksize} GB\n" #un dim text
             fi
 
         fi
