@@ -45,10 +45,11 @@ do
     fi
 
     #top title
-    echo -e -n "\e[1m${green} ${host} ${white} oVirt Monitor - Version: 0.0.1 - By: ZIPUR \n${green} ${uptime}\e[21m"
+    echo -e -n "\e[1m"
+    echo -e -n "${green} ${host} ${white} oVirt Monitor - Version: 0.0.1 - By: ZIPUR \n${green} ${uptime}"
+    echo -e -n "\e[0m"
     echo -e -n "${white}\n"
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -  #horiz line
-    echo ""
     echo ""
 
     enginestatus=`hosted-engine --vm-status | grep "Engine status"`
@@ -88,7 +89,8 @@ do
         ((memcounter++))
     done
     echo -n "${white}"
-    echo -n -e "\e[22m]" #un dim text
+    echo -n -e "\e[22m" #un dim text
+    echo -n -e "]"
     echo ""
 
     #SWAP --------------------------------------------------------------
@@ -119,7 +121,8 @@ do
     done
 
     echo -n "${white}"
-    echo -n -e "\e[22m]" #un dim text
+    echo -n -e "\e[22m" #un dim text
+    echo -n -e "]"
     echo ""
     echo ""
     echo "DISKS"
@@ -177,7 +180,8 @@ do
                 (( diskuse = ( diskuse / 1024 / 1024) ))
                 (( disksize = ( disksize / 1024 / 1024) ))
 
-                echo -n -e "\e[22m] ${diskpercent}% \t ${diskuse}/${disksize}\n" #un dim text
+                echo -n -e "\e[22m" #un dim text
+                echo -n -e "] ${diskpercent}% \t ${diskuse}/${disksize}\n" #un dim text
             fi
 
         fi
