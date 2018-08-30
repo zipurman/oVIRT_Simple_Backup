@@ -24,6 +24,7 @@
         * exit all ssh sessions and kill any remaining PIDs of sshd
         * service sshd restart
     *  Create a Debian Linux VM named VMMIGRATE
+        * MAKE SURE YOU INSTALL USING US ENGLISH FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
         *  Install the following packages:
             *  pv
             *  lzop
@@ -54,6 +55,7 @@
 
 3.  On oVirt Server
     *  Create a Debian Linux VM named BackupEngine and login to that VM to do the following commands.
+    * MAKE SURE YOU INSTALL USING US ENGLISH FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
     *  Install the following packages:
         *  pv
         *  curl
