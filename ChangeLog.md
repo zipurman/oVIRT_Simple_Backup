@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.23 - 2018/08/29
+      - Fix code to be better with other languages, but "US English" is still recommended to make sure all scripts function as intended
+      
   - 0.6.22 - 2018/05/31
       - Fix some issues with Xen migration logic
       - [x] Allow for grub fix on CentOS7 VMs (requires installing package "lvm2") ** Still buggy
