@@ -4,7 +4,7 @@
 
  - [x] If you are planning on using for a Xen Migration - Install a new VM in Xen as Debian 9 Command Line Only with ssh *enabled for root access*
  
- * MAKE SURE YOU INSTALL USING US ENGLISH FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
+ * MAKE SURE YOU INSTALL USING "US ENGLISH" FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
 
  - [x] Install a new VM in oVirt as Debian 9 Command Line Only with ssh
  
