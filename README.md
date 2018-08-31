@@ -31,12 +31,16 @@
 
 [Debian Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
 
+*** ONLY DEBIAN IS SUPPORTED ***
+
 ---
 
 
 #### Manual Install
 
 [Debian Install Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/install_debian.md)
+
+*** ONLY DEBIAN IS SUPPORTED ***
 
 ---
 
