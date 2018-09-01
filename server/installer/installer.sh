@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # Written by Preston Lord
-# oVirt Simple Backup (WebGUI) Installer Version 0.1.2
-# Last Updated April 20, 2018
-# written for Debian Only
+# oVirt Simple Backup (WebGUI) Installer Version 0.1.3
+# Last Updated Aug 31, 2018
+# written for Debian ONLY!!
+
+if [ ! -f "/etc/debian_version" ]; then
+    echo "This script will only work on Debian"
+    exit 0
+fi
 
 clear
 

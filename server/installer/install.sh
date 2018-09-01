@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Written by Preston Lord
-# oVirt Simple Backup (WebGUI) Installer Version 0.1.0
-# Last Updated April 07, 2018
+# oVirt Simple Backup (WebGUI) Installer Version 0.1.1
+# Last Updated Aug 31, 2018
 # written for Debian Only
 
 #requires
@@ -12,6 +12,11 @@
 
 #Run as root using:
 # curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/installer/install.sh | bash
+
+if [ ! -f "/etc/debian_version" ]; then
+    echo "This script will only work on Debian"
+    exit 0
+fi
 
 #Config Options
 SERVERROOT="/var/www/html/"
