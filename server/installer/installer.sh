@@ -397,7 +397,7 @@ then
         echo '"name": "simpleBackup",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"url": "/ovirt-engine/webadmin/plugin/simpleBackup/start.html",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"config": {' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"mainBackupPage": '"//${backupengineip}/index.php" >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"mainBackupPage": '"\"//${backupengineip}/index.php\"" >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '},' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"resourcePath": "simpleBackup"' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '}' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
