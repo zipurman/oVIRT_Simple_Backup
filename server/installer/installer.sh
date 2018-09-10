@@ -12,7 +12,7 @@ fi
 
 clear
 
-apt-get install sshpass -y
+apt-get install sshpass nfs-common -y
 
 echo ""
 echo "======================================"
