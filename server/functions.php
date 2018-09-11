@@ -537,7 +537,7 @@
 
 		return array(
 			array( 'id' => 'server', 'name' => 'server', ),
-			array( 'id' => 'workstation', 'name' => 'workstation', ),
+			array( 'id' => 'desktop', 'name' => 'desktop', ),
 		);
 	}
 
