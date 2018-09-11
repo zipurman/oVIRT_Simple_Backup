@@ -345,8 +345,10 @@ then
         cd /var/www/
         wget -N --retry-connrefused https://github.com/zipurman/oVIRT_Simple_Backup/archive/master.zip
         unzip master.zip
+
         rm /var/www/html -R
         mv /var/www/oVIRT_Simple_Backup-master/server /var/www/html
+        mv /var/www/oVIRT_Simple_Backup-master/plugin /opt/oVirtSimpleInstaller/
         rm master.zip
         rm /var/www/oVIRT_Simple_Backup-master/ -R
         chown www-data:root /var/www -R
@@ -396,13 +398,11 @@ then
         chown www-data:www-data /var/log/simplebackup.log
         echo ""
 
-        mkdir /var/www/html/plugin -p
-        cp /var/www/html/plugin /opt/oVirtSimpleInstaller/ -R
         echo "{" > /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"name": "simpleBackup",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"url": "/ovirt-engine/webadmin/plugin/simpleBackup/start.html",' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"config": {' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
-        echo '"mainBackupPage": '"\"//${backupengineip}/index.php\"" >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
+        echo '"mainBackupPage": '"\"//${backupengine}/index.php\"" >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '},' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '"resourcePath": "simpleBackup"' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
         echo '}' >> /opt/oVirtSimpleInstaller/plugin/simpleBackup.json
@@ -414,12 +414,9 @@ then
         echo "Updating oVirtEngine"
         echo ""
 
-
-
         SSHPASS="${ovirtenginepass}" sshpass -e scp -r -o StrictHostKeyChecking=no /opt/oVirtSimpleInstaller/plugin/simpleBackup* root@${ovirtengine}:/usr/share/ovirt-engine/ui-plugins/
 
         SSHPASS="${ovirtenginepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${ovirtengine} 'chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && engine-config -s CORSSupport=true && engine-config -s CORSAllowedOrigins=*  && service ovirt-engine restart'
-
 
         echo "${ovirtengine} ${ovirtenginefqdn}" >> /etc/hosts
         echo "${backupengineip} ${backupengine}" >> /etc/hosts
