@@ -69,11 +69,6 @@
         *  fsarchiver
         *  parted
         *  nfs-common
-        *  php5
-            *  php5
-            *  php5-curl
-            *  php-libxml php-xml php-simplexml (CentOS/RH)
-            *  libapache2-mod-php5 (Debian)
         *  php7
             *  php7.0
             *  php7.0-curl
@@ -87,7 +82,7 @@
                             
             #add these lines:
             PermitRootLogin yes
-            Use DNS no
+            UseDNS no
             ```
 
         *  /etc/init.d/ssh restart
@@ -111,12 +106,13 @@
             *  ServerName backupengine.**yourdomain**.com:443
             *  DocumentRoot /var/www/html/site
             *  SSLCertificateFile /etc/apache2/ssl/apache.crt
+            *  SSLCertificateKeyFile /etc/apache2/ssl/apache.key
         * a2ensite default-ssl.conf
         * service apache2 reload
         * chsh -s /bin/bash www-data
         * chmod 777 /mnt
         * chmod 777 /mnt/migrate/
-        * chmod 777 /mnt/backup
+        * chmod 777 /mnt/backups
         * chmod 777 /mnt/linux
         * mkdir /var/www/.ssh
         * chown www-data:www-data /var/www/.ssh
