@@ -3,6 +3,10 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.24 - 2018/09/1
+      - Fix a couple issues with installer script, manual install how-to
+      - Fix issue with "desktop" version of restore process
+      
   - 0.6.23 - 2018/08/29
       - Fix code to be better with other languages, but "US English" is still recommended to make sure all scripts function as intended
       
