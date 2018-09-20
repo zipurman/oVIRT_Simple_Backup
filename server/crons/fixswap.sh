@@ -38,7 +38,7 @@ if [ -f "/var/www/html/crons/fixswap.dat" ]; then
         echo "cat /etc/fstab" >> /tmp/fixswap2.sh
         echo "fdisk -l" >> /tmp/fixswap2.sh
         echo "free" >> /tmp/fixswap2.sh
-        echo "echo \"Make sure the above shows correctly\"" >> /tmp/fixswap2.sh
+        echo "echo \"Make sure the above shows correctly and MAKE SURE TO DELETE fixswap1.sh and fixswap2.sh !!!\"" >> /tmp/fixswap2.sh
 
         /bin/chmod 700 /tmp/fixswap1.sh
         /bin/chmod 700 /tmp/fixswap2.sh

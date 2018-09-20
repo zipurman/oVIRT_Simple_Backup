@@ -3,6 +3,10 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.25 - 2018/09/20
+      - Xen Migrate VMS - sort list by name
+      - Single Backup - show VM Comment if set
+      
   - 0.6.24 - 2018/09/1
       - Fix a couple issues with installer script, manual install how-to
       - Fix issue with "desktop" version of restore process

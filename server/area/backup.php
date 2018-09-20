@@ -59,6 +59,10 @@
 
 				$rowlink = ( $vm['id'] == $settings['uuid_backup_engine'] ) ? '<a href="javascript: alert(\'You cannot backup the Backup Appliance VM using oVirt Simple Backup.\n\nThe best way to backup the appliance is to export it using the Web GUI to your export domain.\');">' . $vm->name . '</a> (This VM)' : '<a href="?area=2&action=select&vm=' . $vm['id'] . '">' . $vm->name . '</a>';
 
+                if (!empty($vm->comment)){
+                    $rowlink .= ' (' . $vm->comment . ')';
+                }
+
 				if ( $vm->name != 'HostedEngine' ) {
 					$rowdata = array(
 						array(
