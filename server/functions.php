@@ -230,7 +230,7 @@
 
 		GLOBAL $settings, $salt, $pepper, $mykey;
 
-		if ( ! empty( $settings['uuid_backup_engine'] ) ) {
+		if ( ! empty( $settings['uuid_backup_engine'] ) && ! empty( $settings['ovirt_pass'] ) ) {
 			$ch = curl_init();
 			curl_setopt( $ch, CURLOPT_URL, "https://{$settings['ovirt_url']}/ovirt-engine/api/{$path}" );
 			if ( $type == 'POST' ) {

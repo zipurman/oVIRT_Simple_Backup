@@ -40,48 +40,88 @@
 
 		if ( $savestep == 1 || empty( $settings ) ) {
 
-			$backup_log         = varcheck( "backup_log", '' );
-			$cluster            = varcheck( "cluster", '' );
-			$drive_interface    = varcheck( "drive_interface", 0, "FILTER_VALIDATE_INT", 0 );
-			$drive_type         = varcheck( "drive_type", 0, "FILTER_VALIDATE_INT", 0 );
-			$retention          = varcheck( "retention", 0, "FILTER_VALIDATE_INT", 0 );
-			$label              = varcheck( "label", '' );
-			$tz                 = varcheck( "tz", 'America/Regina' );
-			$mount_backups      = varcheck( "mount_backups", '' );
-			$mount_migrate      = varcheck( "mount_migrate", '' );
-			$ovirt_pass         = varcheck( "ovirt_pass", '' );
-			$ovirt_url          = varcheck( "ovirt_url", '' );
-			$ovirt_user         = varcheck( "ovirt_user", '' );
-			$email              = varcheck( "email", '' );
-			$emailfrom          = varcheck( "emailfrom", '' );
-			$storage_domain     = varcheck( "storage_domain", '' );
-			$uuid_backup_engine = varcheck( "uuid_backup_engine", '' );
-			$xen_migrate_uuid   = varcheck( "xen_migrate_uuid", '' );
-			$xen_migrate_ip     = varcheck( "xen_migrate_ip", '' );
-			$xen_ip             = varcheck( "xen_ip", '' );
+            $savestepstart    = varcheck( "savestepstart", 0, "FILTER_VALIDATE_INT", 0 );
 
-			$restore_console     = varcheck( "restore_console", '' );
-			$restore_os          = varcheck( "restore_os", '' );
-			$restore_vm_type     = varcheck( "restore_vm_type", '' );
-			$restore_cpu_sockets = varcheck( "restore_cpu_sockets", 0, "FILTER_VALIDATE_INT", 0 );
-			$restore_cpu_cores   = varcheck( "restore_cpu_cores", 0, "FILTER_VALIDATE_INT", 0 );
-			$restore_cpu_threads = varcheck( "restore_cpu_threads", 0, "FILTER_VALIDATE_INT", 0 );
-			$compress            = varcheck( "compress", 0, "FILTER_VALIDATE_INT", 0 );
+            $ovirt_url          = varcheck( "ovirt_url", '' );
+            $ovirt_pass         = varcheck( "ovirt_pass", '' );
+            $ovirt_user         = varcheck( "ovirt_user", '' );
+            $uuid_backup_engine = varcheck( "uuid_backup_engine", '' );
 
-			$diskx           = sb_check_disks();
-			$drive_type      = $diskx['disktype'];
-			$drive_interface = $diskx['driveinterface'];
+            if (!empty($savestepstart)){
+                //if saving from small user form in menu
+                $backup_log = $settings['backup_log'];
+                $cluster = $settings['cluster'];
+                $drive_interface = $settings['drive_interface'];
+                $drive_type = $settings['drive_type'];
+                $retention = $settings['retention'];
+                $label = $settings['label'];
+                $tz = $settings['tz'];
+                $mount_backups = $settings['mount_backups'];
+                $mount_migrate = $settings['mount_migrate'];
+                $mount_migrate = $settings['mount_migrate'];
+                $email = $settings['email'];
+                $emailfrom = $settings['emailfrom'];
+                $storage_domain = $settings['storage_domain'];
+                $xen_migrate_uuid = $settings['xen_migrate_uuid'];
+                $xen_migrate_ip = $settings['xen_migrate_ip'];
+                $xen_ip = $settings['xen_ip'];
+                $restore_console = $settings['restore_console'];
+                $restore_os = $settings['restore_os'];
+                $restore_vm_type = $settings['restore_vm_type'];
+                $restore_cpu_sockets = $settings['restore_cpu_sockets'];
+                $restore_cpu_cores = $settings['restore_cpu_cores'];
+                $restore_cpu_threads = $settings['restore_cpu_threads'];
+                $compress = $settings['compress'];
+                $backup_log = $settings['backup_log'];
 
-			//make sure log file is valid if defined
-			if ( ! empty( $backup_log ) ) {
-				if ( strpos( $backup_log, '.log' ) == false ) {
-					if ( substr( $backup_log, - 1 ) == '/' ) {
-						$backup_log .= 'simplebackup.log';
-					} else if ( substr( $backup_log, - 4, 4 ) != '.log' ) {
-						$backup_log .= '_simplebackup.log';
-					}
-				}
-			}
+                $diskx           = sb_check_disks();
+                $drive_type      = $diskx['disktype'];
+                $drive_interface = $diskx['driveinterface'];
+
+            } else {
+
+                $backup_log         = varcheck( "backup_log", '' );
+                $cluster            = varcheck( "cluster", '' );
+                $drive_interface    = varcheck( "drive_interface", 0, "FILTER_VALIDATE_INT", 0 );
+                $drive_type         = varcheck( "drive_type", 0, "FILTER_VALIDATE_INT", 0 );
+                $retention          = varcheck( "retention", 0, "FILTER_VALIDATE_INT", 0 );
+                $label              = varcheck( "label", '' );
+                $tz                 = varcheck( "tz", 'America/Regina' );
+                $mount_backups      = varcheck( "mount_backups", '' );
+                $mount_migrate      = varcheck( "mount_migrate", '' );
+                $email              = varcheck( "email", '' );
+                $emailfrom          = varcheck( "emailfrom", '' );
+                $storage_domain     = varcheck( "storage_domain", '' );
+                $xen_migrate_uuid   = varcheck( "xen_migrate_uuid", '' );
+                $xen_migrate_ip     = varcheck( "xen_migrate_ip", '' );
+                $xen_ip             = varcheck( "xen_ip", '' );
+
+                $restore_console     = varcheck( "restore_console", '' );
+                $restore_os          = varcheck( "restore_os", '' );
+                $restore_vm_type     = varcheck( "restore_vm_type", '' );
+                $restore_cpu_sockets = varcheck( "restore_cpu_sockets", 0, "FILTER_VALIDATE_INT", 0 );
+                $restore_cpu_cores   = varcheck( "restore_cpu_cores", 0, "FILTER_VALIDATE_INT", 0 );
+                $restore_cpu_threads = varcheck( "restore_cpu_threads", 0, "FILTER_VALIDATE_INT", 0 );
+                $compress            = varcheck( "compress", 0, "FILTER_VALIDATE_INT", 0 );
+
+                $diskx           = sb_check_disks();
+                $drive_type      = $diskx['disktype'];
+                $drive_interface = $diskx['driveinterface'];
+
+                //make sure log file is valid if defined
+                if ( ! empty( $backup_log ) ) {
+                    if ( strpos( $backup_log, '.log' ) == false ) {
+                        if ( substr( $backup_log, - 1 ) == '/' ) {
+                            $backup_log .= 'simplebackup.log';
+                        } else if ( substr( $backup_log, - 4, 4 ) != '.log' ) {
+                            $backup_log .= '_simplebackup.log';
+                        }
+                    }
+                }
+            }
+
+
+
 
 			$configfile = fopen( "../config.php", "w" ) or die( "Unable to open config file.<br/><br/>Check permissions on config.php!" );
 			fwrite( $configfile, '<?php' . "\n" );

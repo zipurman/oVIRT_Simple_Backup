@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.26 - 2018/09/29
+      - Add extra logic for troubleshooting initial user/pass entry
+      
   - 0.6.25 - 2018/09/20
       - Xen Migrate VMS - sort list by name
       - Single Backup - show VM Comment if set

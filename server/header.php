@@ -29,7 +29,10 @@
         <div id="sb_head">
             oVirt Simple Backup (WebGUI) - Version: <?php echo $sb_version; ?>
         </div>
-		<?php require( $projectpath . 'menu.php' ); ?>
-        <div id="sb_outerbox">
-		<?php
+		<?php require( $projectpath . 'menu.php' );
+        if ( empty( ! $settings['uuid_backup_engine'] ) && ! empty( $settings['ovirt_pass'] ) ) {
+            ?>
+            <div id="sb_outerbox">
+            <?php
+        }
 	}

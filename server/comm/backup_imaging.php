@@ -114,7 +114,7 @@
 
 									} else if ( $settings['compress'] == '2' ) {
 
-										$command = '(pv -n /dev/' . $dev . ' | lzop -c | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img.lzo" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
+										$command = '(pv -n /dev/' . $dev . ' | lzop --fast -c | dd of="' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $disknumberfile . '.img.lzo" bs=1M conv=notrunc,noerror status=none)   > ' . $progressfilename . ' 2>&1 &';//trailing & sends to background
 
 									}
 									$output = null;
