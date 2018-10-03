@@ -44,6 +44,12 @@
 
 ---
 
+#### Install oVirt Client on Debian VM
+
+[Client Install Instructions](http://zipur.ca/knowledgebase/debian-8-jessie-ovirt-guest-agent/)
+
+---
+
 
 #### Frequently Asked Questions
 
