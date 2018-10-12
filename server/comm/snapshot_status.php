@@ -21,8 +21,12 @@
 		sb_log('------------------------------------------------------');
 		sb_log('Starting Backup ... ' . $vmuuid . ' ' . $vm->name);
 
+        if (empty($settings['withoutmemory'])){
+            $xml  = '<snapshot><description>' . $snapshotname . '</description></snapshot>';
+        } else {
+            $xml  = '<snapshot><description>' . $snapshotname . '</description><persist_memorystate>false</persist_memorystate></snapshot>';
+        }
 
-		$xml  = '<snapshot><description>' . $snapshotname . '</description></snapshot>';
 
 		$snap = ovirt_rest_api_call( 'POST', 'vms/' . $vm['id'] . '/snapshots', $xml );
 
