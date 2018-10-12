@@ -27,7 +27,6 @@
             $xml  = '<snapshot><description>' . $snapshotname . '</description><persist_memorystate>false</persist_memorystate></snapshot>';
         }
 
-
 		$snap = ovirt_rest_api_call( 'POST', 'vms/' . $vm['id'] . '/snapshots', $xml );
 
 		sb_status_set('backup', 'snapshot', 1, $vm['id'], $snapshotname);

@@ -3,7 +3,7 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
-  - 0.6.27 - 2018/10/12
+  - 0.6.27 - 2018/10/12 
       - Add extra setting for backing up memory state (yes/no)
       
   - 0.6.26 - 2018/09/29

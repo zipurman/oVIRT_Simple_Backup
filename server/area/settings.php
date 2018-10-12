@@ -75,6 +75,7 @@
                 $backup_log          = $settings['backup_log'];
                 $withoutmemory       = $settings['withoutmemory'];
 
+
                 $diskx           = sb_check_disks();
                 $drive_type      = $diskx['disktype'];
                 $drive_interface = $diskx['driveinterface'];
