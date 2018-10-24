@@ -87,7 +87,7 @@
 
         *  /etc/init.d/ssh restart
         *  mkdir /mnt/backups
-        *  mkdir /mnt/migrate
+        *  mkdir /mnt/migrate (setup mount point for NFS - /mnt/migrate If using Xen Migration)
         *  mkdir /mnt/linux
         *  vi /etc/fstab (setup mount point for NFS - /mnt/backups)
         *  mount /mnt/backups
