@@ -36,6 +36,10 @@ chmod 700 /opt/oVirtSimpleInstaller/installer.sh
 
 clear
 
+echo "MAKE SURE YOU ARE RUNNING THIS ON A FRESHLY INSTALLED DEBIAN VM IN YOUR OVIRT ENVIRONMENT"
+echo ""
+echo "!!! DO NOT RUN THIS SCRIPT ON A VM IN THE XENSERVER ENVIRONMENT !!!"
+echo ""
 echo "You can now run the following script to install oVirt Simple Backup"
 echo ""
 echo "              - rem out any cdrom/dvd median in /etc/apt/sources.list"
