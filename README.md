@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI (0.6.27) 
+#oVIRT_Simple_Backup - WebGUI (0.6.27) 
 
 ### A REST API backup from PHP for oVirt 4.2.x
    
@@ -29,18 +29,28 @@
 
 #### Install Script
 
+This script is recommended to be used to setup the oVirt BackupEngine VM.
+
+!!!! Zipur, consider removing the xenAinstaller section from the script. I used the script to setup my VM its much easier than the manual steps !!!!!
 [Debian Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
 
 *** ONLY DEBIAN IS SUPPORTED ***
+The Debian version tested is 9.5.0.
 
 ---
 
 
 #### Manual Install
+The manual steps will walk you through the setup of the BackupEngine VM.
+If you want to use the Citrix Xen migration tools then you must follow the appropiate section in the manual install.
+You can choose to setup the BackupEngine VM with the script and then manually setup the Xen Migration.
+
+*It is HIGHLY recommended you go through the manual steps first to understand what you need to do*
 
 [Debian Install Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/install_debian.md)
 
 *** ONLY DEBIAN IS SUPPORTED ***
+The Debian version tested is 9.5.0.
 
 ---
 

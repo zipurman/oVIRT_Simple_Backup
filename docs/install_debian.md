@@ -31,7 +31,7 @@ You can install oVirtSimpleBackup for the following:
     * When running migrations BackupEngine will:
         * Call to specified XenHost Server 
             * shutdown the target VM
-            * shutdown VMMIGRATE
+            * shutdown VMMIGRATE  !!!!! Zipur, check your code. I can confirm that the VMMIGRATE VM does not shutdown !!!!!
             * detatch the disk(s) from the target VM
             * attach the disk(s) as an additional disk to VMMIGRATE
             * start VMMIGRATE
@@ -51,8 +51,6 @@ You can install oVirtSimpleBackup for the following:
         * connect to oVirtEngine
             * disconnect the disk(s) from oVirtEngine 
             * attach to new VM
-            
-
 
 ---
 
@@ -64,13 +62,13 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
     1. Create a Debian Linux VM
         1. name: BackupEngine
         2. 4GB ram
-        3. 2GB single disk
-        4. MINIMAL INSTALL ONLY
+        3. 8GB single disk   !!!!! Zipur, Debian 9.5.0 requires at least 8GB !!!!!
+        4. MINIMAL INSTALL ONLY ie. OpenSSH server and base install
         5. MAKE SURE YOU INSTALL USING "US ENGLISH" FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
     2. Once installed do the following as root on the BackupEngine VM:
         1. ``sed -i '2,5 s/^/#/' /etc/apt/sources.list`` will rem out the line with the CD ROM
         2. ``apt-get update``
-        3. ``apt-get install pv curl lzop gzip xmlstarlet lsscsi exim4 uuid-runtime fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml``
+        3. ``apt-get install pv curl lzop gzip xmlstarlet lsscsi exim4 uuid-runtime fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml unzip``
         4. ``vi /etc/exim4/update-exim4.conf.conf`` change setting to suit your email needs
         5. ``/etc/init.d/exim4 restart``
         6. ``sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config`` 
@@ -113,7 +111,7 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
             * ``* * * * * root /var/www/html/crons/fixswap.sh >>/var/log/fixswap.log 2>&1``
         35. ``usermod -a -G cdrom www-data``
  
-        
+
 * STEP 2 - Configure the oVirtEngine
     1. ssh to the oVirtEngine VM as root and do the following:
         1. ``engine-config -s CORSSupport=true``
@@ -139,13 +137,13 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
     2. Create a new VM in your XEN ENVIRONMENT
         1. name: VMMIGRATE
         2. 4GB ram
-        3. 2GB single disk
+        3. 8GB single disk
         4. MINIMAL INSTALL ONLY
         5. MAKE SURE YOU INSTALL USING "US ENGLISH" FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
     3. Once installed do the following as root on the VMMIGRATE VM:
         1. ``sed -i '2,5 s/^/#/' /etc/apt/sources.list`` will rem out the line with the CD ROM
         2. ``apt-get update``
-        3. ``apt-get install pv lzop gzip dialog fsarchiver chroot wget``
+        3. ``apt-get install pv lzop gzip dialog fsarchiver wget nfs-common``
         4. ``sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config`` 
         5. ``echo "PermitRootLogin yes" >> /etc/ssh/sshd_config``
         6. ``echo "UseDNS no" >> /etc/ssh/sshd_config``
@@ -160,7 +158,7 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
             * ``exit`` returns you to root user
  
 
-This how-to was re-written on 10-25-2018. Let zipur know if I missed anything on IRC SERVER irc.oftc.net CHANNEL #ovirt
+This how-to was re-written on 11-01-2018. Let zipur know if I missed anything on IRC SERVER irc.oftc.net CHANNEL #ovirt
 
 ---
 
@@ -171,4 +169,3 @@ This how-to was re-written on 10-25-2018. Let zipur know if I missed anything on
 *  Add a cronjob as follows (to run every 5 minutes - will check backup scheduled times within 6 minute buffer time. So a backup scheduled in the UI for 8:30 will fire any where between 8:30 and 8:35):
 ```bash
 */5 * * * * www-data php /var/www/html/automatedbackup.php >/dev/null 2>&1
-```
