@@ -50,12 +50,17 @@ The manual steps will walk you through the setup of the oVirtSimpleBackupVM.
 
 ---
 
+#### XEN MIGRATION 
+
+[Post Migration Troubleshooting](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/POST_XEN_MIGRATION.md)
+
+---
+
 #### Install oVirt Client on Debian VM
 
 [Client Install Instructions](http://zipur.ca/knowledgebase/debian-8-jessie-ovirt-guest-agent/)
 
 ---
-
 
 #### Frequently Asked Questions
 
