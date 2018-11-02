@@ -11,7 +11,7 @@
         - On BackupEngineVM 
             - tail /var/log/simplebackup.log -f
         - On oVirtEngine
-            - tail /var/log/ovirt-*/*.log -f
+            - tail /var/log/ovirt-\*/*.log -f
         - Once the above logs are being tailed, then try a backup and watch for errors to see where the issue is.
         
         
