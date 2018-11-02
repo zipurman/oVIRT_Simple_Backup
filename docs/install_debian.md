@@ -7,6 +7,7 @@
 
 
 You can install oVirtSimpleBackup for the following:
+
     * Single backup/restore of oVirt VMs (manually or scheduled)
     * Migration of XenServer VMs to oVirt
 
@@ -64,7 +65,7 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
     1. Create a Debian Linux VM
         1. name: BackupEngine
         2. 4GB ram
-        3. 2GB single disk
+        3. 2GB single disk (using manual partitions (80% /)()20% swap) OR 8GB single disk using (using automated partitioning as automated has a minimum of 8GB)
         4. MINIMAL INSTALL ONLY
         5. MAKE SURE YOU INSTALL USING "US ENGLISH" FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
     2. Once installed do the following as root on the BackupEngine VM:
