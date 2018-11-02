@@ -17,7 +17,7 @@
 
 				$diskdata = ovirt_rest_api_call( 'GET', 'disks/' . $disk['id'] );
 
-				sb_log('Detatching Disk From BackupEngine - ' . $disk['id']);
+				sb_log('Detatching Disk From oVirtSimpleBackupVM - ' . $disk['id']);
 
 				$snap = ovirt_rest_api_call( 'DELETE', 'vms/' . $vmuuid . '/diskattachments/' . $disk['id'] );
 				exec( 'echo  ' . $diskdata->name . ' ' . $disk['id'] . ' >> ../cache/diskattachitems.dat' );

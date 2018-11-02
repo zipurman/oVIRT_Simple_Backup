@@ -1,4 +1,4 @@
-#### Install Steps using Debian as your VM OS for the oVirtBackupEngine and XenMigrateVM
+#### Install Steps using Debian as your VM OS for the oVirtSimpleBackupVM and XenMigrateVM
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
@@ -12,24 +12,24 @@ You can install oVirtSimpleBackup for the following:
     * Migration of XenServer VMs to oVirt
 
 ## How the oVirt Backup works:
-    * A new VM must be created in the oVirt environment. We will call this BackupEngine.
-    * A NFS share must be added on BackupEngine to /mnt/backups. This is where the backups will be saved.
-    * When running backups BackupEngine will:
+    * A new VM must be created in the oVirt environment. We will call this oVirtSimpleBackup.
+    * A NFS share must be added on oVirtSimpleBackupVM to /mnt/backups. This is where the backups will be saved.
+    * When running backups oVirtSimpleBackup will:
         * connect to oVirtEngine
         * snapshot the target VM
-        * attach the snapshot to BackupEngine as an additional disk
+        * attach the snapshot to oVirtSimpleBackupVM as an additional disk
         * image the disk to /mnt/backups/
         * remove the attached snapshot
         * delete the snapshot
 
 ## How the Xen to oVirt Migration Works:
-    * Requires the BackupEngine, so make sure you install the BackupEngine in the oVirt environment
+    * Requires the oVirtSimpleBackupVM, so make sure you install the oVirtSimpleBackupVM in the oVirt environment
     * A new VM must be created in the XenServer environment as well. We will call this VMMIGRATE.
-    * A NFS share must be added on BackupEngine and VMMIGRATE to /mnt/migrate. This is where the migration files will be written and read.
+    * A NFS share must be added on oVirtSimpleBackup and VMMIGRATE to /mnt/migrate. This is where the migration files will be written and read.
     * VMMIGRATE is a simple VM that does the following:
-        * Receives ssh commands from BackupEngine to image attached disks when migrating VMs
-    * BackupEngine will also ssh to your specified XenHost Server and issue commands to shutdown, start, attach disks, remove disks, etc. for VMs that will be involved in the migration (VMMIGRATE and TargetVM)
-    * When running migrations BackupEngine will:
+        * Receives ssh commands from oVirtSimpleBackup to image attached disks when migrating VMs
+    * oVirtSimpleBackup will also ssh to your specified XenHost Server and issue commands to shutdown, start, attach disks, remove disks, etc. for VMs that will be involved in the migration (VMMIGRATE and TargetVM)
+    * When running migrations oVirtSimpleBackup will:
         * Call to specified XenHost Server 
             * shutdown the target VM
             * shutdown VMMIGRATE
@@ -45,8 +45,8 @@ You can install oVirtSimpleBackup for the following:
         * connect to oVirtEngine
             * create a new VM
             * create new Disk(s) for new VM
-            * attach the new disk(s) to BackupEngine
-        * BackupEngine will then
+            * attach the new disk(s) to oVirtSimpleBackupVM
+        * oVirtSimpleBackup will then
             * image the disk(s) from /mnt/migrate
             * Any other selected tasks (fix grub, fix swap) (requires /mnt/linux for chroot activities)
         * connect to oVirtEngine
@@ -57,18 +57,18 @@ You can install oVirtSimpleBackup for the following:
 
 ---
 
-### Steps to setting up BackupEngine 
+### Steps to setting up oVirtSimpleBackupVM 
 
-BackupEngine is required for both Backups of oVirt VMs as well as migration of XenServer VMs. This VM will be the primary interface on any functionality and is required.
+oVirtSimpleBackupVM is required for both Backups of oVirt VMs as well as migration of XenServer VMs. This VM will be the primary interface on any functionality and is required.
 
-* STEP 1 - SETUP THE BackupEngine On oVirt Server
+* STEP 1 - SETUP THE oVirtSimpleBackupVM On oVirt Server
     1. Create a Debian Linux VM
-        1. name: BackupEngine
+        1. name: oVirtSimpleBackup
         2. 4GB ram
         3. 2GB single disk (using manual partitions (80% /)()20% swap) OR 8GB single disk using (using automated partitioning as automated has a minimum of 8GB)
         4. MINIMAL INSTALL ONLY
         5. MAKE SURE YOU INSTALL USING "US ENGLISH" FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
-    2. Once installed do the following as root on the BackupEngine VM:
+    2. Once installed do the following as root on the oVirtSimpleBackupVM:
         1. ``sed -i '2,5 s/^/#/' /etc/apt/sources.list`` will rem out the line with the CD ROM
         2. ``apt-get update``
         3. ``apt-get install pv curl lzop gzip xmlstarlet lsscsi exim4 uuid-runtime fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml``
@@ -88,7 +88,7 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
         17. ``openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt`` (**Do Not Add Pass Phrase**)
         18. ``chmod 600 /etc/apache2/ssl/\*``
         19. ``vi /etc/apache2/sites-available/default-ssl.conf`` and set the following:
-            *  ServerName backupengine.**yourdomain**.com:443
+            *  ServerName backups.**yourdomain**.com:443
             *  DocumentRoot /var/www/html/site
             *  SSLCertificateFile /etc/apache2/ssl/apache.crt
             *  SSLCertificateKeyFile /etc/apache2/ssl/apache.key
@@ -125,7 +125,7 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
         6. ``cd simpleBackup``
         7. ``wget -N --retry-connrefused https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/plugin/simpleBackup/start.html``
         8. ``cd /usr/share/ovirt-engine/ui-plugins``
-        9. ``vi simpleBackup.json`` Change IP Address in simpleBackup.json to match your oVirtBackupEngine VM
+        9. ``vi simpleBackup.json`` Change IP Address in simpleBackup.json to match your oVirtSimpleBackupVM
         10. ``chmod 755 /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R``
         11. ``service ovirt-engine restart``
         12. You should now be able to login to your oVirt Web UI and see the SimpleBackup menu item on the left.
@@ -155,7 +155,7 @@ BackupEngine is required for both Backups of oVirt VMs as well as migration of X
         9. ``mkdir /mnt/migrate``
         10. ``vi /etc/fstab`` (setup mount point for NFS - /mnt/migrate) Example: 10.50.90.195:/volume1/OVIRT/MIGRATE /mnt/migrate nfs4 rw,async,hard,intr,noexec 0 0
         11. ``mount /mnt/migrate && chmod 777 /mnt/migrate/``
-    4. You now have to login to the oVirt BackupEngine VM as root and do the following:
+    4. You now have to login to the oVirt oVirtSimpleBackupVM as root and do the following:
         1. ``su www-data`` This switches user to www-data. As www-data issue the following commands:
             * ``ssh-copy-id root@**ip.of.XEN.HOST.SERVER**`` NOT THE VMMIGRATE VM BUT THE XEN HOST SERVER!
             * ``exit`` returns you to root user

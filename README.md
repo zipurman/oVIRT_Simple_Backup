@@ -29,7 +29,7 @@
 
 #### Install Script
 
-This script is recommended to be used to setup the oVirt BackupEngine VM.
+This script is recommended to be used to setup the oVirt oVirtSimpleBackupVM.
 
 [Debian Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
 
@@ -40,8 +40,9 @@ This script is recommended to be used to setup the oVirt BackupEngine VM.
 
 #### Manual Install
 
-The manual steps will walk you through the setup of the BackupEngine VM.
-*It is HIGHLY recommended you read through the manual steps first to understand what you need to do*
+The manual steps will walk you through the setup of the oVirtSimpleBackupVM.
+
+*It is HIGHLY recommended you read through the manual steps first to understand what you need to do!*
 
 [Debian Install Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/install_debian.md)
 

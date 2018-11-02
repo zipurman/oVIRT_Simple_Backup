@@ -8,7 +8,7 @@
     - Make sure you don't have any snapshots on your BackupEngiveVM as this will stop your VM and the script from allowing attachments of additional disks to be backed up.
     
     - Before running a backup do the following
-        - On BackupEngineVM 
+        - On oVirtSimpleBackupVM 
             - tail /var/log/simplebackup.log -f
         - On oVirtEngine
             - tail /var/log/ovirt-\*/*.log -f

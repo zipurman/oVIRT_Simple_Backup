@@ -361,7 +361,7 @@
 		}
 
 		if ( empty( $hassdavda ) ) {
-			die( 'Reboot your BackupEngineVM - Disks Out Of Order' );
+			die( 'Reboot your oVirtSimpleBackupVM - Disks Out Of Order' );
 		}
 
 		if ( $disktype == 'vd' ) {

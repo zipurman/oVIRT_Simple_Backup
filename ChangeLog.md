@@ -56,7 +56,7 @@
   - 0.6.13 - 2018/04/06
       - Fixed issues with Restores not showing in list if they contained a '.' in their VMName
       - Minor fixes to automated backup logic
-      - Extra logic added to detect if BackupEngineVM has OS mounted as something other than expected /dev/*da
+      - Extra logic added to detect if oVirtSimpleBackupVM has OS mounted as something other than expected /dev/*da
   
   - 0.6.12 - 2018/04/05
       - [x] Allow option for thin provisioned (sparse) disks in restore/migrate
@@ -77,15 +77,15 @@
     - Bug fixes in Restore of Multiple Disk VMs
     
  - 0.6.7 - 2018/04/04
-    - [x] Revise disk mount process to adapt to /dev/?d* to avoid issues with disks not being freed up in time by the BackupEngineVM OS
+    - [x] Revise disk mount process to adapt to /dev/?d* to avoid issues with disks not being freed up in time by the oVirtSimpleBackupVM OS
  
  - 0.6.6 - 2018/04/04
     - [x] Auto detect virtio/virtio_scsi from /dev/*da to avoid misconfigurations
     - [x] Versioning patches will now auto apply
  
  - 0.6.5 - 2018/03/30
-    - [x] BackupEngine now checks for any snapshots on BackupEngine VM as this will disallow attaching disks dynamically. Warnings will now show if snapshots exist on the BackupEngine VM.
-    - [x] BackupEngine will now detect if Storage Domain is not yet set and hide the main menu (other than settings) if Storage Domain has not yet been set.
+    - [x] oVirtSimpleBackup now checks for any snapshots on oVirtSimpleBackupVM as this will disallow attaching disks dynamically. Warnings will now show if snapshots exist on the oVirtSimpleBackupVM.
+    - [x] oVirtSimpleBackup will now detect if Storage Domain is not yet set and hide the main menu (other than settings) if Storage Domain has not yet been set.
     - [x] Settings will now fix bad log file path.
     
  - 0.6.4 - 2018/03/27

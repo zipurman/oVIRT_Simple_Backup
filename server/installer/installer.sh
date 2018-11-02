@@ -60,9 +60,9 @@ read -e -p "Will you be using this script to migrate VMs from a Xen Server Envir
         echo -e "\nThe way that oVirtSimpleBackup is able to migrate from xenserver is as follows:"
         echo -e "\n\t- a Debian VM is manually installed in your XenServer Environment and called VMMIGRATE."
         echo -e "\n\t- VMMIGRATE will do all of the imaging on the Xenserver VMs to /mnt/migrate."
-        echo -e "\n\t- a Debian VM is also created in your oVirt Environment (THIS VM) and called oVirtSimpleBackupEngine."
-        echo -e "\n\t- oVirtSimpleBackupEngine will do all of the overhead to command XenServer, VMMIGRATE, and oVirtEngine to do what is required."
-        echo -e "\n\t- oVirtSimpleBackupEngine will also image the new VMs in oVirt from the XenServer images created in /mnt/migrate.\n\n"
+        echo -e "\n\t- a Debian VM is also created in your oVirt Environment (THIS VM) and called oVirtSimpleBackup."
+        echo -e "\n\t- oVirtSimpleBackup will do all of the overhead to command XenServer, VMMIGRATE, and oVirtEngine to do what is required."
+        echo -e "\n\t- oVirtSimpleBackup will also image the new VMs in oVirt from the XenServer images created in /mnt/migrate.\n\n"
         read -e -p "Have you already created a Debian VM in your XenServer Environment and called it VMMIGRATE? [y/N]: " xenvmmigrate
 
         xenvmmigrate="${xenvmmigrate:-${defaultn}}"
@@ -185,7 +185,7 @@ then
 
     while [[ $backupengine == '' ]]
     do
-        read -e -p "What is the FQDN for this oVirtSimpleBackupVM? [backupengine.mydomain.com]: " backupengine
+        read -e -p "What is the FQDN for this oVirtSimpleBackupVM? [backups.mydomain.com]: " backupengine
     done
 
     echo -e ""
@@ -539,7 +539,7 @@ then
 
         echo -e "\n\nYou should now be able to login to your oVirt WebUI and see the Simple Backup tab in the menu.\n"
         echo -e "\t- Navigate to oVirtWebUI: https://${ovirtenginefqdn}"
-        echo -e "\t- Navigate Directly to oVirtBackupEngineVM: https://${backupengine}\n\n"
+        echo -e "\t- Navigate Directly to oVirtSimpleBackupVM: https://${backupengine}\n\n"
         echo -e "\t- You may also want to edit /var/www/html/allowed_ips.php to suit your needs.\n"
 
     else
