@@ -1,0 +1,11 @@
+Package: ovirt-simple-backup-xenvm
+Version: 0.1-4
+Section: base
+Priority: optional
+Architecture: amd64
+Depends: pv, lzop, gzip, dialog, fsarchiver, wget
+Maintainer: Preston Lord <plord@inetx.ca>
+Description: oVirt Simple Backup - XEN VM for Migration
+ To be installed on a Debian VM in your Xen Environment to
+ be available to the oVirt Simple Backup VM calling from the
+ oVirt Environment to complete tasks within the Xen Environment.

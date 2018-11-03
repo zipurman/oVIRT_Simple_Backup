@@ -27,40 +27,36 @@
 
 ---
 
-#### Install Script
+#### Install Steps if using Xen Migration with oVirtSimpleBackup
 
-This script is recommended to be used to setup the oVirt oVirtSimpleBackupVM.
+ 1. [Read and Understand how it all works here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/XENHOWITWORKS.md)
+ 
+ 2. [Create the VMMIGRATE VM in Xen Server Environment](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/ovirt-simple-backup-xenvm/README.md)
+ 
+ 3. [Run the oVirtSimpleBackup Install Script](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
 
-[Debian Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
+ 4. [Post Migration Troubleshooting Tips](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/POST_XEN_MIGRATION.md)
 
-*** ONLY DEBIAN IS SUPPORTED (Tested with versions 8 and 9) ***
+
+#### Install Steps if only using oVirtSimpleBackup for backing up oVirt VMs
+
+ 1. [Read and Understand how it all works here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/HOWITWORKS.md)
+ 
+ 2. [Run the oVirtSimpleBackup Install Script](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
+
 
 ---
 
 
-#### Manual Install
+#### Manual Install (for reference)
 
-The manual steps will walk you through the setup of the oVirtSimpleBackupVM.
-
-*It is HIGHLY recommended you read through the manual steps first to understand what you need to do!*
+The manual steps will explain how everything works and allow you to adjust if you require. The recommended installation method is using the script above.
 
 [Debian Install Instructions](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/install_debian.md)
 
-*** ONLY DEBIAN IS SUPPORTED (Tested with versions 8 and 9) ***
-
 ---
 
-#### XEN MIGRATION 
 
-[Post Migration Troubleshooting](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/POST_XEN_MIGRATION.md)
-
----
-
-#### Install oVirt Client on Debian VM
-
-[Client Install Instructions](http://zipur.ca/knowledgebase/debian-8-jessie-ovirt-guest-agent/)
-
----
 
 #### Frequently Asked Questions
 
