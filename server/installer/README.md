@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI - Installer - Debian
+# oVirtSimpleBackup - WebGUI - Installer - Debian
 
 ## Instructions for using this installer
 

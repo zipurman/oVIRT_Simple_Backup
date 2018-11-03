@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI
+# oVirtSimpleBackup - WebGUI
 
 https://github.com/zipurman/oVIRT_Simple_Backup/
 

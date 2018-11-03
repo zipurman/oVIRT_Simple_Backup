@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup
+# oVirtSimpleBackup
 
 ### A REST API backup from BASH for oVirt 4.2.x
 

@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - Xen Migrate Tool
+# oVirtSimpleBackup - Xen Migrate Tool
 
 #### Outline
 

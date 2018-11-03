@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - Debian 8 ovirt-guest-agent Setup Script
+# oVirtSimpleBackup - Debian 8 ovirt-guest-agent Setup Script
 
 #### Outline
 

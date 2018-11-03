@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - XENVM - Installer - Debian
+# oVirtSimpleBackup - XENVM - Installer - Debian
 
 ## Instructions for using this installer
 

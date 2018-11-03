@@ -1,4 +1,4 @@
-# oVIRT_Simple_Backup - WebGUI 
+# oVirtSimpleBackup - WebGUI 
 
 Moved WebGUI to root of project here: 
 
