@@ -18,3 +18,5 @@ If just installing oVirtSimpleBackup for backing up your VMs in oVirt, the follo
         * remove the attached snapshot
         * delete the snapshot
         
+        
+    You can proceed to the installer [here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
