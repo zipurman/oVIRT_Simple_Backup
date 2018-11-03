@@ -24,7 +24,8 @@
     * Go to settings tab and enter in the UUID, FQDN, USER, PASS and save
     * Then set the DOMAIN and CLUSTER and save again
     * Then enter any additional info and save one more time
+    * If you will be using Xen Server Migration, add the Xen Server IP to your configuration page and save. Then add the rest of the Xen Server settings and save again.
     * You will also need to delete any snapshots you created on your SimpleBackup VM during install before you try using it as snapshots on the SimpleBackup VM will not allow any additional disks to be attached.
-    * You should now be able to test your new install and do a backups.
+    * You should now be able to test your new install, do backups, migrate xen (if configured).
  
  
