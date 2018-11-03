@@ -28,4 +28,11 @@
     * You will also need to delete any snapshots you created on your SimpleBackup VM during install before you try using it as snapshots on the SimpleBackup VM will not allow any additional disks to be attached.
     * You should now be able to test your new install, do backups, migrate xen (if configured).
  
- 
+#### Scheduling Backups
+
+*  In the WebUI, open Settings and confirm the email address and retention
+*  In the WebUI, open Scheduled Backups and select the VMs you want to backup on the schedule and click SAVE
+*  Add a cronjob as follows (to run every 5 minutes - will check backup scheduled times within 6 minute buffer time. So a backup scheduled in the UI for 8:30 will fire any where between 8:30 and 8:35):
+```bash
+*/5 * * * * www-data php /var/www/html/automatedbackup.php >/dev/null 2>&1
+```
