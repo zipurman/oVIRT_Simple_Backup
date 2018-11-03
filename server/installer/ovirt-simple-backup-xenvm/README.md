@@ -52,4 +52,4 @@
         
         ``service sshd restart``
         
-    After the above is completed, you can [Proceed to the next step](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
+    After the above is completed, you can [Proceed to the next step](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
