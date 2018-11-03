@@ -54,3 +54,5 @@ If you are installing oVirtSimpleBackup for Xen Server Migration, the following 
         * image the disk to /mnt/backups/VMNAME/UUID/DATESTAMP/
         * remove the attached snapshot
         * delete the snapshot
+        
+You can proceed to the VMMIGRATE setup [here](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/server/installer/ovirt-simple-backup-xenvm/README.md)

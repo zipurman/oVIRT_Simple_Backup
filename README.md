@@ -33,7 +33,7 @@
  
  2. [Create the VMMIGRATE VM in Xen Server Environment](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/ovirt-simple-backup-xenvm/README.md)
  
- 3. [Run the oVirtSimpleBackup Install Script](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
+ 3. [Run the oVirtSimpleBackup Install Script](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
 
  4. [Post Migration Troubleshooting Tips](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/docs/POST_XEN_MIGRATION.md)
 
@@ -42,7 +42,7 @@
 
  1. [Read and Understand how it all works here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/HOWITWORKS.md)
  
- 2. [Run the oVirtSimpleBackup Install Script](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer)
+ 2. [Run the oVirtSimpleBackup Install Script](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
 
 
 ---
