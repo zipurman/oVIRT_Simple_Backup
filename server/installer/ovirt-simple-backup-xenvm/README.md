@@ -36,7 +36,7 @@
             
             ``vi /etc/fstab`` and add the following line changing the ip and path
             
-                ``192.168.1.50:/nfspath/to/migrate/share /mnt/migrate nfs4 rw,async,hard,intr,noexec 0 0``
+                192.168.1.50:/nfspath/to/migrate/share /mnt/migrate nfs4 rw,async,hard,intr,noexec 0 0
                 
             ``mount /mnt/migrate && chmod 777 /mnt/migrate/``
             
