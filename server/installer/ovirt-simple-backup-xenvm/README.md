@@ -2,7 +2,7 @@
 
 ## Instructions for using this installer
 
- - [x] This installer (ovirt-simple-backup-xenvm.deb) will setup your Debian VM in your Xen Server Environment so it is ready for oVirtSimpleBackup to connect to. This VM in the Xen Server Environment will be used to help oVirtSimpleBackup to migrate your VMs from Xen to oVirt. If this is what you want, then follow the instructions below:
+ - [x] These instructions will setup your Debian VM in your Xen Server Environment so it is ready for oVirtSimpleBackup to connect to. This VM in the Xen Server Environment will be used to help oVirtSimpleBackup to migrate your VMs from Xen to oVirt. If this is what you want, then follow the instructions below:
  
  
  1. Create a new VM in XEN called VMMIGRATE
