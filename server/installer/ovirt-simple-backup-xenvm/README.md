@@ -42,14 +42,14 @@
             
  2. ON ONE OF YOUR XEN HOSTS
         
-        One of your Xen Server Hosts will need to be part of the migration as well. oVirtSimpleBackup will call from oVirt over to the selected Xen Server Host to initiate commands for moving disks and start/stopping VMs. For this reason, you must do the following on a selected Xen Server Host to allow oVirtSimpleBackup to remotely run the commands:
+    One of your Xen Server Hosts will need to be part of the migration as well. oVirtSimpleBackup will call from oVirt over to the selected Xen Server Host to initiate commands for moving disks and start/stopping VMs. For this reason, you must do the following on a selected Xen Server Host to allow oVirtSimpleBackup to remotely run the commands:
         
-        ``mkdir /root/.ssh``
+    ``mkdir /root/.ssh``
         
-        ``chmod 700 /root/.ssh``
+    ``chmod 700 /root/.ssh``
         
-        ``echo "UseDNS no" >> /etc/ssh/sshd_config``
+    ``echo "UseDNS no" >> /etc/ssh/sshd_config``
         
-        ``service sshd restart``
+    ``service sshd restart``
         
-    After the above is completed, you can [Proceed to the next step](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
+After the above is completed, you can [Proceed to the next step](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
