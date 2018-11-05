@@ -95,7 +95,7 @@ oVirtSimpleBackupVM is required for both Backups of oVirt VMs as well as migrati
     * Once installed do the following as root on the VMMIGRATE VM:
         * ``sed -i '2,5 s/^/#/' /etc/apt/sources.list`` will rem out the line with the CD ROM
         * ``apt-get update``
-        * ``apt-get install pv lzop gzip dialog fsarchiver chroot wget``
+        * ``apt-get install pv lzop gzip dialog fsarchiver wget``
         * ``sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config`` 
         * ``echo "PermitRootLogin yes" >> /etc/ssh/sshd_config``
         * ``echo "UseDNS no" >> /etc/ssh/sshd_config``

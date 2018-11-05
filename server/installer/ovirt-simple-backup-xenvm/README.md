@@ -20,7 +20,7 @@
             
             ``apt-get update``
      
-            ``apt-get install pv lzop gzip fsarchiver chroot wget``
+            ``apt-get install pv lzop gzip fsarchiver chroot wget nfs-common``
     
             ``sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config``
             
