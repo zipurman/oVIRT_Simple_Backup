@@ -56,4 +56,12 @@ If you are installing oVirtSimpleBackup for Xen Server Migration, the following 
     * remove the attached snapshot
     * delete the snapshot
     
+---
+## Notes:
+   
+* LVM - If using LVM in linux VMs, make sure the LVM names are unique otherwise you may have issues with mounting/unmounting disks during backups.
+
+---
+
+
 You can proceed to the VMMIGRATE setup [here](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/server/installer/ovirt-simple-backup-xenvm/README.md)

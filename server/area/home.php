@@ -2,7 +2,6 @@
 
 	$automatedinprocess = ( file_exists( $vmbackupinprocessfile ) ) ? 1 : 0;
 
-
 	if ( ! empty( $automatedinprocess ) ) {
 	    echo '<div style="position: absolute; bottom: 10px;">You can clear the automated backup if it has failed by deleting the file: ' . $vmbackupinprocessfile . '</div>';
 	}

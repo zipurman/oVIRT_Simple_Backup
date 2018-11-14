@@ -18,4 +18,11 @@ If just installing oVirtSimpleBackup for backing up your VMs in oVirt, the follo
     * remove the attached snapshot
     * delete the snapshot
         
+---
+## Notes:
+   
+* LVM - If using LVM in linux VMs, make sure the LVM names are unique otherwise you may have issues with mounting/unmounting disks during backups.
+
+---
+        
 You can proceed to the installer [here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
