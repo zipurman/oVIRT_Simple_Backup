@@ -7,6 +7,12 @@
 	$disktypeget    = sb_check_disks();
 	$numberofimages = count( $disktypeget['avaliabledisks'] );
 
+    $clusters = ovirt_rest_api_call( 'GET', 'clusters/');
+    $clusterslist = array();
+    foreach ( $clusters as $cluster ) {
+        $clusterslist["{$cluster['id']}"] = $cluster->name;
+    }
+
 	if ( $numberofimages > 1  &&  empty($recovery)) {
 		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a backup.' );
 	} else if ( $sb_status['status'] == 'ready' || $recovery == 1) {
@@ -38,7 +44,11 @@
 				),
 				array(
 					"text"  => "UUID",
-					"width" => "50%",
+					"width" => "30%",
+				),
+				array(
+					"text"  => "Cluster",
+					"width" => "20%",
 				),
 			);
 			sb_table_heading( $rowdata );
@@ -50,6 +60,8 @@
 				//		showme( $disks->disk_attachment );
 
 				$disk = ovirt_rest_api_call( 'GET', 'disks/' . $disks->disk_attachment['id'] );
+
+
 
 				if ( $vm->status == 'up' ) {
 					$status = '<span class="statusup">Running</span>';
@@ -79,6 +91,9 @@
 						),
 						array(
 							"text" => $vm['id'],
+						),
+						array(
+							"text" => $clusterslist["{$vm->cluster['id']}"],
 						),
 					);
 					sb_table_row( $rowdata );
@@ -172,10 +187,10 @@
 					"text" => $vm['id'],
 				),
 				array(
-					"text" => "",
+					"text" => "Cluster:",
 				),
 				array(
-					"text" => '',
+					"text" => $clusterslist["{$vm->cluster['id']}"],
 				),
 			);
 			sb_table_row( $rowdata );

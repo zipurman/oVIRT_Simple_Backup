@@ -199,6 +199,9 @@
 			if ( ! empty( $inputdata['onchange'] ) ) {
 				$returndata .= ' onChange="' . $inputdata['onchange'] . '"';
 			}
+            if ( ! empty( $inputdata['multiple'] ) ) {
+                $returndata .= ' multiple ';
+            }
 			$returndata .= ' >';
 			foreach ( $inputdata['list'] as $returndatum ) {
 				$returndata .= '<option value="' . $returndatum['id'] . '"';

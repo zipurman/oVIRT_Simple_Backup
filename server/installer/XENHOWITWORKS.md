@@ -59,8 +59,9 @@ If you are installing oVirtSimpleBackup for Xen Server Migration, the following 
 ---
 ## Notes:
    
-* LVM - If using LVM in linux VMs, make sure the LVM names are unique otherwise you may have issues with mounting/unmounting disks during backups.
-
+* LVM - If using LVM in linux VMs, make sure the LVM names are unique otherwise you may have issues with mounting/unmounting disks during backups. Another solution for LVM would be to  edit /etc/lvm/lvm.conf add the following:
+``global_filter = [ "a|/dev/sda|", "r|/dev/sd*|" ]`` (Thanks to doe-cu for this tip!)
+ 
 ---
 
 

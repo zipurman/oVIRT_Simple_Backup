@@ -3,6 +3,11 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.28 - 2018/12/5 
+      - Minor Docs Updates
+      - Adjust UUID to be more flexible for importing from KVM UUIDs (Thanks doe-cu)
+      - Add cluster name to VM list when choosing a VM for backup
+      
   - 0.6.27 - 2018/10/12 
       - Add extra setting for backing up memory state (yes/no)
       

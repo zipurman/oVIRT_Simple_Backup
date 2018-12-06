@@ -21,8 +21,8 @@ If just installing oVirtSimpleBackup for backing up your VMs in oVirt, the follo
 ---
 ## Notes:
    
-* LVM - If using LVM in linux VMs, make sure the LVM names are unique otherwise you may have issues with mounting/unmounting disks during backups.
-
+* LVM - If using LVM in linux VMs, make sure the LVM names are unique otherwise you may have issues with mounting/unmounting disks during backups. Another solution for LVM would be to  edit /etc/lvm/lvm.conf add the following:
+``global_filter = [ "a|/dev/sda|", "r|/dev/sd*|" ]`` (Thanks to doe-cu for this tip!)
 ---
         
 You can proceed to the installer [here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/README.md)
