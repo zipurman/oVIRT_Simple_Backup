@@ -3,6 +3,10 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.29 - 2018/12/6 
+      - Add disk space alerts to code for /mnt/backups
+      - Hide lost+found directory on restore list
+      
   - 0.6.28 - 2018/12/5 
       - Minor Docs Updates
       - Adjust UUID to be more flexible for importing from KVM UUIDs (Thanks doe-cu)

@@ -220,3 +220,30 @@ h1.pagetitle {
     left: -24px;
     border: 1px solid #aaa;
 }
+.redtext{
+    color: red;
+}
+.greentext{
+    color: green;
+}
+.orangetext{
+    color: orange;
+}
+.alertbox{
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 3px;
+    margin: 5px;
+}
+.alertbox.redtext{
+    border-color: red;
+    background: rgba(255, 0, 0, 0.07);
+}
+.alertbox.orangetext{
+    border-color: orange;
+    background: rgba(255, 165, 0, 0.16);
+}
+.alertbox.greentext{
+    border-color: green;
+    background: rgba(0, 128, 0, 0.14);
+}

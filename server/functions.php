@@ -1282,6 +1282,13 @@
 		}
 	}
 
+    function sb_check_backup_space(){
+        GLOBAL $settings;
+        exec( 'df ' . $settings['mount_backups'] . ' | awk \'{print $5}\' | sed -ne 2p | cut -d"%" -f1', $freebudir );
+        $freebudir = $freebudir[0];
+        return $freebudir;
+    }
+
 	function sb_setting_update( $setting, $value ) {
 
 		GLOBAL $settings;
@@ -1520,6 +1527,7 @@
 
 		return $newversion;
 	}
+
 
 
 

@@ -174,137 +174,143 @@
 
 				foreach ( $backuplist as $item ) {
 
-					$vmstarttime = new DateTime();
+                    $free_bu_mnt_space = sb_check_backup_space();
+                    if ($free_bu_mnt_space > 95){
+                        sb_log( 'Backing Haleted - Disk Space Remaining on Backup Disk is ' . $free_bu_mnt_space . '%.' );
+                    } else {
 
-					sb_log( 'Backing up VM UUID: ' . $item );
-					$nowdatetime = strftime( "%m/%d/%Y %H:%M:%S" );
+                        $vmstarttime = new DateTime();
 
-					sb_email_log( '<b>Date/Time:</b> ' . $nowdatetime . '<br/>' );
-					sb_email_log( '<b>Backing up VM:</b> ' . $backuplist2[ $itemnum ] . '<br/>' );
-					sb_email_log( '<b>UUID:</b> ' . $item . '<br/>' );
+                        sb_log( 'Backup disk space: ' . $free_bu_mnt_space . '%' );
+                        sb_log( 'Backing up VM UUID: ' . $item );
+                        $nowdatetime = strftime( "%m/%d/%Y %H:%M:%S" );
 
-					$status            = 0;
-					$totaldisksizeofvm = 0;
-					$vmuuid            = $item;
-					while ( $status < 1 ) {
-						sleep( 2 );
-						require( $projectpath . 'comm/snapshot_status.php' );
-						if ( ! file_exists( $vmconfigfile ) ) {
-							die();
-						}
-					}
-					sb_email_log( $reason . '<br/>' );
+                        sb_email_log( '<b>Date/Time:</b> ' . $nowdatetime . '<br/>' );
+                        sb_email_log( '<b>Backing up VM:</b> ' . $backuplist2[ $itemnum ] . '<br/>' );
+                        sb_email_log( '<b>UUID:</b> ' . $item . '<br/>' );
 
-					$status = 0;
-					while ( $status < 1 ) {
-						sleep( 2 );
-						require( $projectpath . 'comm/backup_create_path.php' );
-						if ( ! file_exists( $vmconfigfile ) ) {
-							die();
-						}
-					}
-					sb_email_log( $reason . '<br/>' );
+                        $status            = 0;
+                        $totaldisksizeofvm = 0;
+                        $vmuuid            = $item;
+                        while ( $status < 1 ) {
+                            sleep( 2 );
+                            require( $projectpath . 'comm/snapshot_status.php' );
+                            if ( ! file_exists( $vmconfigfile ) ) {
+                                die();
+                            }
+                        }
+                        sb_email_log( $reason . '<br/>' );
 
-					$status = 0;
-					while ( $status < 1 ) {
-						sleep( 2 );
-						require( $projectpath . 'comm/backup_attach_image.php' );
-						if ( ! empty( $totaldisksize ) ) {
-							$totaldisksizeofvm += $totaldisksize;
-						}
-						if ( ! file_exists( $vmconfigfile ) ) {
-							die();
-						}
-					}
-					sb_email_log( $reason . '<br/>' );
+                        $status = 0;
+                        while ( $status < 1 ) {
+                            sleep( 2 );
+                            require( $projectpath . 'comm/backup_create_path.php' );
+                            if ( ! file_exists( $vmconfigfile ) ) {
+                                die();
+                            }
+                        }
+                        sb_email_log( $reason . '<br/>' );
 
-					sleep( 10 );
+                        $status = 0;
+                        while ( $status < 1 ) {
+                            sleep( 2 );
+                            require( $projectpath . 'comm/backup_attach_image.php' );
+                            if ( ! empty( $totaldisksize ) ) {
+                                $totaldisksizeofvm += $totaldisksize;
+                            }
+                            if ( ! file_exists( $vmconfigfile ) ) {
+                                die();
+                            }
+                        }
+                        sb_email_log( $reason . '<br/>' );
 
-					$vmstarttimeimage = new DateTime();
+                        sleep( 10 );
 
-					$status = 0;
-					while ( $status < 3 ) {
-						sleep( 2 );
-						require( $projectpath . 'comm/backup_imaging.php' );
-						if ( ! file_exists( $vmconfigfile ) ) {
-							die();
-						}
-					}
-					sb_email_log( $reason . '<br/>' );
-					sb_email_log( '<b>Backup Name:</b> ' . $sb_status['setting2'] . '<br/>' );
+                        $vmstarttimeimage = new DateTime();
 
-					$vmendtimeimage = new DateTime();
+                        $status = 0;
+                        while ( $status < 3 ) {
+                            sleep( 2 );
+                            require( $projectpath . 'comm/backup_imaging.php' );
+                            if ( ! file_exists( $vmconfigfile ) ) {
+                                die();
+                            }
+                        }
+                        sb_email_log( $reason . '<br/>' );
+                        sb_email_log( '<b>Backup Name:</b> ' . $sb_status['setting2'] . '<br/>' );
 
-					$status = 0;
-					while ( $status < 1 ) {
-						sleep( 2 );
-						require( $projectpath . 'comm/backup_detatch_image.php' );
-						if ( ! file_exists( $vmconfigfile ) ) {
-							die();
-						}
-					}
-					sb_email_log( $reason . '<br/>' );
+                        $vmendtimeimage = new DateTime();
 
-					$status = 0;
-					while ( $status < 1 ) {
-						sleep( 2 );
-						require( $projectpath . 'comm/snapshot_delete.php' );
-						if ( ! file_exists( $vmconfigfile ) ) {
-							die();
-						}
-					}
-					sb_email_log( $reason . '<br/>' );
+                        $status = 0;
+                        while ( $status < 1 ) {
+                            sleep( 2 );
+                            require( $projectpath . 'comm/backup_detatch_image.php' );
+                            if ( ! file_exists( $vmconfigfile ) ) {
+                                die();
+                            }
+                        }
+                        sb_email_log( $reason . '<br/>' );
 
-					$filestodelete = null;
-					$backuppath    = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
-					exec( 'ls ' . $backuppath, $filestodelete );
-					rsort( $filestodelete );
-					$numsofar       = 1;
-					$arrayofdeleted = array();
-					foreach ( $filestodelete as $filetodelete ) {
-						if ( $numsofar > $settings['retention'] ) {
-							if ( empty( $arrayofdeleted[ $filetodelete ] ) ) {
-								$arrayofdeleted[ $filetodelete ] = 1;
-								exec( 'rm ' . $backuppath . '/' . $filetodelete . ' -r -f' );
-								sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $filetodelete . ' based on retention of ' . $settings['retention'] );
-								sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $filetodelete . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
-							}
-						}
-						$numsofar ++;
-					}
+                        $status = 0;
+                        while ( $status < 1 ) {
+                            sleep( 2 );
+                            require( $projectpath . 'comm/snapshot_delete.php' );
+                            if ( ! file_exists( $vmconfigfile ) ) {
+                                die();
+                            }
+                        }
+                        sb_email_log( $reason . '<br/>' );
 
-					$vmendtime              = new DateTime();
-					$dteDiff                = $vmstarttime->diff( $vmendtime );
-					$dteDiffimage           = $vmstarttimeimage->diff( $vmendtimeimage );
-					$durationinseconds      = (int) ( $dteDiff->format( "%H" ) * 3600 ) + (int) ( $dteDiff->format( "%I" ) * 60 ) + (int) ( $dteDiff->format( "%S" ) );
-					$durationinsecondsimage = (int) ( $dteDiffimage->format( "%H" ) * 3600 ) + (int) ( $dteDiffimage->format( "%I" ) * 60 ) + (int) ( $dteDiffimage->format( "%S" ) );
-					if ( $durationinseconds > 3600 ) {
-						$duration = round( $durationinseconds / 3600, 2 ) . ' hours';
-					} else if ( $durationinseconds > 60 ) {
-						$duration = round( $durationinseconds / 60, 1 ) . ' minutes';
-					} else {
-						$duration = round( $durationinseconds ) . ' seconds';
-					}
+                        $filestodelete = null;
+                        $backuppath    = $settings['mount_backups'] . '/' . $backuplist2[ $itemnum ] . '/' . $item;
+                        exec( 'ls ' . $backuppath, $filestodelete );
+                        rsort( $filestodelete );
+                        $numsofar       = 1;
+                        $arrayofdeleted = array();
+                        foreach ( $filestodelete as $filetodelete ) {
+                            if ( $numsofar > $settings['retention'] ) {
+                                if ( empty( $arrayofdeleted[ $filetodelete ] ) ) {
+                                    $arrayofdeleted[ $filetodelete ] = 1;
+                                    exec( 'rm ' . $backuppath . '/' . $filetodelete . ' -r -f' );
+                                    sb_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $filetodelete . ' based on retention of ' . $settings['retention'] );
+                                    sb_email_log( '** Removing ' . $backuplist2[ $itemnum ] . ' Backup ' . $filetodelete . ' based on retention of ' . $settings['retention'] . ' backups.<br/>' );
+                                }
+                            }
+                            $numsofar ++;
+                        }
 
-					sb_email_log( '<b>VM Disks:</b> ' . $numberofimages . '<br/>' );
-					sb_email_log( '<b>VM Size:</b> ' . round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) . ' GB<br/>' );
+                        $vmendtime              = new DateTime();
+                        $dteDiff                = $vmstarttime->diff( $vmendtime );
+                        $dteDiffimage           = $vmstarttimeimage->diff( $vmendtimeimage );
+                        $durationinseconds      = (int) ( $dteDiff->format( "%H" ) * 3600 ) + (int) ( $dteDiff->format( "%I" ) * 60 ) + (int) ( $dteDiff->format( "%S" ) );
+                        $durationinsecondsimage = (int) ( $dteDiffimage->format( "%H" ) * 3600 ) + (int) ( $dteDiffimage->format( "%I" ) * 60 ) + (int) ( $dteDiffimage->format( "%S" ) );
+                        if ( $durationinseconds > 3600 ) {
+                            $duration = round( $durationinseconds / 3600, 2 ) . ' hours';
+                        } else if ( $durationinseconds > 60 ) {
+                            $duration = round( $durationinseconds / 60, 1 ) . ' minutes';
+                        } else {
+                            $duration = round( $durationinseconds ) . ' seconds';
+                        }
 
-					$compressedfiles = null;
-					exec( 'ls ' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/*.img.gz', $compressedfiles );
-					$compressedsize = 0;
-					foreach ( $compressedfiles as $compressedfile ) {
-						$compressedsize += round( filesize( $compressedfile ) / 1024 / 1024 / 1024, 2 );
-					}
+                        sb_email_log( '<b>VM Disks:</b> ' . $numberofimages . '<br/>' );
+                        sb_email_log( '<b>VM Size:</b> ' . round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) . ' GB<br/>' );
 
-					if ( ! empty( $compressedsize ) ) {
-						$comprate = 100 - round( ( ( $compressedsize / round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) ) * 100 ), 2 );
-						sb_email_log( '<b>Compressed Size:</b> ' . '(' . $comprate . '% @ ' . $compressedsize . 'GB)' . '<br/>' );
-					}
+                        $compressedfiles = null;
+                        exec( 'ls ' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/*.img.gz', $compressedfiles );
+                        $compressedsize = 0;
+                        foreach ( $compressedfiles as $compressedfile ) {
+                            $compressedsize += round( filesize( $compressedfile ) / 1024 / 1024 / 1024, 2 );
+                        }
 
-					sb_email_log( '<b>Transfer Speed:</b> ' . round( ( $totaldisksizeofvm / 1024 / 1024 ) / $durationinsecondsimage, 2 ) . ' MB/s<br/>' );
-					sb_email_log( '<b>Backup Time:</b> ' . $duration . '.<br/><br/><hr/><br/>' );
-					$itemnum ++;
+                        if ( ! empty( $compressedsize ) ) {
+                            $comprate = 100 - round( ( ( $compressedsize / round( $totaldisksizeofvm / 1024 / 1024 / 1024 ) ) * 100 ), 2 );
+                            sb_email_log( '<b>Compressed Size:</b> ' . '(' . $comprate . '% @ ' . $compressedsize . 'GB)' . '<br/>' );
+                        }
 
+                        sb_email_log( '<b>Transfer Speed:</b> ' . round( ( $totaldisksizeofvm / 1024 / 1024 ) / $durationinsecondsimage, 2 ) . ' MB/s<br/>' );
+                        sb_email_log( '<b>Backup Time:</b> ' . $duration . '.<br/><br/><hr/><br/>' );
+                        $itemnum ++;
+                    }
 				}
 				sb_log
 				( '-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*' );

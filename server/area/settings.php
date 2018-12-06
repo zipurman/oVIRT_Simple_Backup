@@ -211,11 +211,11 @@
             ),
             array(
                 "text"  => "Value",
-                "width" => "30%",
+                "width" => "40%",
             ),
             array(
                 "text"  => "Description",
-                "width" => "50%",
+                "width" => "40%",
             ),
         );
         sb_table_heading( $rowdata );
@@ -353,6 +353,17 @@
         sb_table_row( $rowdata );
 
         if ( ! empty( $settings['uuid_backup_engine'] ) ) {
+
+            $free_bu_mnt_space = sb_check_backup_space();
+            $spacetextbackups = '';
+            if ($free_bu_mnt_space > 80){
+                $spacetextbackups = '<span class="redtext alertbox">' . $free_bu_mnt_space . '% full.</span>';
+            } else if ($free_bu_mnt_space > 60){
+                $spacetextbackups = '<span class="orangetext alertbox">' . (100 - $free_bu_mnt_space) . '% available.</span>';
+            } else {
+                $spacetextbackups = '<span class="greentext alertbox">' . (100 - $free_bu_mnt_space) . '% available.</span>';
+            }
+
             $rowdata = array(
                 array(
                     "text" => "Path To Backups:",
@@ -364,6 +375,7 @@
                         'size'      => '40',
                         'maxlength' => '40',
                         'value'     => $settings['mount_backups'],
+                        'dataafter' => ' ' . $spacetextbackups,
                     ) ),
                 ),
                 array(

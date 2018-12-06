@@ -45,7 +45,13 @@
 
 				if ( empty( $dirokay ) ) {
 					$status = 0;
-					$reason = 'Error Creating Backup Directories - Check Permissions to ' . $settings['mount_backups'];
+                    $free_bu_mnt_space = sb_check_backup_space();
+                    if ($free_bu_mnt_space > 99){
+                        $reason = 'Error Creating Backup Directories - Your disk ' . $settings['mount_backups'] . ' is ' . $free_bu_mnt_space .'% full.';
+                    } else {
+                        $reason = 'Error Creating Backup Directories - Check Permissions to ' . $settings['mount_backups'];
+
+                    }
 				} else {
 					$status = 1;
 					$reason = 'Directories Available';

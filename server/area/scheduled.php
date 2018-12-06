@@ -2,6 +2,11 @@
 
 	$sb_status = sb_status_fetch();
 
+    $free_bu_mnt_space = sb_check_backup_space();
+    if ($free_bu_mnt_space > 80){
+        echo '<div class="redtext alertbox">Your ' . $settings['mount_backups'] . ' is ' . $free_bu_mnt_space . '% full.</div>';
+    }
+
 	if ( ! file_exists( $vmconfigfile ) ) {
 		exec( 'echo "" > ' . $vmconfigfile );
 	}

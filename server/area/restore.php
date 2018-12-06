@@ -29,12 +29,14 @@
 			exec( 'ls ' . $settings['mount_backups'] . '', $files );
 
 			foreach ( $files as $file ) {
-				$rowdata = array(
-					array(
-						"text" => '<a href="?area=3&action=vmbackups&vmname=' . $file . '">' . $file . '</a>',
-					),
-				);
-				sb_table_row( $rowdata );
+			    if ($file != 'lost+found' && $file != '#recycle') {
+                    $rowdata = array(
+                        array(
+                            "text" => '<a href="?area=3&action=vmbackups&vmname=' . $file . '">' . $file . '</a>',
+                        ),
+                    );
+                    sb_table_row( $rowdata );
+                }
 			}
 
 			sb_table_end();
