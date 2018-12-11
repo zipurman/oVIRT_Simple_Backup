@@ -11,13 +11,13 @@
 		$oldversion = explode( '.', $version_check[0] );
 		$newversion = explode( '.', $sb_version );
 
-		$old_major = $oldversion[0];
-		$old_minor = $oldversion[1];
-		$old_patch = $oldversion[2];
+		$old_major = (integer) $oldversion[0];
+		$old_minor = (integer) $oldversion[1];
+		$old_patch = (integer) $oldversion[2];
 
-		$new_major = $newversion[0];
-		$new_minor = $newversion[1];
-		$new_patch = $newversion[2];
+		$new_major = (integer) $newversion[0];
+		$new_minor = (integer) $newversion[1];
+		$new_patch = (integer) $newversion[2];
 
 		echo 'Version upgrades ... ';
 		echo 'from ' . $version_check[0] . ' to ' . $sb_version;
