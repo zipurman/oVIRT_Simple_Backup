@@ -116,7 +116,6 @@
                     $fileage = date ("F d Y H:i:s.", filemtime($settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $file));
 
                     $minutesago = dateDifference( date ("Y-m-d H:i:s", filemtime($settings['mount_backups'] . '/' . $vmname . '/' . $uuid . '/' . $file)), $thetimefull, 'minutes');
-                    echo '[' . $minutesago . ']';
                     $timeago = '';
                     if ($minutesago < 60){
                         $timeago = $minutesago . ' Minutes Ago';
