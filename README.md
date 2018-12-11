@@ -6,7 +6,6 @@
  - [ ] Use php session with API to allow for less data flowing through Engine Logs for authentication
  - [ ] Implement incremental backups using new API features (https://ovirt.org/develop/release-management/features/storage/incremental-backup/)
 
-
    
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
 
