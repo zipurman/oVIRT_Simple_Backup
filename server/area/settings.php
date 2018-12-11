@@ -54,6 +54,7 @@
                 $drive_interface     = $settings['drive_interface'];
                 $drive_type          = $settings['drive_type'];
                 $retention           = $settings['retention'];
+                $firstbackupdisk     = $settings['firstbackupdisk'];
                 $label               = $settings['label'];
                 $tz                  = $settings['tz'];
                 $mount_backups       = $settings['mount_backups'];
@@ -75,7 +76,6 @@
                 $backup_log          = $settings['backup_log'];
                 $withoutmemory       = $settings['withoutmemory'];
 
-
                 $diskx           = sb_check_disks();
                 $drive_type      = $diskx['disktype'];
                 $drive_interface = $diskx['driveinterface'];
@@ -87,6 +87,7 @@
                 $drive_interface  = varcheck( "drive_interface", 0, "FILTER_VALIDATE_INT", 0 );
                 $drive_type       = varcheck( "drive_type", 0, "FILTER_VALIDATE_INT", 0 );
                 $retention        = varcheck( "retention", 0, "FILTER_VALIDATE_INT", 0 );
+                $firstbackupdisk  = varcheck( "firstbackupdisk", 'b' );
                 $label            = varcheck( "label", '' );
                 $tz               = varcheck( "tz", 'America/Regina' );
                 $mount_backups    = varcheck( "mount_backups", '' );
@@ -150,6 +151,7 @@
             fwrite( $configfile, '"email" => "' . $email . '",' . "\n" );
             fwrite( $configfile, '"emailfrom" => "' . $emailfrom . '",' . "\n" );
             fwrite( $configfile, '"retention" => ' . $retention . ',' . "\n" );
+            fwrite( $configfile, '"firstbackupdisk" => "' . $firstbackupdisk . '",' . "\n" );
             fwrite( $configfile, '"storage_domain" => "' . $storage_domain . '",' . "\n" );
             fwrite( $configfile, '"cluster" => "' . $cluster . '",' . "\n" );
             fwrite( $configfile, '"mount_migrate" => "' . $mount_migrate . '",' . "\n" );
@@ -182,6 +184,7 @@
                 "email"               => $email,
                 "emailfrom"           => $emailfrom,
                 "retention"           => $retention,
+                "firstbackupdisk"     => $firstbackupdisk,
                 "storage_domain"      => $storage_domain,
                 "cluster"             => $cluster,
                 "mount_migrate"       => $mount_migrate,
@@ -355,13 +358,13 @@
         if ( ! empty( $settings['uuid_backup_engine'] ) ) {
 
             $free_bu_mnt_space = sb_check_backup_space();
-            $spacetextbackups = '';
-            if ($free_bu_mnt_space > 80){
-                $spacetextbackups = '<span class="redtext alertbox">' . $free_bu_mnt_space . '% full.</span>';
-            } else if ($free_bu_mnt_space > 60){
-                $spacetextbackups = '<span class="orangetext alertbox">' . (100 - $free_bu_mnt_space) . '% available.</span>';
+            $spacetextbackups  = '';
+            if ( $free_bu_mnt_space > 80 ) {
+                $spacetextbackups = '<span class="redtext alertbox">' . $free_bu_mnt_space . '% full</span>';
+            } else if ( $free_bu_mnt_space > 60 ) {
+                $spacetextbackups = '<span class="orangetext alertbox">' . ( 100 - $free_bu_mnt_space ) . '% free</span>';
             } else {
-                $spacetextbackups = '<span class="greentext alertbox">' . (100 - $free_bu_mnt_space) . '% available.</span>';
+                $spacetextbackups = '<span class="greentext alertbox">' . ( 100 - $free_bu_mnt_space ) . '% free</span>';
             }
 
             $rowdata = array(
@@ -376,6 +379,7 @@
                         'maxlength' => '40',
                         'value'     => $settings['mount_backups'],
                         'dataafter' => ' ' . $spacetextbackups,
+                        'style' => 'max-width: 50%;',
                     ) ),
                 ),
                 array(
@@ -500,6 +504,30 @@
 
             $rowdata = array(
                 array(
+                    "text" => "First Backup Disk:",
+                ),
+                array(
+                    "text" => sb_input( array(
+                        'type'  => 'select',
+                        'name'  => 'firstbackupdisk',
+                        'databefore'  => '/dev/' . $diskx['disktype'] . ' ',
+                        'dataafter'  => ' /',
+                        'list'  => array(
+                            array( 'id' => 'b', 'name' => 'b', ),
+                            array( 'id' => 'c', 'name' => 'c', ),
+                            array( 'id' => 'd', 'name' => 'd', ),
+                        ),
+                        'value' => $settings['firstbackupdisk'],
+                    ) ),
+                ),
+                array(
+                    "text" => "Allows for local storage on BackupVM for additional disk(s). Default is 'b'. This should always be set to the first AVAILABLE disk device after your simpleBackup fixed disks.",
+                ),
+            );
+            sb_table_row( $rowdata );
+
+            $rowdata = array(
+                array(
                     "text" => "Backup Compression:",
                 ),
                 array(
@@ -510,6 +538,8 @@
                             array( 'id' => '0', 'name' => 'None', ),
                             array( 'id' => '1', 'name' => 'gzip', ),
                             array( 'id' => '2', 'name' => 'lzo', ),
+                            array( 'id' => '3', 'name' => 'bzip2 (Unstable Testing)', ),
+                            array( 'id' => '4', 'name' => 'pbzip2 (Unstable Testing)', ),
                         ),
                         'value' => $settings['compress'],
                     ) ),
@@ -815,6 +845,7 @@
         sb_table_end();
 
         echo '<br/><br/>' . sb_input( array(
+                'name'  => 'submit',
                 'type'  => 'submit',
                 'value' => 'Save Changes',
             ) );

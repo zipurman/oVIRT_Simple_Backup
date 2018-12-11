@@ -2,7 +2,7 @@
 
 	$sb_status = sb_status_fetch();
 
-	exec( 'partprobe' );
+//	exec( 'partprobe' );
 
 	$setxen   = varcheck( "setxen", 0, "FILTER_VALIDATE_INT", 0 );
 	$status   = 0;
@@ -30,7 +30,13 @@
 	if ( $setxen == 1 ) {
 		sb_log('Restoring Xen Images - Migrating Disk Data');
 		//MIGRATE DISK DATA
-		$diskletter = 'a';
+        if ($settings['firstbackupdisk'] == 'b') {
+            $diskletter = 'a';
+        } else if ($settings['firstbackupdisk'] == 'c') {
+            $diskletter = 'b';
+        } else if ($settings['firstbackupdisk'] == 'd') {
+            $diskletter = 'c';
+        }
 		$disknumber = 1;
 		$diskarray  = sb_vm_disk_array_fetch( $diskfile );
 		foreach ( $diskarray as $item ) {

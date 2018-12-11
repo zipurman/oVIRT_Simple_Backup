@@ -96,7 +96,15 @@
 
 					} else if ( $settings['compress'] == '2' ) {
 
-						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | lzop -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.lzo" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
+						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | lzop --fast -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.lzo" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
+
+					} else if ( $settings['compress'] == '3' ) {
+
+						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | bzip2 -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.bzip2" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
+
+					} else if ( $settings['compress'] == '4' ) {
+
+						$command = 'ssh root@' . $settings['xen_migrate_ip'] . $extrasshsettings . ' ' . '\'' . '(pv -n /dev/' . $dev . '  | pbzip2 -c | dd of="' . $settings['mount_migrate'] . '/xen' . $disknumber . '.img.pbzip2" bs=1M conv=notrunc,noerror status=none) > ' . $progressfilename . ' 2>&1 &' . '\'';//trailing & sends to background
 
 					}
 

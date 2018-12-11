@@ -375,7 +375,7 @@ then
         echo -e "oVirt Simple Backup (WebGUI) Installer"
         echo -e "======================================"
         echo -e "\nInstalling...."
-        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass lzop gzip apache2 -y
+        apt-get -o Dpkg::Progress-Fancy="1" install pv curl zip exim4 fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml sshpass lzop gzip apache2 pbzip2 -y
 
         echo -e "Updating SSH Settings"
         sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config
@@ -533,7 +533,7 @@ then
             #SSHPASS="${xenserverpass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenserver} 'mkdir /root/.ssh -p && chmod 700 /root/.ssh && echo -e "UseDNS no" >>  /etc/ssh/sshd_config && service sshd restart'
 
             #echo -e "\nUpdating Xen VMMIGRATE\n"
-            #SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget lzop gzip fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo '"${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0"' >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
+            #SSHPASS="${xenservermigratepass}" sshpass -e ssh -o StrictHostKeyChecking=no root@${xenservermigrate} 'apt-get install pv wget lzop gzip pbzip2 fsarchiver chroot -y && mkdir /root/.ssh -p && chmod 700 /root/.ssh && mkdir /mnt/migrate -p && echo '"${migrateip} /mnt/migrate ${backupnfsversion} rw,async,hard,intr,noexec 0 0"' >> /etc/fstab && mount /mnt/migrate && chmod 777 /mnt/migrate/'
 
         #fi
 

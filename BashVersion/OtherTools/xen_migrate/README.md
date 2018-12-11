@@ -28,6 +28,7 @@ VM_Migrate_Appliance
  - pv
  - dialog
  - fsarchiver
+ - pbzip2
  - chroot
  - wget
 

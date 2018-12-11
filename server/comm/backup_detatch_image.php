@@ -44,7 +44,20 @@
 				$status = 1;
 				$reason = 'Disk(s) Detatched';
 
-				sleep( 2 );
+				//TEST backup
+                exec( 'ls ' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . 'Disk*.img*', $files );
+
+                foreach ( $files as $file ) {
+                    if ( empty( sb_test_image_file( $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . $file , 1) ) ) {
+                        sb_log('!! Error !! Image File Corrupted - ' . $file . ' !! Error !!');
+                    } else {
+                        sb_log('Image File Valid - ' . $file);
+                    }
+                }
+
+
+
+                sleep( 2 );
 
 			} else {
 				$status = 0;

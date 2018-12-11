@@ -1,6 +1,6 @@
 <?php
 
-	$sb_version = '0.6.29';
+	$sb_version = '0.6.30';
 	$mediaverstion = '.101';
 
 	$area            = varcheck( "area", 0, "FILTER_VALIDATE_INT", 0 );
@@ -56,6 +56,10 @@
 	}
 
 	$thedatetime = strftime( "%Y%m%d_%H%M%S" );
+	$thedate = strftime( "%m/%d/%Y" );
+	$thedatetimeformatted = strftime( "%m/%d/%Y %H:%M:%S" );
+
+
 	$thetimefull = strftime("%Y-%m-%d %H:%M:%S");
 
 	if ( ! isset( $_SERVER['REMOTE_ADDR'] ) ) {
@@ -93,6 +97,16 @@
 			if ( $attacheddisk->logical_name != '/dev/' . $settings['drive_type'] . 'a' ) {
 				$attacheddisks = ovirt_rest_api_call( 'DELETE', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' . $attacheddisk['id'] );
 			}
+            if ($settings['firstbackupdisk'] == 'c' || $settings['firstbackupdisk'] == 'd'){
+                if ( $attacheddisk->logical_name != '/dev/' . $settings['drive_type'] . 'b' ) {
+                    $attacheddisks = ovirt_rest_api_call( 'DELETE', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' . $attacheddisk['id'] );
+                }
+            }
+            if ($settings['firstbackupdisk'] == 'd'){
+                if ( $attacheddisk->logical_name != '/dev/' . $settings['drive_type'] . 'c' ) {
+                    $attacheddisks = ovirt_rest_api_call( 'DELETE', 'vms/' . $settings['uuid_backup_engine'] . '/diskattachments/' . $attacheddisk['id'] );
+                }
+            }
 		}
 	}
 

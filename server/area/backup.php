@@ -1,259 +1,301 @@
 <?php
 
-	sb_pagetitle( 'Single Backup' );
+    $sb_status = sb_status_fetch();
+
+    sb_pagetitle( 'Single Backup' );
 
     $free_bu_mnt_space = sb_check_backup_space();
-    if ($free_bu_mnt_space > 80){
+    if ( $free_bu_mnt_space > 80 ) {
         echo '<div class="redtext alertbox">Your ' . $settings['mount_backups'] . ' is ' . $free_bu_mnt_space . '% full.</div>';
     }
 
 
-	$sb_status = sb_status_fetch();
+    $disktypeget    = sb_check_disks();
+    $numberofimages = count( $disktypeget['avaliabledisks'] );
 
-	$disktypeget    = sb_check_disks();
-	$numberofimages = count( $disktypeget['avaliabledisks'] );
-
-    $clusters = ovirt_rest_api_call( 'GET', 'clusters/');
+    $clusters     = ovirt_rest_api_call( 'GET', 'clusters/' );
     $clusterslist = array();
     foreach ( $clusters as $cluster ) {
         $clusterslist["{$cluster['id']}"] = $cluster->name;
     }
 
-	if ( $numberofimages > 1  &&  empty($recovery)) {
-		sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a backup.' );
-	} else if ( $sb_status['status'] == 'ready' || $recovery == 1) {
+    if ( $numberofimages > 1 && empty( $recovery ) ) {
+        sb_pagedescription( 'The backup VM has too many disks attached. Please remove all but the OS disk in order to preform a backup.' );
+    } else if ( $sb_status['status'] == 'ready' || $recovery == 1 ) {
 
-		if ( empty( $action ) ) {
+        if ( empty( $action ) ) {
 
-			sb_pagedescription( 'Select a VM from the list below.' );
+            sb_pagedescription( 'Select a VM from the list below.' );
 
-			$vms = ovirt_rest_api_call( 'GET', 'vms' );
+            $vms = ovirt_rest_api_call( 'GET', 'vms' );
 
-			sb_table_start();
+            sb_table_start();
 
-			$rowdata = array(
-				array(
-					"text"  => "VM",
-					"width" => "20%",
-				),
-				array(
-					"text"  => "Status",
-					"width" => "10%",
-				),
-				array(
-					"text"  => "Memory",
-					"width" => "10%",
-				),
-				array(
-					"text"  => "Disk",
-					"width" => "10%",
-				),
-				array(
-					"text"  => "UUID",
-					"width" => "30%",
-				),
-				array(
-					"text"  => "Cluster",
-					"width" => "20%",
-				),
-			);
-			sb_table_heading( $rowdata );
+            $rowdata = array(
+                array(
+                    "text"  => "VM",
+                    "width" => "20%",
+                ),
+                array(
+                    "text"  => "Status",
+                    "width" => "10%",
+                ),
+                array(
+                    "text"  => "Memory",
+                    "width" => "10%",
+                ),
+                array(
+                    "text"  => "Disk",
+                    "width" => "10%",
+                ),
+                array(
+                    "text"  => "UUID",
+                    "width" => "30%",
+                ),
+                array(
+                    "text"  => "Cluster",
+                    "width" => "20%",
+                ),
+            );
+            sb_table_heading( $rowdata );
 
-			foreach ( $vms AS $vm ) {
+            foreach ( $vms AS $vm ) {
 
-				$disks = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments' );
+                $disks = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments' );
 
-				//		showme( $disks->disk_attachment );
+                //		showme( $disks->disk_attachment );
 
-				$disk = ovirt_rest_api_call( 'GET', 'disks/' . $disks->disk_attachment['id'] );
+                $disk = ovirt_rest_api_call( 'GET', 'disks/' . $disks->disk_attachment['id'] );
 
+                if ( $vm->status == 'up' ) {
+                    $status = '<span class="statusup">Running</span>';
+                } else {
+                    $status = '<span class="statusdown">Down</span>';
+                }
 
+                $rowlink = ( $vm['id'] == $settings['uuid_backup_engine'] ) ? '<a href="javascript: alert(\'You cannot backup the Backup Appliance VM using oVirt Simple Backup.\n\nThe best way to backup the appliance is to export it using the Web GUI to your export domain.\');">' . $vm->name . '</a> (This VM)' : '<a href="?area=2&action=select&vm=' . $vm['id'] . '">' . $vm->name . '</a>';
 
-				if ( $vm->status == 'up' ) {
-					$status = '<span class="statusup">Running</span>';
-				} else {
-					$status = '<span class="statusdown">Down</span>';
-				}
-
-				$rowlink = ( $vm['id'] == $settings['uuid_backup_engine'] ) ? '<a href="javascript: alert(\'You cannot backup the Backup Appliance VM using oVirt Simple Backup.\n\nThe best way to backup the appliance is to export it using the Web GUI to your export domain.\');">' . $vm->name . '</a> (This VM)' : '<a href="?area=2&action=select&vm=' . $vm['id'] . '">' . $vm->name . '</a>';
-
-                if (!empty($vm->comment)){
+                if ( ! empty( $vm->comment ) ) {
                     $rowlink .= ' (' . $vm->comment . ')';
                 }
 
-				if ( $vm->name != 'HostedEngine' ) {
-					$rowdata = array(
-						array(
-							"text" => $rowlink,
-						),
-						array(
-							"text" => $status,
-						),
-						array(
-							"text" => round( $vm->memory / 1024 / 1024 / 1024 ) . 'GB',
-						),
-						array(
-							"text" => round( $disk->provisioned_size / 1024 / 1024 / 1024 ) . 'GB',
-						),
-						array(
-							"text" => $vm['id'],
-						),
-						array(
-							"text" => $clusterslist["{$vm->cluster['id']}"],
-						),
-					);
-					sb_table_row( $rowdata );
-				}
-			}
+                if ( $vm->name != 'HostedEngine' ) {
+                    $rowdata = array(
+                        array(
+                            "text" => $rowlink,
+                        ),
+                        array(
+                            "text" => $status,
+                        ),
+                        array(
+                            "text" => round( $vm->memory / 1024 / 1024 / 1024 ) . 'GB',
+                        ),
+                        array(
+                            "text" => round( $disk->provisioned_size / 1024 / 1024 / 1024 ) . 'GB',
+                        ),
+                        array(
+                            "text" => $vm['id'],
+                        ),
+                        array(
+                            "text" => $clusterslist["{$vm->cluster['id']}"],
+                        ),
+                    );
+                    sb_table_row( $rowdata );
+                }
+            }
 
-			sb_table_end();
+            sb_table_end();
 
-		} else if ( $action == 'select' && $free_bu_mnt_space < 95 ) {
+        } else if ( $action == 'select' && $free_bu_mnt_space < 95 ) {
 
-			$vmuuid    = varcheck( "vm", '' );
+            $vmuuid = varcheck( "vm", '' );
 
-			$vm = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid );
+            $vm = ovirt_rest_api_call( 'GET', 'vms/' . $vmuuid );
 
-			$disks = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments' );
+            $disks = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments' );
 
             $diskstring = '';
 
-			foreach ( $disks->disk_attachment as $disk ) {
-				$diskx = ovirt_rest_api_call( 'GET', 'disks/' . $disk['id'] );
-				$diskdetails = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments/' . $disk['id'] );
+            foreach ( $disks->disk_attachment as $disk ) {
+                $diskx       = ovirt_rest_api_call( 'GET', 'disks/' . $disk['id'] );
+                $diskdetails = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments/' . $disk['id'] );
 
-				$boottext = ($diskdetails->bootable == 'true') ? ' (bootable)' : '';
-				$diskstring .= $disk['id'] . ' (' . ( $diskx->provisioned_size / 1024 / 1024 / 1024). ' GB) ' . $boottext . '<br/>';
-			}
+                $boottext   = ( $diskdetails->bootable == 'true' ) ? ' (bootable)' : '';
+                $diskstring .= $disk['id'] . ' (' . ( $diskx->provisioned_size / 1024 / 1024 / 1024 ) . ' GB) ' . $boottext . '<br/>';
+            }
 
-			sb_table_start();
+            sb_table_start();
 
-			$rowdata = array(
-				array(
-					"text"  => "",
-					"width" => "10%",
-				),
-				array(
-					"text"  => "",
-					"width" => "40%",
-				),
-				array(
-					"text"  => "",
-					"width" => "10%",
-				),
-				array(
-					"text"  => "",
-					"width" => "40%",
-				),
-			);
-			sb_table_heading( $rowdata );
+            $rowdata = array(
+                array(
+                    "text"  => "",
+                    "width" => "10%",
+                ),
+                array(
+                    "text"  => "",
+                    "width" => "40%",
+                ),
+                array(
+                    "text"  => "",
+                    "width" => "10%",
+                ),
+                array(
+                    "text"  => "",
+                    "width" => "40%",
+                ),
+            );
+            sb_table_heading( $rowdata );
 
-			$rowdata = array(
-				array(
-					"text" => 'VM Name:',
-				),
-				array(
-					"text" => '' . $vm->name . '',
-				),
-				array(
-					"text" => "Memory:",
-				),
-				array(
-					"text" => $vm->memory / 1024 / 1024 / 1024 . 'GB',
-				),
-			);
-			sb_table_row( $rowdata );
+            $rowdata = array(
+                array(
+                    "text" => 'VM Name:',
+                ),
+                array(
+                    "text" => '' . $vm->name . '',
+                ),
+                array(
+                    "text" => "Memory:",
+                ),
+                array(
+                    "text" => $vm->memory / 1024 / 1024 / 1024 . 'GB',
+                ),
+            );
+            sb_table_row( $rowdata );
 
-			if ( $vm->status == 'up' ) {
-				$status = '<span class="statusup">Running</span>';
-			} else {
-				$status = '<span class="statusdown">Down</span>';
-			}
-			$rowdata = array(
-				array(
-					"text" => 'Status:',
-				),
-				array(
-					"text" => '' . $status . '',
-				),
-				array(
-					"text" => "Disk(s):",
-				),
-				array(
-					"text" => $diskstring,
-				),
-			);
-			sb_table_row( $rowdata );
+            if ( $vm->status == 'up' ) {
+                $status = '<span class="statusup">Running</span>';
+            } else {
+                $status = '<span class="statusdown">Down</span>';
+            }
+            $rowdata = array(
+                array(
+                    "text" => 'Status:',
+                ),
+                array(
+                    "text" => '' . $status . '',
+                ),
+                array(
+                    "text" => "Disk(s):",
+                ),
+                array(
+                    "text" => $diskstring,
+                ),
+            );
+            sb_table_row( $rowdata );
 
-			$rowdata = array(
-				array(
-					"text" => 'UUID:',
-				),
-				array(
-					"text" => $vm['id'],
-				),
-				array(
-					"text" => "Cluster:",
-				),
-				array(
-					"text" => $clusterslist["{$vm->cluster['id']}"],
-				),
-			);
-			sb_table_row( $rowdata );
+            $rowdata = array(
+                array(
+                    "text" => 'UUID:',
+                ),
+                array(
+                    "text" => $vm['id'],
+                ),
+                array(
+                    "text" => "Cluster:",
+                ),
+                array(
+                    "text" => $clusterslist["{$vm->cluster['id']}"],
+                ),
+            );
+            sb_table_row( $rowdata );
 
-			sb_table_end();
+            if ( empty( $settings['compress'] ) ) {
 
+                $compression = 'None';
 
-			if (empty($recovery)) {
-				sb_gobutton( 'Backup This VM Now', '', 'checkBackupNow();' );
+            } else if ( $settings['compress'] == '1' ) {
 
-				?>
-                <script>
-                    function checkBackupNow() {
-                        if (confirm('Backup this VM Now?')) {
-                            sb_newsnapshot = 1;
-                            $(".gobutton").css('display', 'none');
-                            //start checking for status of snapshot
-                            sb_update_statusbox('backupstatus', 'Starting Backup ...');
-                            sb_check_snapshot_progress('<?php echo $vm['id']; ?>', 0);
+                $compression = 'GZ';
+
+            } else if ( $settings['compress'] == '2' ) {
+
+                $compression = 'LZO';
+
+            } else if ( $settings['compress'] == '3' ) {
+
+                $compression = 'BZIP2';
+
+            } else if ( $settings['compress'] == '4' ) {
+
+                $compression = 'PBZIP2';
+
+            }
+
+            $rowdata = array(
+                array(
+                    "text" => 'Compression:',
+                ),
+                array(
+                    "text" => $compression,
+                ),
+                array(
+                    "text" => "",
+                ),
+                array(
+                    "text" => "",
+                ),
+            );
+            sb_table_row( $rowdata );
+
+            sb_table_end();
+
+            $testfile = sb_test_rw_storage($settings['mount_backups']);
+
+            if (empty($testfile)){
+
+                echo '<div class="redtext alertbox">Disk ' . $settings['mount_backups'] . ' is not writeable. Check your permissions.</div>';
+
+            } else {
+                if ( empty( $recovery ) ) {
+                    sb_gobutton( 'Backup This VM Now', '', 'checkBackupNow();' );
+
+                    ?>
+                    <script>
+                        function checkBackupNow() {
+                            if (confirm('Backup this VM Now?')) {
+                                sb_newsnapshot = 1;
+                                $(".gobutton").css('display', 'none');
+                                //start checking for status of snapshot
+                                sb_update_statusbox('backupstatus', 'Starting Backup ...');
+                                sb_check_snapshot_progress('<?php echo $vm['id']; ?>', 0);
+                            }
+                        }
+                    </script>
+                    <?php
+                } else {
+
+                    $jsstring = '';
+
+                    if ( $sb_status['status'] == 'backup' ) {
+
+                        $jsstring .= 'sb_update_statusbox(\'backupstatus\', \'Resuming Backup ...\');';
+
+                        if ( $sb_status['stage'] == 'snapshot' ) {
+                            $jsstring .= 'sb_check_snapshot_progress(\'' . $vmuuid . '\');';
+                        } else if ( $sb_status['stage'] == 'create_path' ) {
+                            $jsstring .= 'sb_create_backup_directories();';
+                        } else if ( $sb_status['stage'] == 'snapshot_attach' ) {
+                            $jsstring .= 'sb_snapshot_attach();';
+                        } else if ( $sb_status['stage'] == 'backup_imaging' ) {
+                            $jsstring .= 'sb_snapshot_imaging();';
+                        } else if ( $sb_status['stage'] == 'backup_detatch_image' ) {
+                            $jsstring .= 'sb_snapshot_detatch();';
+                        } else if ( $sb_status['stage'] == 'snapshot_delete' ) {
+                            $jsstring .= 'sb_snapshot_delete();';
                         }
                     }
-                </script>
-				<?php
-			} else {
 
-			    $jsstring = '';
-
-			    if ($sb_status['status'] == 'backup'){
-
-				    $jsstring .= 'sb_update_statusbox(\'backupstatus\', \'Resuming Backup ...\');';
-
-				    if ($sb_status['stage'] == 'snapshot'){
-					    $jsstring .= 'sb_check_snapshot_progress(\'' . $vmuuid . '\');';
-				    } else if ($sb_status['stage'] == 'create_path'){
-					    $jsstring .= 'sb_create_backup_directories();';
-				    } else if ($sb_status['stage'] == 'snapshot_attach'){
-					    $jsstring .= 'sb_snapshot_attach();';
-				    } else if ($sb_status['stage'] == 'backup_imaging'){
-					    $jsstring .= 'sb_snapshot_imaging();';
-				    }else if ($sb_status['stage'] == 'backup_detatch_image'){
-					    $jsstring .= 'sb_snapshot_detatch();';
-				    }else if ($sb_status['stage'] == 'snapshot_delete'){
-					    $jsstring .= 'sb_snapshot_delete();';
-				    }
+                    ?>
+                    <script>
+                        <?php echo $jsstring; ?>
+                    </script>
+                    <?php
                 }
-
-				?>
-                <script>
-                    <?php echo $jsstring; ?>
-                </script>
-				<?php
+                sb_progress_bar( 'snapshotbar' );
+                sb_progress_bar( 'imagingbar' );
+                sb_status_box( 'backupstatus' );
             }
-			sb_progress_bar( 'snapshotbar' );
-			sb_progress_bar( 'imagingbar' );
-			sb_status_box( 'backupstatus' );
-
-		}
-	} else {
-		sb_not_ready();
-	}
+        }
+    } else {
+        sb_not_ready();
+    }

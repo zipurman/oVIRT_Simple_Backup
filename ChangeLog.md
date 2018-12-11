@@ -3,6 +3,16 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.30 - 2018/12/11 
+      - Add ability to choose first backup disk which allows for connected storage on BackupVM.
+      - Added pbzip2 and bzip2 compression options. If using pbzip2, ``apt-get install pbzip2`` 
+        - buggy for now recommend sticking with LZO until fixed
+      - Adjusted log so that multiple lines of the same value do not log
+      - Check to make sure disks writeable before allowing backup
+      - Verify disk images are valid after backup and prior to restore to make sure errors are thrown
+      - When restoring a backup, the disk type (virtio/scsi/ide) will now match the original backed up VM
+      - Minor adjustments to lists, prompts, logs, etc
+      
   - 0.6.29 - 2018/12/6 
       - Add disk space alerts to code for /mnt/backups
       - Hide lost+found directory on restore list

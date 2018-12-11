@@ -1,9 +1,10 @@
-# oVirtSimpleBackup - WebGUI (0.6.29) 
+# oVirtSimpleBackup - WebGUI (0.6.30) 
 
 ### A REST API backup from PHP for oVirt 4.2.x
    
 #### To Do
- - [ ] Detect VMs that have issues and disallow backing up with warnings/alerts
+ - [ ] Use php session with API to allow for less data flowing through Engine Logs for authentication
+ - [ ] Implement incremental backups using new API features (https://ovirt.org/develop/release-management/features/storage/incremental-backup/)
 
 
    

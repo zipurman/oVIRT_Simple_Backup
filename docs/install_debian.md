@@ -20,7 +20,7 @@ oVirtSimpleBackupVM is required for both Backups of oVirt VMs as well as migrati
     * Once installed do the following as root on the oVirtSimpleBackupVM:
         * ``sed -i '2,5 s/^/#/' /etc/apt/sources.list`` will rem out the line with the CD ROM
         * ``apt-get update``
-        * ``apt-get install pv curl lzop gzip xmlstarlet lsscsi exim4 uuid-runtime fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml``
+        * ``apt-get install pv curl lzop gzip pbzip2 xmlstarlet lsscsi exim4 uuid-runtime fsarchiver parted nfs-common php7.0 php7.0-curl php7.0-xml``
         * ``vi /etc/exim4/update-exim4.conf.conf`` change setting to suit your email needs
         * ``/etc/init.d/exim4 restart``
         * ``sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config`` 
@@ -95,7 +95,7 @@ oVirtSimpleBackupVM is required for both Backups of oVirt VMs as well as migrati
     * Once installed do the following as root on the VMMIGRATE VM:
         * ``sed -i '2,5 s/^/#/' /etc/apt/sources.list`` will rem out the line with the CD ROM
         * ``apt-get update``
-        * ``apt-get install pv lzop gzip dialog fsarchiver wget``
+        * ``apt-get install pv lzop gzip pbzip2 dialog fsarchiver wget``
         * ``sed -i "s/PermitRootLogin without-password/#PermitRootLogin without-password/g" /etc/ssh/sshd_config`` 
         * ``echo "PermitRootLogin yes" >> /etc/ssh/sshd_config``
         * ``echo "UseDNS no" >> /etc/ssh/sshd_config``

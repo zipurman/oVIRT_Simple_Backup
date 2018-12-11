@@ -55,6 +55,10 @@
 					echo '<br/>Patching compression options added';
 					sb_setting_update('compress', 0);
 
+                } else if ( $old_patch < 30 && $new_patch >= 30 ) {
+
+                    echo '<br/>Patching firstbackupdisk options added';
+                    sb_setting_update('firstbackupdisk', 'b');
 				}
 			}
 		}

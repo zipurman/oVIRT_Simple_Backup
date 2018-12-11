@@ -16,8 +16,11 @@
 		exec( 'tail ' . $settings['backup_log'] .  ' -n 1000', $output );
 		rsort($output);
 		$output =  implode("\n",$output);
+		$output = htmlentities( $output );
+        $output = str_replace('Error', '<span class="redtext">Error</span>', $output);
+        $output = str_replace('Fail', '<span class="redtext">Fail</span>', $output);
 		echo '<pre>';
-		echo htmlentities( $output );
+		echo $output;
 		echo '</pre>';
 		?>
         <script>

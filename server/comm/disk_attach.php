@@ -41,20 +41,25 @@
 					$bootable = ( $bootabledisk == $disknumbercheck) ? 'true' : 'false';
 				}
 
-				sb_log( '-- DISK ATTACH -- ' . $disknumbercheck . ' bootable: ' . $bootable );
+                exec( 'cat ' . $filepath . 'Disk' . $disknumbercheck . '.dat', $datfiledata );
+                $drive_interface = $datfiledata[4];
+                sb_log( '-- DISK ATTACH -- ' . $disknumbercheck . ' AS ' . $drive_interface  . ' bootable: ' . $bootable );
+
+				sb_log( '-- DISK ATTACH -- ' . $disknumbercheck . ' AS ' . $drive_interface  . ' bootable: ' . $bootable );
 
 				$xml = '<disk_attachment>
 				        <disk id="' . $attachmentdata[1] . '">
 				        </disk>
 				        <active>true</active>
 				        <bootable>' . $bootable . '</bootable>
-				        <interface>' . $settings['drive_interface'] . '</interface>
+				        <interface>' . $drive_interface . '</interface>
 				        </disk_attachment>';
 
 				sb_log( $xml );
 
 				$attachdisk = ovirt_rest_api_call( 'POST', 'vms/' . $vmuuid . '/diskattachments/', $xml );
 				$disknumbercheck ++;
+                sleep( 1 );
 			}
 		}
 

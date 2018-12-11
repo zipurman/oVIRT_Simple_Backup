@@ -90,7 +90,7 @@
 		if ( $sb_status['status'] != 'ready' && empty( $automatedinprocess ) ) {
 
 
-			if ( $lasttimechanged > 300 ) {
+			if ( $lasttimechanged > 60 ) {
 				$statuslink .= ' (<a href="javascript: if (confirm(\'Clear/Cancel this process?\')){window.location=\'?area=0&clearitem=1\'}">Clear</a>) ';
 			}
 
