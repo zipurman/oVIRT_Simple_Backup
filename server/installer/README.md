@@ -4,7 +4,7 @@
 
  1. If you are planning on using oVirtSimpleBackup for Xen Migration - Install a new VM in your Xen Environment named VMMIGRATE using the [Instructions Here](https://github.com/zipurman/oVIRT_Simple_Backup/tree/master/server/installer/ovirt-simple-backup-xenvm/README.md) before installing the script below. The script below will require the VMMIGRATE VM but running and available while the script is installing. Again, this is only for Xen Server Migrations, if you are not migrating from Xen, then you can run the install script below without worrying about VMMIGRATE.
  
- 2. Create a new VM in oVirt called SimpleBackup
+ 2. Create a new VM in oVirt called SimpleBackup ** USE DISK TYPE virtio (recommended) **
      * INSTALL DEBIAN 9 using the following settings:
          * NAME: SimpleBackup
          * RAM: >=4GB
