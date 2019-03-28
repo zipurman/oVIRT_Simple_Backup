@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.31 - 2019/03/28 
+      - Removed disk size being displayed on Single Backup. Too much overhead on larger datacenters do extra api calls for each item.
+  
   - 0.6.30 - 2018/12/11 
       - Add ability to choose first backup disk which allows for connected storage on BackupVM.
       - Added pbzip2 and bzip2 compression options. If using pbzip2, ``apt-get install pbzip2`` 

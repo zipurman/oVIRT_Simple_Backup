@@ -87,10 +87,12 @@
 				if ( $sb_status['setting3'] != '-XEN-' ) {
 					foreach ( $diskarray as $disk ) {
 
-						$diskletter = sb_next_drive_letter( $diskletter );
+                        $lastdiskletter = $diskletter;
+						$diskletter = sb_next_drive_letter( $diskletter);
 						sb_disk_file_write( $disk['disknumber'], $disk['name'], $sb_status['setting1'], $disk['id'], $disk['bootable'], $disk['interface'], $disk['provisioned_size'], $disktype . $diskletter, (string) $sb_status['setting4'], $sb_status['setting2'] );
-						sb_log( 'Disk Dat Write ' . $disk['name'] . ' - ' . $disk['id'] . ' - ' . $disk['bootable'] . ' - ' . $disk['interface'] . ' - ' . $disk['provisioned_size'] . ' - ' . $disktype . $diskletter );
+						sb_log( 'Disk Dat Write ' . $disk['name'] . ' - ' . $disk['id'] . ' - ' . $disk['bootable'] . ' - ' . $disk['interface'] . ' - ' . $disk['provisioned_size'] . ' - ' . $disktype . $diskletter . ' - (' . $lastdiskletter . '-' . $settings['firstbackupdisk'] . ')' );
 						$totaldisksize += $disk['provisioned_size'];
+
 					}
 				}
 

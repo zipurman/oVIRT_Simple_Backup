@@ -12,10 +12,10 @@
          * MAKE SURE YOU INSTALL USING "US ENGLISH" FOR LANGUAGE AS SOME SCRIPTING MAY NOT WORK IF USING OTHER LANGUAGES
          * MINIMAL INSTALL WITH SSH SERVER
          
-     * ONCE XEN SimpleBackup VM INSTALLED
+     * ONCE SimpleBackup VM INSTALLED
          * Login as root and do the following:
             * Setup a STATIC IP address, gateway, dns to what you will require.
-            * ``apt-get install curl sshpass``
+            * ``apt-get install curl sshpass nfs-common``
             * ``curl https://raw.githubusercontent.com/zipurman/oVIRT_Simple_Backup/master/server/installer/install.sh | bash``
             * Follow the onscreen instructions
  

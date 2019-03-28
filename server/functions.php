@@ -1122,9 +1122,11 @@
 
         GLOBAL $settings;
 
+
         $thisascii = ord( $driveletter );
         $thisascii ++;
         $nextletter = chr( $thisascii );
+
 
         if ( empty( $output ) ) {
             //$settings['drive_type']
@@ -1141,7 +1143,15 @@
             }
         }
 
+
+
         if ( $diskok == 1 || $nextletter == 'z' ) {
+            if ($nextletter == 'z'){
+                $nextletter = '-NOT-FOUND';
+
+                sb_log('!!!! BACKUP FAILED - DISK NOT FOUND !!!!');
+
+            }
             return $nextletter;
         } else {
             return sb_next_drive_letter( $nextletter, $output );

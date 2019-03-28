@@ -43,6 +43,7 @@
 
 				$status = 1;
 				$reason = 'Disk(s) Detatched';
+                $files = array();
 
 				//TEST backup
                 exec( 'ls ' . $settings['mount_backups'] . '/' . $sb_status['setting4'] . '/' . $sb_status['setting1'] . '/' . $sb_status['setting2'] . '/' . 'Disk*.img*', $files );
