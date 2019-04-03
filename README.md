@@ -1,4 +1,4 @@
-# oVirtSimpleBackup - WebGUI (0.6.31) 
+# oVirtSimpleBackup - WebGUI (0.6.32) 
 
 ### A REST API backup from PHP for oVirt 4.2.x
    

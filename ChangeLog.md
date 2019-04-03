@@ -3,6 +3,9 @@
  
  [Back To ReadMe](https://github.com/zipurman/oVIRT_Simple_Backup/)
  
+  - 0.6.32 - 2019/04/03 
+      - Removed disk size being displayed on Schedules. Too much overhead on larger datacenters do extra api calls for each item. 
+      
   - 0.6.31 - 2019/03/28 
       - Removed disk size being displayed on Single Backup. Too much overhead on larger datacenters do extra api calls for each item.
   

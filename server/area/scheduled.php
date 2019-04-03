@@ -353,7 +353,7 @@
 			$rowdata = array(
 				array(
 					"text"  => "VM",
-					"width" => "20%",
+					"width" => "30%",
 				),
 				array(
 					"text"  => "Status",
@@ -363,10 +363,10 @@
 					"text"  => "Memory",
 					"width" => "10%",
 				),
-				array(
-					"text"  => "Disk",
-					"width" => "10%",
-				),
+//				array(
+//					"text"  => "Disk",
+//					"width" => "10%",
+//				),
 				array(
 					"text"  => "UUID",
 					"width" => "50%",
@@ -376,9 +376,9 @@
 
 			foreach ( $vms AS $vm ) {
 
-				$disks = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments' );
-
-				$disk = ovirt_rest_api_call( 'GET', 'disks/' . $disks->disk_attachment['id'] );
+//				$disks = ovirt_rest_api_call( 'GET', 'vms/' . $vm['id'] . '/diskattachments' );
+//
+//				$disk = ovirt_rest_api_call( 'GET', 'disks/' . $disks->disk_attachment['id'] );
 
 				if ( $vm->status == 'up' ) {
 					$status = '<span class="statusup">Running</span>';
@@ -418,9 +418,9 @@
 						array(
 							"text" => round( $vm->memory / 1024 / 1024 / 1024 ) . 'GB',
 						),
-						array(
-							"text" => round( $disk->provisioned_size / 1024 / 1024 / 1024 ) . 'GB',
-						),
+//						array(
+//							"text" => round( $disk->provisioned_size / 1024 / 1024 / 1024 ) . 'GB',
+//						),
 						array(
 							"text" => $vm['id'],
 						),
