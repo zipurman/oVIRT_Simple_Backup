@@ -2,9 +2,14 @@
 
 ### A REST API backup from PHP for oVirt 4.2.x
    
-#### To Do
- - [ ] Use php session with API to allow for less data flowing through Engine Logs for authentication
- - [ ] Implement incremental backups using new API features (https://ovirt.org/develop/release-management/features/storage/incremental-backup/) Have to wait for feature to be available in ovirt. Still in heavy development.
+#### NOTE
+
+_**I no longer use oVirt, so I wont be furthering this project. oVirt is >>Awesome<< however, I decided to move all of my VMs into a large managed datacentre that uses vmware.
+
+I want to thank the oVirt community and all of the people over on IRC for thier awesome support.
+
+Feel free to use this code for your own ovirt backups or future oVirt backup software.**_
+
 
    
 [ChangeLog](https://github.com/zipurman/oVIRT_Simple_Backup/blob/master/ChangeLog.md)
@@ -74,9 +79,6 @@ The manual steps will explain how everything works and allow you to adjust if yo
 
 #### Author
 
-You can reach zipur on the IRC SERVER irc.oftc.net CHANNEL #ovirt
+Zipur
 
-http://zipur.ca
-
-aka (Preston Lord)
 
