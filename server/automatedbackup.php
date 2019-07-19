@@ -62,7 +62,7 @@
 								if ( empty( $filedata['dom'] ) || $dom == $filedata['dom'] || $filedata['dom'] == 32 && $dom == $lastdayofthismonth ) {
 
 									//match the nth day
-									if ( empty( $filedata['numday'] ) || ceil( $dom / 7 ) >= $filedata['numday'] ) {
+									if ( empty( $filedata['numday'] ) || ceil( $dom / 7 ) >= $filedata['numday'] && empty($filedata['days']) || strpos( " {$filedata['days']}", $dow ) !== false && empty($filedata['numday'])) {
 										$matchingschedule = 1;
 										$configdata       = $filedata['vmstobackup'];
 
