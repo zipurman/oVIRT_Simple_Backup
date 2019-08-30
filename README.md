@@ -70,8 +70,7 @@ The manual steps will explain how everything works and allow you to adjust if yo
 
 On the Engine command line:
 
-rm /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R
-service ovirt-engine restart
+rm /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R && service ovirt-engine restart
 
 ---
 
