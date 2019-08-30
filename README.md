@@ -66,6 +66,15 @@ The manual steps will explain how everything works and allow you to adjust if yo
 ---
 
 
+#### Manual Removal from Engine Gui
+
+On the Engine command line:
+
+rm /usr/share/ovirt-engine/ui-plugins/simpleBackup* -R
+service ovirt-engine restart
+
+---
+
 
 #### Frequently Asked Questions
 
